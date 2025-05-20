@@ -47,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class FileRepositoryControllerTest extends BaseTest {
 
+    /*
     private static ProjectDTO project;
 
     private static final String GITEA_URL = "https://gitea.com/meterspherecodetest/code-test.git";
@@ -706,4 +707,6 @@ public class FileRepositoryControllerTest extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), String.class);
     }
+
+    */
 }

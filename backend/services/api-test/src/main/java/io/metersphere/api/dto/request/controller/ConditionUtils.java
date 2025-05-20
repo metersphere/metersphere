@@ -10,8 +10,10 @@ public class ConditionUtils {
         String wrappedValue = "\"" + value + "\"";
         MsAssertionCondition msAssertionCondition = MsAssertionCondition.valueOf(condition);
         return switch (msAssertionCondition) {
-            case EMPTY -> String.format("(%s==\"\" || %s==%s || empty(%s))", wrappedVariable, wrappedVariable, wrappedVariable, wrappedVariable);
-            case NOT_EMPTY -> String.format("(%s!=\"\" && %s!=%s && !empty(%s))", wrappedVariable, wrappedVariable, wrappedVariable, wrappedVariable);
+            case EMPTY -> String.format("(%s==\"\" || %s==%s || empty(%s))", wrappedVariable, wrappedVariable,
+                    wrappedVariable.replace("$", "\\$"), wrappedVariable);
+            case NOT_EMPTY -> String.format("(%s!=\"\" && %s!=%s && !empty(%s))", wrappedVariable, wrappedVariable,
+                    wrappedVariable.replace("$", "\\$"), wrappedVariable);
             case GT -> variable + ">" + value;
             case LT -> variable + "<" + value;
             case LT_OR_EQUALS -> variable + "<=" + value;
