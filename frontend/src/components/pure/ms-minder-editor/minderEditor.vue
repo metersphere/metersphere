@@ -22,7 +22,7 @@
     <div class="ms-minder-editor-extra" :class="[extraVisible ? 'ms-minder-editor-extra--visible' : '']">
       <div v-if="props.extractContentTabList?.length" class="pl-[16px] pt-[16px]">
         <MsTab
-          v-model:activeKey="activeExtraKey"
+          v-model:active-key="activeExtraKey"
           :content-tab-list="props.extractContentTabList"
           mode="button"
           :disabled="props.disabledExtraTab"

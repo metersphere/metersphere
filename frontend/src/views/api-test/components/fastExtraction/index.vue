@@ -240,19 +240,24 @@
    * @param obj JSON 对象
    */
   function traverseJSONObject(obj: Record<string, any>) {
-    Object.keys(obj).forEach((key) => {
-      const val = obj[key];
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        if (typeof val === 'object' && val !== null) {
-          traverseJSONObject(val);
-        } else if (val.includes('Number(')) {
-          obj[key] = val.replace(/Number\(([^)]+)\)/g, '$1');
-          if (!Number.isNaN(Number(obj[key]))) {
-            obj[key] = Number(obj[key]);
+    try {
+      Object.keys(obj).forEach((key) => {
+        const val = obj[key];
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          if (typeof val === 'object' && val !== null) {
+            traverseJSONObject(val);
+          } else if (val.includes('Number(')) {
+            obj[key] = val.replace(/Number\(([^)]+)\)/g, '$1');
+            if (!Number.isNaN(Number(obj[key]))) {
+              obj[key] = Number(obj[key]);
+            }
           }
         }
-      }
-    });
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(`遍历 JSON 对象异常：${error}`);
+    }
   }
 
   /*
