@@ -123,7 +123,6 @@
 <script lang="ts" setup>
   import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useStorage } from '@vueuse/core';
   import { Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -179,12 +178,6 @@
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
 
-  const loginConfig = useStorage('login-config', {
-    rememberPassword: true,
-    username: '',
-    password: '',
-  });
-
   const userInfo = ref<{
     authenticate: string;
     username: string;
@@ -232,10 +225,6 @@
         setLoginExpires();
         setLongType(userInfo.value.authenticate);
         Message.success(t('login.form.login.success'));
-        const { rememberPassword } = loginConfig.value;
-        const { username, password } = values;
-        loginConfig.value.username = rememberPassword ? username : '';
-        loginConfig.value.password = rememberPassword ? password : '';
         if (
           (!appStore.currentProjectId || appStore.currentProjectId === 'no_such_project') &&
           !router.currentRoute.value.path.startsWith(SettingRouteEnum.SETTING)

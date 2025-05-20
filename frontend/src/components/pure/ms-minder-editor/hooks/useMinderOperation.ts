@@ -33,6 +33,8 @@ export interface MinderOperationProps {
   canShowBatchDelete?: boolean;
 }
 
+let isCopyFinished = true;
+
 export default function useMinderOperation(options: MinderOperationProps) {
   const minderStore = useMinderStore();
   const { t } = useI18n();
@@ -54,6 +56,10 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行复制
    */
   const minderCopy = async (e?: ClipboardEvent) => {
+    if (!isCopyFinished) {
+      return;
+    }
+    isCopyFinished = false;
     const { editor } = window;
     const { minder, fsm } = editor;
     const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
@@ -81,6 +87,9 @@ export default function useMinderOperation(options: MinderOperationProps) {
         minder.execCommand('Copy');
         e?.preventDefault();
         Message.success(t('common.copySuccess'));
+        setTimeout(() => {
+          isCopyFinished = true;
+        }, 0);
         break;
       }
       default:

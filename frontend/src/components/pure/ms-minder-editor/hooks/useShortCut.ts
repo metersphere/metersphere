@@ -147,25 +147,25 @@ export default function useShortCut(shortcuts: Shortcuts, options: MinderOperati
   onMounted(() => {
     const minderContainer = document.querySelector('.ms-minder-container');
     if (minderContainer) {
-      window.addEventListener('keydown', handleShortcutSave);
-      window.addEventListener('keydown', handleShortcutInput);
       minderContainer.addEventListener('keydown', (e) => handleKeyDown(e as KeyboardEvent));
-      window.addEventListener('copy', (e) => minderCopy(e as ClipboardEvent));
-      window.addEventListener('cut', (e) => minderCut(e as ClipboardEvent));
-      window.addEventListener('paste', (e) => minderPaste(e as ClipboardEvent));
     }
+    window.addEventListener('keydown', handleShortcutSave);
+    window.addEventListener('keydown', handleShortcutInput);
+    window.addEventListener('copy', minderCopy);
+    window.addEventListener('cut', minderCut);
+    window.addEventListener('paste', minderPaste);
   });
 
   function unbindShortcuts() {
     const minderContainer = document.querySelector('.ms-minder-container');
     if (minderContainer) {
-      window.removeEventListener('keydown', handleShortcutSave);
-      window.removeEventListener('keydown', handleShortcutInput);
       minderContainer.removeEventListener('keydown', (e) => handleKeyDown(e as KeyboardEvent));
-      window.removeEventListener('copy', (e) => minderCopy(e as ClipboardEvent));
-      window.removeEventListener('cut', (e) => minderCut(e as ClipboardEvent));
-      window.removeEventListener('paste', (e) => minderPaste(e as ClipboardEvent));
     }
+    window.removeEventListener('keydown', handleShortcutSave);
+    window.removeEventListener('keydown', handleShortcutInput);
+    window.removeEventListener('copy', minderCopy);
+    window.removeEventListener('cut', minderCut);
+    window.removeEventListener('paste', minderPaste);
   }
 
   return {
