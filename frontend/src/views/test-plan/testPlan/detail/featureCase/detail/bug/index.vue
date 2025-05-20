@@ -154,7 +154,6 @@
       slotName: 'createUserName',
       dataIndex: 'createUserName',
       showInTable: true,
-      showTooltip: true,
       width: 200,
     },
     {
