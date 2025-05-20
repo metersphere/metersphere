@@ -32,7 +32,7 @@
         :del-confirm="handleDeleteConfirm"
         @afterMount="handleAfterMount"
         @toggleMinderFullScreen="toggleMinderFullScreen"
-        @save="save"
+        @save="(data, callback) => save(callback)"
         ref="minder"
       />
     </div>

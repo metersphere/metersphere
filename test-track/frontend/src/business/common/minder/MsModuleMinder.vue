@@ -1,7 +1,10 @@
 <template>
   <div>
     <div v-loading="loading" :class="[isFullScreen ? 'full-screen' : 'minder']">
-      <ms-full-screen-button :is-full-screen.sync="isFullScreen" @toggleMinderFullScreen="toggleMinderFullScreen"/>
+      <ms-full-screen-button
+        :is-full-screen.sync="isFullScreen"
+        @toggleMinderFullScreen="toggleMinderFullScreen"
+      />
       <minder-editor
         v-if="isActive"
         class="minder-container"
@@ -24,55 +27,52 @@
         :disabled="disabled"
         @save="save"
       />
-      <is-change-confirm
-        @confirm="changeConfirm"
-        ref="isChangeConfirm"/>
+      <is-change-confirm @confirm="changeConfirm" ref="isChangeConfirm" />
     </div>
   </div>
-
 </template>
 
 <script>
-import Vue from "vue"
-import vueMinderEditor from 'vue-minder-editor-plus'
+import Vue from "vue";
+import vueMinderEditor from "vue-minder-editor-plus";
 import i18n from "@/i18n";
 import MsFullScreenButton from "metersphere-frontend/src/components/MsFullScreenButton";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
-import {minderPageInfoMap} from "@/api/testCase";
+import { minderPageInfoMap } from "@/api/testCase";
 import { useStore } from "@/store";
 
 Vue.use(vueMinderEditor, {
-  i18n: (key, value) => i18n.t(key, value)
+  i18n: (key, value) => i18n.t(key, value),
 });
 
 export default {
   name: "MsModuleMinder",
-  components: {IsChangeConfirm, MsFullScreenButton},
+  components: { IsChangeConfirm, MsFullScreenButton },
   props: {
     minderKey: String,
     treeNodes: {
       type: Array,
       default() {
-        return []
-      }
+        return [];
+      },
     },
     tags: {
       type: Array,
       default() {
-        return []
-      }
+        return [];
+      },
     },
     tagEnable: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     distinctTags: {
       type: Array,
       default() {
-        return []
-      }
+        return [];
+      },
     },
     selectNode: {
       type: Object,
@@ -87,49 +87,51 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     moveEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     getExtraNodeCount: {
-      type: Function
+      type: Function,
     },
     delConfirm: {
       type: Function,
-      default: null
+      default: null,
     },
     moveConfirm: {
       type: Function,
-      default: null
-    }
+      default: null,
+    },
   },
   data() {
     return {
       importJson: {
         root: {
           data: {
-            text: this.$t('test_track.review_view.all_case'),
+            text: this.$t("test_track.review_view.all_case"),
             disable: true,
             id: "root",
-            type: 'node',
+            type: "node",
             level: 0,
-            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
+            resource: this.showModuleTag
+              ? [this.$t("test_track.module.module")]
+              : [],
             path: "",
-            tagEnable: this.tagEnable
+            tagEnable: this.tagEnable,
           },
-          children: []
+          children: [],
         },
-        template: 'default'
+        template: "default",
       },
       isActive: true,
       isFullScreen: false,
-      height: '',
+      height: "",
       defaultMode: 3,
       loading: false,
-      tmpNode: {}
-    }
+      tmpNode: {},
+    };
   },
   created() {
     this.height = document.body.clientHeight - 325;
@@ -148,7 +150,7 @@ export default {
     this.setFullScreenLeft();
     this.defaultMode = 3;
     if (this.minderKey) {
-      let model = localStorage.getItem(this.minderKey + 'minderModel');
+      let model = localStorage.getItem(this.minderKey + "minderModel");
       if (model) {
         this.defaultMode = Number.parseInt(model);
       }
@@ -167,7 +169,7 @@ export default {
     },
     getNoCaseModuleIds(ids, nodes) {
       if (nodes) {
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
           if (node.caseNum < 1) {
             ids.push(node.id);
           }
@@ -178,7 +180,7 @@ export default {
       }
     },
     setExtraNodeCount(countMap, nodes) {
-      nodes.forEach(node => {
+      nodes.forEach((node) => {
         if (countMap[node.id]) {
           node.extraNodeCount = countMap[node.id];
         }
@@ -188,20 +190,25 @@ export default {
       });
     },
     setFullScreenLeft() {
-      const root = document.querySelector(':root');
+      const root = document.querySelector(":root");
       // 获取 :root 上 --screen-left 变量的值
-      const left = getComputedStyle(root).getPropertyValue('--screen-left').trim();
+      const left = getComputedStyle(root)
+        .getPropertyValue("--screen-left")
+        .trim();
       // 设置 :root 上 --screen-left 变量的值
-      root.style.setProperty('--screen-left', left === '44px' ? '150px' : '44px');
+      root.style.setProperty(
+        "--screen-left",
+        left === "44px" ? "150px" : "44px"
+      );
     },
     handleMoldChange(index) {
       if (this.minderKey) {
-        localStorage.setItem(this.minderKey + 'minderModel', index);
+        localStorage.setItem(this.minderKey + "minderModel", index);
       }
       this.defaultMode = index;
     },
-    save(data) {
-      this.$emit('save', data)
+    save(data, callback) {
+      this.$emit("save", data, callback);
     },
     parse(root, nodes) {
       this.loading = true;
@@ -215,13 +222,12 @@ export default {
           this.loading = false;
           this.reload();
         } else {
-          this.getExtraNodeCount(noCaseModuleIds)
-            .then((r) => {
-              this.setExtraNodeCount(r.data, nodes);
-              this._parse(root, nodes);
-              this.loading = false;
-              this.reload();
-            });
+          this.getExtraNodeCount(noCaseModuleIds).then((r) => {
+            this.setExtraNodeCount(r.data, nodes);
+            this._parse(root, nodes);
+            this.loading = false;
+            this.reload();
+          });
         }
       } else {
         this._parse(root, nodes);
@@ -234,7 +240,7 @@ export default {
       if (!children) {
         children = [];
       }
-      if (root.data.text === '未规划用例' && root.data.level === 1) {
+      if (root.data.text === "未规划用例" && root.data.level === 1) {
         root.data.disable = true;
       }
       let caseNum = root.data.caseNum;
@@ -247,9 +253,9 @@ export default {
       if (children.length < 1 && (this.ignoreNum || hasChildren)) {
         root.children.push({
           data: {
-            text: '',
-            type: 'tmp',
-            expandState: "collapse"
+            text: "",
+            type: "tmp",
+            expandState: "collapse",
           },
         });
       }
@@ -267,15 +273,17 @@ export default {
             text: item.name,
             id: item.id,
             disable: this.moduleDisable,
-            type: 'node',
+            type: "node",
             level: item.level,
-            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
+            resource: this.showModuleTag
+              ? [this.$t("test_track.module.module")]
+              : [],
             caseNum: item.caseNum,
             extraNodeCount: item.extraNodeCount,
             path: root.data.path + "/" + item.name,
-            expandState: "collapse"
+            expandState: "collapse",
           },
-        }
+        };
         if (this.tagEnable) {
           node.data.tagEnable = this.tagEnable;
         }
@@ -294,7 +302,9 @@ export default {
     },
     changeConfirm(isSave) {
       if (isSave) {
-        this.save(window.minder.exportJson());
+        this.save(window.minder.exportJson(), () => {
+          this._handleNodeSelect(this.tmpNode);
+        });
       } else {
         useStore().isTestCaseMinderChanged = false;
         this._handleNodeSelect(this.tmpNode);
@@ -324,24 +334,26 @@ export default {
             text: nodeData.name,
             id: nodeData.id,
             caseNum: nodeData.caseNum,
-            disable: this.moduleDisable || nodeData.id === 'root',
+            disable: this.moduleDisable || nodeData.id === "root",
             tagEnable: this.tagEnable,
-            type: 'node',
+            type: "node",
             level: nodeData.level,
-            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
+            resource: this.showModuleTag
+              ? [this.$t("test_track.module.module")]
+              : [],
           },
-          children: []
+          children: [],
         },
-        template: "default"
+        template: "default",
       };
       return importJson;
     },
     toggleMinderFullScreen(isFullScreen) {
       this.$emit("toggleMinderFullScreen", isFullScreen);
-      this.$EventBus.$emit('toggleFullScreen', isFullScreen);
-    }
+      this.$EventBus.$emit("toggleFullScreen", isFullScreen);
+    },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -359,7 +371,7 @@ export default {
 }
 
 .minder-container :deep(.save-btn span) {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -370,7 +382,7 @@ export default {
 
 .minder {
   position: relative;
-  top: 35px
+  top: 35px;
 }
 
 .fulls-screen-btn {
@@ -406,7 +418,7 @@ export default {
 
 :deep(.minder-container.km-editor.km-view.focus) {
   min-height: 422px;
-  background: #F5F6F7!important;
+  background: #f5f6f7 !important;
 }
 
 :deep(.menu-container) {
