@@ -4,9 +4,8 @@ import io.metersphere.ai.engine.common.AIChatOptions;
 import io.metersphere.ai.engine.holder.ChatClientHolder;
 import io.metersphere.sdk.util.LogUtils;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.*;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.core.ParameterizedTypeReference;
@@ -57,7 +56,10 @@ public class ChatToolEngine {
         /**
          * 聊天记忆对象，用于存储对话历史记录。
          */
-        private final ChatMemory chatMemory = new InMemoryChatMemory();
+        ChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(new InMemoryChatMemoryRepository())
+                .maxMessages(10)
+                .build();
         /**
          * 聊天客户端实例。
          */
@@ -272,7 +274,7 @@ public class ChatToolEngine {
                 ChatClient.ChatClientRequestSpec request = chatClient.prompt();
 
                 if (chatMemory != null) {
-                    request = request.advisors(new MessageChatMemoryAdvisor(chatMemory));
+                    request = request.advisors(PromptChatMemoryAdvisor.builder(chatMemory).build());
                 }
 
                 if (system != null) {
