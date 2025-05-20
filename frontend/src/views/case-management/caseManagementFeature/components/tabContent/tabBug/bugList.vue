@@ -15,7 +15,7 @@
       </a-tooltip>
     </template>
     <template #createUserName="{ record }">
-      <a-tooltip :content="record.handleUserName">
+      <a-tooltip :content="record.createUserName">
         <div class="one-line-text">{{ record.createUserName || '-' }}</div>
       </a-tooltip>
     </template>
