@@ -2,10 +2,6 @@ package io.metersphere.api;
 
 import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.system.config.MinioProperties;
-import org.springframework.ai.model.openai.autoconfigure.*;
-import org.springframework.ai.model.zhipuai.autoconfigure.ZhiPuAiChatAutoConfiguration;
-import org.springframework.ai.model.zhipuai.autoconfigure.ZhiPuAiEmbeddingAutoConfiguration;
-import org.springframework.ai.model.zhipuai.autoconfigure.ZhiPuAiImageAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
@@ -19,16 +15,6 @@ import org.springframework.context.annotation.ComponentScan;
         QuartzAutoConfiguration.class,
         LdapAutoConfiguration.class,
         Neo4jAutoConfiguration.class,
-        OpenAiModerationAutoConfiguration.class,
-        OpenAiImageAutoConfiguration.class,
-        OpenAiEmbeddingAutoConfiguration.class,
-        OpenAiAudioSpeechAutoConfiguration.class,
-        OpenAiAudioTranscriptionAutoConfiguration.class,
-        OpenAiChatAutoConfiguration.class,
-        ZhiPuAiChatAutoConfiguration.class,
-        ZhiPuAiEmbeddingAutoConfiguration.class,
-        ZhiPuAiImageAutoConfiguration.class,
-
 })
 @EnableConfigurationProperties({
         MinioProperties.class,

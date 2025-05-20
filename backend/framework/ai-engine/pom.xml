@@ -22,12 +22,17 @@
         <!-- Spring ai 相关 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-openai</artifactId>
+            <artifactId>spring-ai-client-chat</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-zhipuai</artifactId>
+            <artifactId>spring-ai-openai</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-zhipuai</artifactId>
         </dependency>
 
         <!-- 文档处理 -->
