@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup",
+      "type": "shell",
+      "command": "node .github/setup.js",
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}
