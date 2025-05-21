@@ -100,8 +100,8 @@
           activeTab === RequestComposition.REST
         "
         :id="mockDetail.id"
-        v-model:matchAll="currentMatchAll"
-        v-model:matchRules="currentMatchRules"
+        v-model:match-all="currentMatchAll"
+        v-model:match-rules="currentMatchRules"
         :key-options="currentKeyOptions"
         :disabled="isReadOnly"
         :form-key="activeTab"
@@ -129,16 +129,16 @@
         <mockMatchRuleForm
           v-else-if="mockDetail.mockMatchRule.body.bodyType === RequestBodyFormat.FORM_DATA"
           :id="mockDetail.id"
-          v-model:matchAll="mockDetail.mockMatchRule.body.formDataBody.matchAll"
-          v-model:matchRules="mockDetail.mockMatchRule.body.formDataBody.matchRules"
+          v-model:match-all="mockDetail.mockMatchRule.body.formDataBody.matchAll"
+          v-model:match-rules="mockDetail.mockMatchRule.body.formDataBody.matchRules"
           :key-options="currentBodyKeyOptions"
           :disabled="isReadOnly"
         />
         <mockMatchRuleForm
           v-else-if="mockDetail.mockMatchRule.body.bodyType === RequestBodyFormat.WWW_FORM"
           :id="mockDetail.id"
-          v-model:matchAll="mockDetail.mockMatchRule.body.wwwFormBody.matchAll"
-          v-model:matchRules="mockDetail.mockMatchRule.body.wwwFormBody.matchRules"
+          v-model:match-all="mockDetail.mockMatchRule.body.wwwFormBody.matchAll"
+          v-model:match-rules="mockDetail.mockMatchRule.body.wwwFormBody.matchRules"
           :key-options="currentBodyKeyOptions"
           :disabled="isReadOnly"
         />
@@ -694,6 +694,19 @@
             uploadFileIds: parseFileResult.uploadFileIds,
             linkFileIds: parseFileResult.linkFileIds,
           };
+
+          // 特别处理 jsonSchemaTableData 中的循环引用
+          if (params.mockMatchRule?.body?.jsonBody?.jsonSchemaTableData) {
+            params.mockMatchRule.body.jsonBody.jsonSchemaTableData =
+              params.mockMatchRule.body.jsonBody.jsonSchemaTableData.map((item) => {
+                const { parent: _, ...rest } = item;
+                return {
+                  ...rest,
+                  children: rest.children?.map(({ parent: __, ...childRest }) => childRest),
+                };
+              });
+          }
+
           if (isEdit.value) {
             await updateMock({
               id: mockDetail.value.id || '',
