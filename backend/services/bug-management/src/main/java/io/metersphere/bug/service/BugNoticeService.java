@@ -103,6 +103,9 @@ public class BugNoticeService {
     @SuppressWarnings("unused")
     public List<BugNoticeDTO> getBatchNoticeByRequest(BugBatchRequest request) {
         List<String> batchIds = bugService.getBatchIdsByRequest(request);
+        if (CollectionUtils.isEmpty(batchIds)) {
+            return null;
+        }
         return getNoticeByIds(batchIds);
     }
 

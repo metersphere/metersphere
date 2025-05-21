@@ -169,7 +169,11 @@ public class BugLogService {
      * @return 日志
      */
     public List<LogDTO> batchDeleteTrashLog(BugBatchRequest request) {
+        request.setUseTrash(true);
         List<String> batchIds = bugService.getBatchIdsByRequest(request);
+        if (CollectionUtils.isEmpty(batchIds)) {
+            return null;
+        }
         BugExample example = new BugExample();
         example.createCriteria().andIdIn(batchIds);
         List<Bug> bugs = bugMapper.selectByExample(example);
