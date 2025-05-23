@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
-            <version>4.2.0</version>
+            <version>4.2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
