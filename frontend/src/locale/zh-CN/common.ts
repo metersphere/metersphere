@@ -223,4 +223,5 @@ export default {
   'common.batchUpdate': '更新为',
   'common.checkDetail': '查看详情',
   'common.operator': '操作人',
+  'common.notNull': '{value}不能为空',
 };

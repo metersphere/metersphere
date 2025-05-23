@@ -17,6 +17,7 @@
         field="name"
         :label="t('caseManagement.featureCase.planName')"
         :rules="[{ required: true, message: t('testPlan.planForm.nameRequired') }]"
+        asterisk-position="end"
         class="w-[732px]"
       >
         <a-input v-model="form.name" :max-length="255" :placeholder="t('testPlan.planForm.namePlaceholder')" />
@@ -39,6 +40,7 @@
         :rules="[{ required: true, message: t('testPlan.planForm.testPlanGroupRequired') }]"
         :label="t('testPlan.testPlanIndex.testPlanGroup')"
         class="w-[436px]"
+        asterisk-position="end"
       >
         <a-select v-model="form.groupId" allow-search :placeholder="t('common.pleaseSelect')">
           <a-option v-for="item of groupList" :key="item.id" :value="item.id">
@@ -108,6 +110,7 @@
             field="passThreshold"
             :label="t('testPlan.planForm.passThreshold')"
             :rules="[{ required: true, message: t('testPlan.planForm.passThresholdRequired') }]"
+            asterisk-position="end"
           >
             <a-input-number
               v-model:model-value="form.passThreshold"

@@ -223,4 +223,5 @@ export default {
   'common.batchUpdate': 'Updated to',
   'common.checkDetail': 'View details',
   'common.operator': 'Operator',
+  'common.notNull': '{value} cannot be empty',
 };

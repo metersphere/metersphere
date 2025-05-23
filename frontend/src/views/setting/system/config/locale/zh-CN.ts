@@ -215,4 +215,67 @@ export default {
   'system.config.qrCodeConfig.appSecret.required': '应用密钥不能为空',
   'system.config.qrCodeConfig.callBack.required': '回调域名不能为空',
   'system.config.fileLimit': '文件大小限制',
+  'system.config.modelConfig.modelConfigSet': '模型设置',
+  'system.config.modelConfig.suppliers': '供应商',
+  'system.config.modelConfig.bySearchModelName': '通过模型名称搜索',
+  'system.config.modelConfig.modelCreateUser': '创作者',
+  'system.config.modelConfig.modelType': '模型类型',
+  'system.config.modelConfig.baseModel': '基础模型',
+  'system.config.modelConfig.addModel': '添加模型',
+  'system.config.modelConfig.editModel': '更新模型',
+  'system.config.modelConfig.baseInfo': '基础信息',
+  'system.config.modelConfig.modelName': '模型名称',
+  'system.config.modelConfig.modelNamePlaceholder': '请输入模型名称',
+  'system.config.modelConfig.baseModelPlaceholder': '基础模型名称，也可回车新建',
+  'system.config.modelConfig.modelNameTooltip': 'MeterSphere 中自定义的模型名称',
+  'system.config.modelConfig.apiHostName': 'API 域名',
+  'system.config.modelConfig.apiHostNamePlaceholder': '请输入 API 域名',
+  'system.config.modelConfig.apiKey': 'Api Key',
+  'system.config.modelConfig.apiKeyPlaceholder': '请输入 Api Key',
+  'system.config.modelConfig.advancedSettings': '高级设置',
+  'system.config.modelConfig.zhiPuAi': '智谱 AI',
+  'system.config.modelConfig.params': '参数',
+  'system.config.modelConfig.displayName': '显示名称',
+  'system.config.modelConfig.defaultValue': '默认值',
+  'system.config.modelConfig.inputBaseInfoTip': '请先填写基础信息',
+  'system.config.modelConfig.largeLanguageModel': '大语言模型',
+  'system.config.modelConfig.deepSeekChatTooltip': '擅长通用对话任务，支持 32K 上下文',
+  'system.config.modelConfig.zhiPuAiGlm4PlusTooltip':
+    '高智能旗舰: 性能全面提升，长文本和复杂任务能力显著增强  支持上下文 128000 tokens',
+  'system.config.modelConfig.zhiPuAiGlm4Air250414Tooltip':
+    '高性价比：推理能力和价格之间最平衡的模型 支持上下文 128000 tokens',
+  'system.config.modelConfig.zhiPuAiGlm4LongTooltip':
+    '超长输入：专为处理超长文本和记忆型任务设计 支持上下文 1MB tokens',
+  'system.config.modelConfig.zhiPuAiGlm4AirxTooltip':
+    '极速推理：具有超快的推理速度和强大的推理效果 支持上下文 8000 tokens',
+  'system.config.modelConfig.zhiPuAiGlm4FlashxTooltip':
+    '高速低价：Flash增强版本，超快推理速度，更快并发保障  支持上下文 128000 tokens',
+  'system.config.modelConfig.zhiPuAiGlm4Flash250414Tooltip': '免费模型：零成本调用语言模型。支持上下文 128000 tokens',
+  'system.config.modelConfig.zhiPuAiGlm4vPlus0111Tooltip': '免费模型：零成本调用语言模型。支持上下文 128000 tokens',
+  'system.config.modelConfig.openaiGpt35TurboTooltip': '最新的 gpt-3.5-turbo，随 OpenAI 调整而更新',
+  'system.config.modelConfig.openaiGpt35Turbo0125Tooltip':
+    '2024 年 1 月 25 日的 gpt-3.5-turbo 快照，支持上下文长度 16,385 tokens',
+  'system.config.modelConfig.openaiGpt35Turbo1106Tooltip':
+    '2023 年 11 月 6 日的 gpt-3.5-turbo 快照，支持上下文长度 16,385 tokens',
+  'system.config.modelConfig.openaiGpt35Turbo0613Tooltip':
+    '2023 年 6 月 13 日的 gpt-3.5-turbo 快照，支持上下文长度 16,385 tokens，将于 2024 年 6 月 13 日弃用',
+
+  'system.config.modelConfig.openaiGpt4Tooltip': '最新的 gpt-4，随 OpenAI 调整而更新',
+  'system.config.modelConfig.openaiGpt4TurboTooltip': '最新的 gpt-4-turbo，随 OpenAI 调整而更新',
+  'system.config.modelConfig.openaiGpt4oMiniTooltip':
+    '最新的 gpt-4o-mini，比 gpt-4o 更便宜、更快，随 OpenAI 调整而更新',
+  'system.config.modelConfig.openaiGpt4TurboPreviewTooltip': '最新的 gpt-4-turbo-preview，随 OpenAI 调整而更新',
+
+  'system.config.modelConfig.openaiGpt4o20240513Tooltip':
+    '2024 年 5 月 13 日的 gpt-4o 快照，支持上下文长度 128,000 tokens',
+  'system.config.modelConfig.openaiGpt4Turbo20240409Tooltip':
+    '2024 年 4 月 9 日的 gpt-4-turbo 快照，支持上下文长度 128,000 tokens',
+  'system.config.modelConfig.openaiGpt40125PreviewTooltip':
+    '2024 年 1 月 25 日的 gpt-4-turbo 快照，支持上下文长度 128,000 tokens',
+  'system.config.modelConfig.openaiGpt41106PreviewTooltip':
+    '2023 年 11 月 6 日的 gpt-4-turbo 快照，支持上下文长度 128,000 tokens',
+  'system.config.modelConfig.maxTokens': '输出最大Token数',
+  'system.config.modelConfig.frequencyPenalty': '频率惩罚',
+  'system.config.modelConfig.temperature': '采样温度',
+  'system.config.modelConfig.topP': '核取样',
 };

@@ -223,4 +223,67 @@ export default {
   'system.config.qrCodeConfig.appSecret.required': 'App Secret is empty',
   'system.config.qrCodeConfig.callBack.required': 'CallBack is empty',
   'system.config.fileLimit': 'File size limit',
+  'system.config.modelConfig.modelConfigSet': 'Model settings',
+  'system.config.modelConfig.suppliers': 'Suppliers',
+  'system.config.modelConfig.bySearchModelName': 'Search by model name',
+  'system.config.modelConfig.modelCreateUser': 'Creator',
+  'system.config.modelConfig.modelType': 'Model type',
+  'system.config.modelConfig.baseModel': 'Base model',
+  'system.config.modelConfig.addModel': 'Add model',
+  'system.config.modelConfig.editModel': 'Update model',
+  'system.config.modelConfig.baseInfo': 'Basic information',
+  'system.config.modelConfig.modelName': 'Model name',
+  'system.config.modelConfig.modelNamePlaceholder': 'Please enter the model name',
+  'system.config.modelConfig.baseModelPlaceholder': 'Base model name, press Enter to create new',
+  'system.config.modelConfig.modelNameTooltip': 'Custom model name in MeterSphere',
+  'system.config.modelConfig.apiHostName': 'API domain',
+  'system.config.modelConfig.apiHostNamePlaceholder': 'Please enter API domain',
+  'system.config.modelConfig.apiKey': 'Api key',
+  'system.config.modelConfig.apiKeyPlaceholder': 'Please enter Api key',
+  'system.config.modelConfig.advancedSettings': 'Advanced settings',
+  'system.config.modelConfig.zhiPuAi': 'Zhipu AI',
+  'system.config.modelConfig.params': 'Parameters',
+  'system.config.modelConfig.displayName': 'Display name',
+  'system.config.modelConfig.defaultValue': 'Default value',
+  'system.config.modelConfig.inputBaseInfoTip': 'Please fill in basic information first',
+  'system.config.modelConfig.largeLanguageModel': 'Large language model',
+  'system.config.modelConfig.deepSeekChatTooltip': 'Good at general conversation tasks, supports 32K context',
+  'system.config.modelConfig.zhiPuAiGlm4PlusTooltip':
+    'High-intelligence flagship: Significant performance improvements in long text and complex tasks. Supports 128,000 tokens context',
+  'system.config.modelConfig.zhiPuAiGlm4Air250414Tooltip':
+    'High cost-performance: Best balance between inference ability and price. Supports 128,000 tokens context',
+  'system.config.modelConfig.zhiPuAiGlm4LongTooltip':
+    'Ultra-long input: Designed for processing long text and memory-based tasks. Supports 1MB tokens context',
+  'system.config.modelConfig.zhiPuAiGlm4AirxTooltip':
+    'Ultra-fast inference: Extremely fast inference speed with powerful results. Supports 8,000 tokens context',
+  'system.config.modelConfig.zhiPuAiGlm4FlashxTooltip':
+    'High speed and low cost: Flash-enhanced version with faster inference and better concurrency. Supports 128,000 tokens context',
+  'system.config.modelConfig.zhiPuAiGlm4Flash250414Tooltip':
+    'Free model: Zero-cost language model call. Supports 128,000 tokens context',
+  'system.config.modelConfig.zhiPuAiGlm4vPlus0111Tooltip':
+    'Free model: Zero-cost language model call. Supports 128,000 tokens context',
+  'system.config.modelConfig.openaiGpt35TurboTooltip': 'Latest gpt-3.5-turbo, updated with OpenAI changes',
+  'system.config.modelConfig.openaiGpt35Turbo0125Tooltip':
+    'Snapshot of gpt-3.5-turbo on January 25, 2024. Supports 16,385 tokens context',
+  'system.config.modelConfig.openaiGpt35Turbo1106Tooltip':
+    'Snapshot of gpt-3.5-turbo on November 6, 2023. Supports 16,385 tokens context',
+  'system.config.modelConfig.openaiGpt35Turbo0613Tooltip':
+    'Snapshot of gpt-3.5-turbo on June 13, 2023. Supports 16,385 tokens context, will be deprecated on June 13, 2024',
+  'system.config.modelConfig.openaiGpt4Tooltip': 'Latest gpt-4, updated with OpenAI changes',
+  'system.config.modelConfig.openaiGpt4TurboTooltip': 'Latest gpt-4-turbo, updated with OpenAI changes',
+  'system.config.modelConfig.openaiGpt4oMiniTooltip':
+    'Latest gpt-4o-mini, cheaper and faster than gpt-4o, updated with OpenAI changes',
+  'system.config.modelConfig.openaiGpt4TurboPreviewTooltip': 'Latest gpt-4-turbo-preview, updated with OpenAI changes',
+  'system.config.modelConfig.openaiGpt4o20240513Tooltip':
+    'Snapshot of gpt-4o on May 13, 2024. Supports 128,000 tokens context',
+  'system.config.modelConfig.openaiGpt4Turbo20240409Tooltip':
+    'Snapshot of gpt-4-turbo on April 9, 2024. Supports 128,000 tokens context',
+  'system.config.modelConfig.openaiGpt40125PreviewTooltip':
+    'Snapshot of gpt-4-turbo on January 25, 2024. Supports 128,000 tokens context',
+  'system.config.modelConfig.openaiGpt41106PreviewTooltip':
+    'Snapshot of gpt-4-turbo on November 6, 2023. Supports 128,000 tokens context',
+  'system.config.modelConfig.maxTokens': 'Max tokens for output',
+  'system.config.modelConfig.frequencyPenalty': 'Frequency penalty',
+  'system.config.modelConfig.temperature': 'Sampling temperature',
+  'system.config.modelConfig.topP': 'Top-p sampling',
 };
