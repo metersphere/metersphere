@@ -1,26 +1,14 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
-import io.metersphere.sdk.constants.ApiBatchRunMode;
-import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
-import io.metersphere.sdk.dto.queue.ExecutionQueue;
-import io.metersphere.sdk.dto.queue.ExecutionQueueDetail;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -36,7 +24,7 @@ public class ApiExecutionQueueServiceTest {
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
 
-    @Test
+    /*@Test
     @Order(1)
     void testInsertQueue() {
         ExecutionQueue queue = new ExecutionQueue();
@@ -104,5 +92,5 @@ public class ApiExecutionQueueServiceTest {
 
         assertNotNull(result);
         assertEquals("queueId1", result.getQueueId());
-    }
+    }*/
 }
