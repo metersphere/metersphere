@@ -37,7 +37,7 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 -   技术交流群
      
 
-![image](https://github.com/user-attachments/assets/47dd1cad-b2d4-43e6-aa8e-6746533560fc)
+![image](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-helper.png)
 
 
 ## UI 展示
