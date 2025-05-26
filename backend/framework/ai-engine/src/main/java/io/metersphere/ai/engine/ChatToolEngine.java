@@ -144,6 +144,19 @@ public class ChatToolEngine {
                     .content();
         }
 
+
+        /**
+         * 执行聊天请求，并以字符串形式返回响应内容。
+         *
+         * @return 聊天响应内容
+         */
+        public <T> T execute(Class<T> entityClass) {
+            LogUtils.info("Processing chat request for messages: {}", chatMemory);
+            return buildRequest()
+                    .call()
+                    .entity(entityClass);
+        }
+
         /**
          * 执行聊天请求，返回 {@link ChatResponse} 对象，
          * 包含详细的响应信息和元数据。
