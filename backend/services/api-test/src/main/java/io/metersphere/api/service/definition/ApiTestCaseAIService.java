@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,14 +36,14 @@ public class ApiTestCaseAIService {
                 JSON.toJSONString(BeanUtils.copyBean(new ApiAIResponse(), msTestElement));
         return chatToolEnginBuilder(request)
                 .prompt(prompt)
-                .execute(List.class);
+                .executeStructured(new ParameterizedTypeReference<>() {});
     }
 
     public Object chat(ApiTestCaseAIRequest request) {
         String prompt = "下面一段话中是否需要生成用例？需要生成几条用例？\n" + request.getPrompt();
         ApiGenerateInfo apiGenerateInfo = chatToolEnginBuilder(request)
                 .prompt(prompt)
-                .execute(ApiGenerateInfo.class);
+                .executeStructured(ApiGenerateInfo.class);
 
         if (BooleanUtils.isTrue(apiGenerateInfo.getGenerateCase())) {
             // 判断对话是否是需要生成用例

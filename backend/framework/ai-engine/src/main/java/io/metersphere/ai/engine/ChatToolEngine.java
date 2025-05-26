@@ -146,18 +146,6 @@ public class ChatToolEngine {
 
 
         /**
-         * 执行聊天请求，并以字符串形式返回响应内容。
-         *
-         * @return 聊天响应内容
-         */
-        public <T> T execute(Class<T> entityClass) {
-            LogUtils.info("Processing chat request for messages: {}", chatMemory);
-            return buildRequest()
-                    .call()
-                    .entity(entityClass);
-        }
-
-        /**
          * 执行聊天请求，返回 {@link ChatResponse} 对象，
          * 包含详细的响应信息和元数据。
          *
@@ -180,6 +168,20 @@ public class ChatToolEngine {
             return buildRequest()
                     .stream()
                     .content();
+        }
+
+        /**
+         * 执行结构化聊天请求，并将响应转换为指定的数据结构。
+         *
+         * @param clazz        期望的响应数据类型
+         * @param <T>          响应数据的泛型类型
+         * @return 结构化的聊天响应
+         */
+        public <T> T executeStructured(Class<T> clazz) {
+            LogUtils.info("Processing structured chat request for messages: {}", prompt);
+            return buildRequest()
+                    .call()
+                    .entity(clazz);
         }
 
         /**
