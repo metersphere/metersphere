@@ -8,6 +8,7 @@ export default {
   'settings.menuWidth': 'Menu Width (px)',
   'settings.navbar.screen.toFull': 'Click to switch to full screen mode',
   'settings.navbar.screen.toExit': 'Click to exit the full screen mode',
+  'settings.navbar.ai': 'AI Generation',
   'settings.navbar.alerts': 'Alerts',
   'settings.navbar.search': 'Search',
   'settings.navbar.task': 'Task center',

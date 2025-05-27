@@ -103,6 +103,7 @@ module.exports = {
             'vue-draggable-plus',
             'jsonpath-plus',
             'lossless-json',
+            'vue-element-plus-x',
           ], // node依赖
           ['.*/assets/.*', '^@/assets$'], // 项目静态资源
           ['^@/components/pure/.*', '^@/components/business/.*', '.*\\.vue$'], // 组件

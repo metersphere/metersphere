@@ -70,7 +70,7 @@
     }
   }
   .ms-button--default {
-    color: var(--color-text-1);
+    color: var(--color-text-1) !important;
     &:not(.ms-button-text, .ms-button--disabled):hover {
       background-color: var(--color-text-n8);
     }

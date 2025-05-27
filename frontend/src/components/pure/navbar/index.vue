@@ -55,6 +55,15 @@
       <TopMenu />
     </div>
     <ul v-if="!props.isPreview && !props.hideRight" class="right-side">
+      <li>
+        <a-tooltip :content="t('settings.navbar.ai')" position="br">
+          <a-button type="secondary" @click="openAI">
+            <template #icon>
+              <svg-icon width="18px" height="18px" name="ai" />
+            </template>
+          </a-button>
+        </a-tooltip>
+      </li>
       <!-- <li>
         <a-tooltip :content="t('settings.navbar.search')">
           <a-button type="secondary">
@@ -179,6 +188,7 @@
       </li>
     </ul>
   </div>
+  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="chat" />
   <TaskCenterDrawer v-if="taskCenterVisible" v-model:visible="taskCenterVisible" />
   <MessageCenterDrawer v-if="messageCenterVisible" v-model:visible="messageCenterVisible" />
   <AddProjectModal :visible="projectVisible" @cancel="projectVisible = false" />
@@ -217,6 +227,7 @@
   const MessageCenterDrawer = defineAsyncComponent(
     () => import('@/components/business/ms-message/MessageCenterDrawer.vue')
   );
+  const MsAIDrawer = defineAsyncComponent(() => import('@/components/business/ms-ai-drawer/index.vue'));
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -322,6 +333,11 @@
 
   function goMessageCenter() {
     messageCenterVisible.value = true;
+  }
+
+  const aiDrawerVisible = ref<boolean>(false);
+  function openAI() {
+    aiDrawerVisible.value = true;
   }
 
   const isSun = ref(!appStore.isDarkTheme);

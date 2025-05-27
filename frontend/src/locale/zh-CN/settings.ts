@@ -8,6 +8,7 @@ export default {
   'settings.menuWidth': '菜单宽度 (px)',
   'settings.navbar.screen.toFull': '点击切换全屏模式',
   'settings.navbar.screen.toExit': '点击退出全屏模式',
+  'settings.navbar.ai': 'AI 生成',
   'settings.navbar.alerts': '消息通知',
   'settings.navbar.search': '搜索',
   'settings.navbar.task': '任务中心',

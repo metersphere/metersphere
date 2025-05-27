@@ -26,6 +26,7 @@
           {{ item.label }}
         </div>
       </template>
+      <slot :name="item.value"></slot>
     </a-tab-pane>
   </a-tabs>
   <div v-else class="ms-tab--button">
