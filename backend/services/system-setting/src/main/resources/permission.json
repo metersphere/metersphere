@@ -176,6 +176,16 @@
             "id": "SYSTEM_PARAMETER_SETTING_QRCODE:READ+UPDATE",
             "name": "permission.system_parameter_setting_qrcode.update",
             "license": true
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_AI_MODEL:READ",
+            "name": "permission.system_parameter_setting_ai_model.read",
+            "license": true
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE",
+            "name": "permission.system_parameter_setting_ai_model.update",
+            "license": true
           }
         ]
       },
