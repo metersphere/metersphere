@@ -6,8 +6,10 @@ import io.metersphere.ai.engine.common.AIModelParamType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.ModelSource;
+import io.metersphere.system.domain.ModelSourceExample;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
 import io.metersphere.system.dto.request.ai.ModelSourceDTO;
 import io.metersphere.system.dto.request.ai.ModelSourceRequest;
@@ -44,10 +46,18 @@ public class SystemAIConfigService {
      */
     public void editModuleConfig(ModelSourceDTO modelSourceDTO, String userId) {
         String id = IDGenerator.nextStr();
+        //根据是否有id,判断新增还是编辑，并且检查模型源名称是否重复
+        ModelSourceExample modelSourceExample = new ModelSourceExample();
+        modelSourceExample.createCriteria().andNameEqualTo(modelSourceDTO.getName());
         boolean add = true;
         if (StringUtils.isNotBlank(modelSourceDTO.getId())) {
             id = modelSourceDTO.getId();
             add = false;
+            modelSourceExample.createCriteria().andIdNotEqualTo(id);
+        }
+        long sameNameCount = modelSourceMapper.countByExample(modelSourceExample);
+        if (sameNameCount>0) {
+            throw new MSException(Translator.get("system_model_name_exist"));
         }
         ModelSource modelSource = new ModelSource();
         buildModelSource(modelSourceDTO, userId, modelSource, id);
@@ -136,7 +146,7 @@ public class SystemAIConfigService {
     }
 
     /**
-     * 设置默认高级参数配置
+     * 设置默认高级参数配置, 类型固定，防止前端传入错误的参数类型
      * @return Map<String, AdvSettingDTO>
      */
     private static Map<String, AdvSettingDTO> getDefaultAdvSettingDTOMap() {
@@ -152,7 +162,7 @@ public class SystemAIConfigService {
         return advSettingDTOMap;
     }
 
-    /** * 检查高级参数默认值
+    /** 检查高级参数默认值，如果没有配置，则设置为默认值
      *
      * @param advSetting 高级参数配置数据传输对象
      */
@@ -198,7 +208,7 @@ public class SystemAIConfigService {
                 .prompt("How are you?")
                 .execute();
         if (StringUtils.isBlank(response)) {
-            throw new MSException("模型连接失败，请检查配置");
+            throw new MSException(Translator.get("system_model_test_link_error"));
         }
     }
 
@@ -249,10 +259,14 @@ public class SystemAIConfigService {
      * @param id 模型源ID
      * @return 模型源数据传输对象
      */
-    public ModelSourceDTO getModelSourceDTO(String id) {
+    public ModelSourceDTO getModelSourceDTO(String id, String userId) {
         ModelSource modelSource = modelSourceMapper.selectByPrimaryKey(id);
         if (modelSource == null) {
-            throw new MSException("模型信息不存在");
+            throw new MSException(Translator.get("system_model_not_exist"));
+        }
+        //检查个人模型查看权限
+        if (StringUtils.isNotBlank(userId) && !StringUtils.equalsIgnoreCase(modelSource.getOwner(),userId)) {
+            throw new MSException(Translator.get("system_model_not_exist"));
         }
         return getModelSourceDTO(modelSource);
     }

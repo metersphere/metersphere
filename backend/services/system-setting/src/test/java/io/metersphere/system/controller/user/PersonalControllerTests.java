@@ -1,19 +1,27 @@
 package io.metersphere.system.controller.user;
 
+import io.metersphere.ai.engine.common.AIModelParamType;
+import io.metersphere.ai.engine.common.AIModelType;
 import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.ModelSource;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.domain.UserExtendExample;
+import io.metersphere.system.dto.request.ai.AdvSettingDTO;
+import io.metersphere.system.dto.request.ai.ModelSourceDTO;
+import io.metersphere.system.dto.request.ai.ModelSourceRequest;
 import io.metersphere.system.dto.request.user.PersonalLocaleRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.ModelSourceMapper;
 import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.SimpleUserService;
@@ -27,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,6 +50,8 @@ public class PersonalControllerTests extends BaseTest {
     private UserMapper userMapper;
     @Resource
     private SimpleUserService simpleUserService;
+    @Resource
+    private ModelSourceMapper modelSourceMapper;
 
     @Test
     @Order(0)
@@ -270,6 +281,80 @@ public class PersonalControllerTests extends BaseTest {
         Assertions.assertEquals(userMapper.countByExample(example), 1);
 
         this.checkLog(loginUser, OperationLogType.UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD);
+    }
+
+    @Test
+    @Order(4)
+    public void testEdit() throws Exception {
+        ModelSourceDTO modelSourceDTO = new ModelSourceDTO();
+        modelSourceDTO.setName("测试模型");
+        modelSourceDTO.setType("LLM");
+        modelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        modelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
+        modelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
+        modelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
+        modelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        modelSourceDTO.setApiUrl("https://api.siliconflow.cn");
+        modelSourceDTO.setAppKey("sk-ryyuiioommnn");
+        AdvSettingDTO advSettingDTO = new AdvSettingDTO();
+        advSettingDTO.setParams(AIModelParamType.TEMPERATURE);
+        advSettingDTO.setName("温度");
+        advSettingDTO.setDefaultValue(0.7);
+        advSettingDTO.setEnable(false);
+        List<AdvSettingDTO> list = new ArrayList<>();
+        list.add(advSettingDTO);
+        modelSourceDTO.setAdvSettingDTOList(list);
+        this.requestPost(PersonalRequestUtils.URL_PERSONAL_MODEL_EDIT_MODEL, modelSourceDTO).andExpect(status().is5xxServerError());
+
+    }
+
+    @Test
+    @Order(5)
+    public void testList() throws Exception {
+        ModelSourceRequest request = new ModelSourceRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setOwner("admin");
+        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_MODEL_LIST, request);
+
+    }
+    @Test
+    @Order(6)
+    public void testDetail() throws Exception {
+        this.requestGet(PersonalRequestUtils.URL_PERSONAL_MODEL_DETAIL+"1").andExpect(status().is5xxServerError());
+        String id = saveModel("个人测试模型1", "admin");
+        this.requestGetWithOk(PersonalRequestUtils.URL_PERSONAL_MODEL_DETAIL+id);
+        String id2 = saveModel("个人测试模型2", "admin2");
+        this.requestGet(PersonalRequestUtils.URL_PERSONAL_MODEL_DETAIL+id2).andExpect(status().is5xxServerError());
+
+
+    }
+
+    private String saveModel(String name, String userId){
+        String id = IDGenerator.nextStr();
+        ModelSource modelSource = new ModelSource();
+        modelSource.setId(id);
+        modelSource.setType("LLM");
+        modelSource.setName(name);
+        modelSource.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        modelSource.setProviderName(AIModelType.DEEP_SEEK);
+        modelSource.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
+        modelSource.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
+        modelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        modelSource.setApiUrl("https://api.siliconflow.cn");
+        modelSource.setAppKey("sk-rtgghhjkkll");
+        modelSource.setStatus(false);
+        modelSource.setOwner(userId);
+        AdvSettingDTO advSettingDTO = new AdvSettingDTO();
+        advSettingDTO.setParams(AIModelParamType.TEMPERATURE);
+        advSettingDTO.setName("温度");
+        advSettingDTO.setDefaultValue(0.7);
+        advSettingDTO.setEnable(false);
+        List<AdvSettingDTO> list = new ArrayList<>();
+        list.add(advSettingDTO);
+        modelSource.setAdvSettings(JSON.toJSONString(advSettingDTO));
+        modelSourceMapper.insert(modelSource);
+        return id;
     }
 
 }

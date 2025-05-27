@@ -45,7 +45,7 @@ public class SystemAIConfigController {
     @Operation(summary = "获取模型信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_READ)
     public ModelSourceDTO getModelInformation(@PathVariable String id) {
-        return systemAIConfigService.getModelSourceDTO(id);
+        return systemAIConfigService.getModelSourceDTO(id, null);
     }
 
 }
