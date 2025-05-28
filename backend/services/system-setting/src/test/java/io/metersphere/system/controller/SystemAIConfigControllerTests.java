@@ -60,9 +60,9 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         modelSource.setStatus(false);
         modelSource.setOwner(DEFAULT_ORGANIZATION_ID);
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
-        advSettingDTO.setParams(AIModelParamType.TEMPERATURE);
-        advSettingDTO.setName("温度");
-        advSettingDTO.setDefaultValue(0.7);
+        advSettingDTO.setName(AIModelParamType.TEMPERATURE);
+        advSettingDTO.setLabel("温度");
+        advSettingDTO.setValue(0.7);
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
@@ -87,9 +87,9 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         modelSourceDTO.setApiUrl("https://api.siliconflow.cn");
         modelSourceDTO.setAppKey("sk-");
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
-        advSettingDTO.setParams(AIModelParamType.TEMPERATURE);
-        advSettingDTO.setName("温度");
-        advSettingDTO.setDefaultValue(0.7);
+        advSettingDTO.setName(AIModelParamType.TEMPERATURE);
+        advSettingDTO.setLabel("温度");
+        advSettingDTO.setValue(0.7);
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);

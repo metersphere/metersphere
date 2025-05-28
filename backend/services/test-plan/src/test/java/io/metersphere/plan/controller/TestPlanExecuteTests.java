@@ -441,6 +441,7 @@ public class TestPlanExecuteTests extends BaseTest {
         functionalCase.setDeleted(false);
         functionalCase.setPublicCase(false);
         functionalCase.setLatest(true);
+        functionalCase.setAiCreate(false);
         functionalCase.setCreateUser("admin");
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateTime(System.currentTimeMillis());

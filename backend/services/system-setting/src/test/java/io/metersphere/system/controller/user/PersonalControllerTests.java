@@ -297,9 +297,9 @@ public class PersonalControllerTests extends BaseTest {
         modelSourceDTO.setApiUrl("https://api.siliconflow.cn");
         modelSourceDTO.setAppKey("sk-ryyuiioommnn");
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
-        advSettingDTO.setParams(AIModelParamType.TEMPERATURE);
-        advSettingDTO.setName("温度");
-        advSettingDTO.setDefaultValue(0.7);
+        advSettingDTO.setName(AIModelParamType.TEMPERATURE);
+        advSettingDTO.setLabel("温度");
+        advSettingDTO.setValue(0.7);
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
@@ -346,9 +346,9 @@ public class PersonalControllerTests extends BaseTest {
         modelSource.setStatus(false);
         modelSource.setOwner(userId);
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
-        advSettingDTO.setParams(AIModelParamType.TEMPERATURE);
-        advSettingDTO.setName("温度");
-        advSettingDTO.setDefaultValue(0.7);
+        advSettingDTO.setName(AIModelParamType.TEMPERATURE);
+        advSettingDTO.setLabel("温度");
+        advSettingDTO.setValue(0.7);
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);

@@ -16,6 +16,7 @@
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="last_execute_result" jdbcType="VARCHAR" property="lastExecuteResult" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="ai_create" jdbcType="BIT" property="aiCreate" />
     <result column="public_case" jdbcType="BIT" property="publicCase" />
     <result column="latest" jdbcType="BIT" property="latest" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -123,8 +124,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, num, module_id, project_id, template_id, `name`, review_status, tags, case_edit_type, 
-    pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, 
-    update_user, delete_user, create_time, update_time, delete_time
+    pos, version_id, ref_id, last_execute_result, deleted, ai_create, public_case, latest, 
+    create_user, update_user, delete_user, create_time, update_time, delete_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseExample" resultMap="BaseResultMap">
     select
@@ -162,7 +163,7 @@
       review_status, tags, 
       case_edit_type, pos, version_id, 
       ref_id, last_execute_result, deleted, 
-      public_case, latest, create_user, 
+      ai_create, public_case, latest, create_user, 
       update_user, delete_user, create_time, 
       update_time, delete_time)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{moduleId,jdbcType=VARCHAR}, 
@@ -170,7 +171,7 @@
       #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{caseEditType,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
       #{refId,jdbcType=VARCHAR}, #{lastExecuteResult,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
-      #{publicCase,jdbcType=BIT}, #{latest,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
+      #{aiCreate,jdbcType=BIT}, #{publicCase,jdbcType=BIT}, #{latest,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{deleteTime,jdbcType=BIGINT})
   </insert>
@@ -218,6 +219,9 @@
       </if>
       <if test="deleted != null">
         deleted,
+      </if>
+      <if test="aiCreate != null">
+        ai_create,
       </if>
       <if test="publicCase != null">
         public_case,
@@ -286,6 +290,9 @@
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
+      </if>
+      <if test="aiCreate != null">
+        #{aiCreate,jdbcType=BIT},
       </if>
       <if test="publicCase != null">
         #{publicCase,jdbcType=BIT},
@@ -364,6 +371,9 @@
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
+      <if test="record.aiCreate != null">
+        ai_create = #{record.aiCreate,jdbcType=BIT},
+      </if>
       <if test="record.publicCase != null">
         public_case = #{record.publicCase,jdbcType=BIT},
       </if>
@@ -409,6 +419,7 @@
       ref_id = #{record.refId,jdbcType=VARCHAR},
       last_execute_result = #{record.lastExecuteResult,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
+      ai_create = #{record.aiCreate,jdbcType=BIT},
       public_case = #{record.publicCase,jdbcType=BIT},
       latest = #{record.latest,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -463,6 +474,9 @@
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
+      <if test="aiCreate != null">
+        ai_create = #{aiCreate,jdbcType=BIT},
+      </if>
       <if test="publicCase != null">
         public_case = #{publicCase,jdbcType=BIT},
       </if>
@@ -505,6 +519,7 @@
       ref_id = #{refId,jdbcType=VARCHAR},
       last_execute_result = #{lastExecuteResult,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
+      ai_create = #{aiCreate,jdbcType=BIT},
       public_case = #{publicCase,jdbcType=BIT},
       latest = #{latest,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -518,8 +533,9 @@
   <insert id="batchInsert" parameterType="map">
     insert into functional_case
     (id, num, module_id, project_id, template_id, `name`, review_status, tags, case_edit_type, 
-      pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, 
-      update_user, delete_user, create_time, update_time, delete_time)
+      pos, version_id, ref_id, last_execute_result, deleted, ai_create, public_case, 
+      latest, create_user, update_user, delete_user, create_time, update_time, delete_time
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.moduleId,jdbcType=VARCHAR}, 
@@ -527,9 +543,10 @@
         #{item.reviewStatus,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
         #{item.caseEditType,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, 
         #{item.refId,jdbcType=VARCHAR}, #{item.lastExecuteResult,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
-        #{item.publicCase,jdbcType=BIT}, #{item.latest,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.deleteTime,jdbcType=BIGINT})
+        #{item.aiCreate,jdbcType=BIT}, #{item.publicCase,jdbcType=BIT}, #{item.latest,jdbcType=BIT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.deleteTime,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -583,6 +600,9 @@
         </if>
         <if test="'deleted'.toString() == column.value">
           #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'ai_create'.toString() == column.value">
+          #{item.aiCreate,jdbcType=BIT}
         </if>
         <if test="'public_case'.toString() == column.value">
           #{item.publicCase,jdbcType=BIT}

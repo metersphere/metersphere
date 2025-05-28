@@ -133,10 +133,10 @@ public class SystemAIConfigService {
         if (CollectionUtils.isNotEmpty(advSettingDTOList)){
             for (AdvSettingDTO advSettingDTO : advSettingDTOList) {
                 //校验前端的高级参数属性,如果不存在，则不保存
-                if (!isValidParamType(advSettingDTO.getParams())) {
+                if (!isValidParamType(advSettingDTO.getName())) {
                     continue;
                 }
-                AdvSettingDTO advSetting = advSettingDTOMap.get(advSettingDTO.getParams());
+                AdvSettingDTO advSetting = advSettingDTOMap.get(advSettingDTO.getName());
                 BeanUtils.copyBean(advSetting, advSettingDTO);
                 checkParamDefault(advSetting);
                 advSettingDTOS.add(advSetting);
@@ -152,13 +152,13 @@ public class SystemAIConfigService {
     private static Map<String, AdvSettingDTO> getDefaultAdvSettingDTOMap() {
         Map<String,AdvSettingDTO> advSettingDTOMap = new HashMap<>();
         AdvSettingDTO modelConfigDTO = new AdvSettingDTO(AIModelParamType.TEMPERATURE, "温度", null, false);
-        advSettingDTOMap.put(modelConfigDTO.getParams(), modelConfigDTO);
+        advSettingDTOMap.put(modelConfigDTO.getName(), modelConfigDTO);
         modelConfigDTO = new AdvSettingDTO(AIModelParamType.TOP_P, "Top P", null, false);
-        advSettingDTOMap.put(modelConfigDTO.getParams(), modelConfigDTO);
+        advSettingDTOMap.put(modelConfigDTO.getName(), modelConfigDTO);
         modelConfigDTO = new AdvSettingDTO(AIModelParamType.MAX_TOKENS, "最大Token", null, false);
-        advSettingDTOMap.put(modelConfigDTO.getParams(), modelConfigDTO);
+        advSettingDTOMap.put(modelConfigDTO.getName(), modelConfigDTO);
         modelConfigDTO = new AdvSettingDTO(AIModelParamType.FREQUENCY_PENALTY, "频率惩罚", null, false);
-        advSettingDTOMap.put(modelConfigDTO.getParams(), modelConfigDTO);
+        advSettingDTOMap.put(modelConfigDTO.getName(), modelConfigDTO);
         return advSettingDTOMap;
     }
 
@@ -168,27 +168,27 @@ public class SystemAIConfigService {
      */
     private static void checkParamDefault(AdvSettingDTO advSetting) {
         //如果是温度，则默认值为0.7
-        if (StringUtils.equalsIgnoreCase(advSetting.getParams(), AIModelParamType.TEMPERATURE)
-                && advSetting.getDefaultValue() == null) {
-            advSetting.setDefaultValue(0.7);
+        if (StringUtils.equalsIgnoreCase(advSetting.getName(), AIModelParamType.TEMPERATURE)
+                && advSetting.getValue() == null) {
+            advSetting.setValue(0.7);
             advSetting.setEnable(false);
         }
         //如果是topP，则默认值为1.0
-        if (StringUtils.equalsIgnoreCase(advSetting.getParams(), AIModelParamType.TOP_P)
-                && advSetting.getDefaultValue() == null) {
-            advSetting.setDefaultValue(1.0);
+        if (StringUtils.equalsIgnoreCase(advSetting.getName(), AIModelParamType.TOP_P)
+                && advSetting.getValue() == null) {
+            advSetting.setValue(1.0);
             advSetting.setEnable(false);
         }
         //如果是最大token，则默认值为1024
-        if (StringUtils.equalsIgnoreCase(advSetting.getParams(), AIModelParamType.MAX_TOKENS)
-                && advSetting.getDefaultValue() == null) {
-            advSetting.setDefaultValue(1024.0);
+        if (StringUtils.equalsIgnoreCase(advSetting.getName(), AIModelParamType.MAX_TOKENS)
+                && advSetting.getValue() == null) {
+            advSetting.setValue(1024.0);
             advSetting.setEnable(false);
         }
         //如果是频率惩罚，则默认值为0.0
-        if (StringUtils.equalsIgnoreCase(advSetting.getParams(), AIModelParamType.FREQUENCY_PENALTY)
-                && advSetting.getDefaultValue() == null) {
-            advSetting.setDefaultValue(0.0);
+        if (StringUtils.equalsIgnoreCase(advSetting.getName(), AIModelParamType.FREQUENCY_PENALTY)
+                && advSetting.getValue() == null) {
+            advSetting.setValue(0.0);
             advSetting.setEnable(false);
         }
     }

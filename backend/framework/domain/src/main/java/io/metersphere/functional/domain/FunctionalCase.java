@@ -39,7 +39,7 @@ public class FunctionalCase implements Serializable {
     @Size(min = 1, max = 255, message = "{functional_case.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "评审状态：未评审/评审中/通过/不通过/重新提审", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "评审结果：未评审/评审中/通过/不通过/重新提审", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.review_status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{functional_case.review_status.length_range}", groups = {Created.class, Updated.class})
     private String reviewStatus;
@@ -74,6 +74,10 @@ public class FunctionalCase implements Serializable {
     @Schema(description = "是否在回收站：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{functional_case.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
+
+    @Schema(description = "是否是ai自动生成的用例：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case.ai_create.not_blank}", groups = {Created.class})
+    private Boolean aiCreate;
 
     @Schema(description = "是否是公共用例：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{functional_case.public_case.not_blank}", groups = {Created.class})
@@ -118,6 +122,7 @@ public class FunctionalCase implements Serializable {
         refId("ref_id", "refId", "VARCHAR", false),
         lastExecuteResult("last_execute_result", "lastExecuteResult", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
+        aiCreate("ai_create", "aiCreate", "BIT", false),
         publicCase("public_case", "publicCase", "BIT", false),
         latest("latest", "latest", "BIT", false),
         createUser("create_user", "createUser", "VARCHAR", false),

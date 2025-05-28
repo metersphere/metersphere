@@ -7,19 +7,21 @@ import lombok.Data;
 public class AdvSettingDTO {
 
     @Schema(description = "参数类型")
-    private String params;
-
-    @Schema(description = "参数名称")
     private String name;
 
-    private Object defaultValue;
+    @Schema(description = "参数名称")
+    private String label;
 
+    @Schema(description = "参数值")
+    private Object value;
+
+    @Schema(description = "是否启用")
     private Boolean enable;
 
-    public AdvSettingDTO(String params, String name, Object defaultValue, Boolean enable) {
-        this.params = params;
+    public AdvSettingDTO(String name, String label, Object value, Boolean enable) {
         this.name = name;
-        this.defaultValue = defaultValue;
+        this.label = label;
+        this.value = value;
         this.enable = enable;
     }
 

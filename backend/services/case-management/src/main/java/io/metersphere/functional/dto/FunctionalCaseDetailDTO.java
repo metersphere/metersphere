@@ -60,6 +60,9 @@ public class FunctionalCaseDetailDTO implements Serializable {
     @Schema(description = "是否是最新版")
     private Boolean latest;
 
+    @Schema(description = "是否是ai自动生成的用例")
+    private Boolean aiCreate;
+
     @Schema(description =  "创建人")
     private String createUser;
 
