@@ -25,5 +25,5 @@ public class ApiTestCaseAIRequest implements Serializable {
 
     @Schema(description = "对话ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
-    private String dialogueId;
+    private String conversationId;
 }

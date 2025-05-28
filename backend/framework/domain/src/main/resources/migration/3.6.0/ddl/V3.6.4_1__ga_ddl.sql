@@ -22,6 +22,30 @@ CREATE TABLE IF NOT EXISTS model_source(
 
 CREATE INDEX idx_type ON model_source(`type`);
 
+-- ai 对话
+CREATE TABLE IF NOT EXISTS ai_conversation(
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `title` VARCHAR(255) NOT NULL   COMMENT '对话标题' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人(操作人）' ,
+    PRIMARY KEY (id)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = 'AI对话';
+
+CREATE INDEX idx_create_user ON ai_conversation(`create_user`);
+
+-- ai 对话内容
+CREATE TABLE IF NOT EXISTS ai_conversation_content(
+    `conversation_id` VARCHAR(50) NOT NULL   COMMENT '对话ID' ,
+    `type` VARCHAR(10) NOT NULL   COMMENT '记录类型（USER, ASSISTANT, SYSTEM, TOOL）' ,
+    `content` text NOT NULL   COMMENT '对话标题' ,
+    `timestamp` TIMESTAMP NOT NULL   COMMENT '创建时间'
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = 'AI对话内容';
+
+CREATE INDEX idx_conversation_timestamp ON ai_conversation_content(`conversation_id`,`timestamp` DESC);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

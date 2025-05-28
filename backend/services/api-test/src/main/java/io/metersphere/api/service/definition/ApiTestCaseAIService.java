@@ -1,8 +1,8 @@
 package io.metersphere.api.service.definition;
 
-import io.metersphere.ai.engine.ChatToolEngine;
 import io.metersphere.ai.engine.common.AIChatOptions;
 import io.metersphere.ai.engine.common.AIModelType;
+import io.metersphere.ai.engine.holder.ChatClientHolder;
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.dto.definition.ApiAIResponse;
 import io.metersphere.api.dto.definition.ApiGenerateInfo;
@@ -14,6 +14,9 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,8 @@ public class ApiTestCaseAIService {
 
     @Resource
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
+    @Resource
+    ChatMemory chatMemory;
 
 
     public List<ApiAIResponse> generateApiTestCase(ApiTestCaseAIRequest request) {
@@ -34,34 +39,41 @@ public class ApiTestCaseAIService {
 
         String prompt = request.getPrompt() + "\n" + "以下是接口的定义的json格式数据,根据接口定义生成接口用例:\n" +
                 JSON.toJSONString(BeanUtils.copyBean(new ApiAIResponse(), msTestElement));
-        return chatToolEnginBuilder(request)
+        return getClient(request)
                 .prompt(prompt)
-                .executeStructured(new ParameterizedTypeReference<>() {});
+                .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
+                .call()
+                .entity(new ParameterizedTypeReference<>() {});
     }
 
     public Object chat(ApiTestCaseAIRequest request) {
         String prompt = "下面一段话中是否需要生成用例？需要生成几条用例？\n" + request.getPrompt();
-        ApiGenerateInfo apiGenerateInfo = chatToolEnginBuilder(request)
+        ApiGenerateInfo apiGenerateInfo = getClient(request)
                 .prompt(prompt)
-                .executeStructured(ApiGenerateInfo.class);
+                .call()
+                .entity(ApiGenerateInfo.class);
 
         if (BooleanUtils.isTrue(apiGenerateInfo.getGenerateCase())) {
             // 判断对话是否是需要生成用例
             return generateApiTestCase(request);
         } else {
-            return chatToolEnginBuilder(request)
-                    .prompt(request.getPrompt())
-                    .execute();
+            return getClient(request)
+                    .prompt()
+                    .user(request.getPrompt())
+                    .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
+                    .call()
+                    .content();
         }
     }
 
-    private ChatToolEngine.Builder chatToolEnginBuilder(ApiTestCaseAIRequest request) {
-        return ChatToolEngine.builder(AIModelType.DEEP_SEEK,
-                AIChatOptions.builder()
-                        .modelType(request.getChatModelId())
-                        .apiKey("sk-")
-                        .baseUrl("https://api.deepseek.com")
-                        .topP(0.3)
-                        .build());
+    private ChatClient getClient(ApiTestCaseAIRequest request) {
+        return ChatClientHolder.getChatClient(AIModelType.DEEP_SEEK, AIChatOptions.builder()
+                .modelType(request.getChatModelId())
+                .apiKey("sk-")
+                .baseUrl("https://api.deepseek.com")
+                .topP(0.3)
+                .build());
     }
 }

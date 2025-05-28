@@ -87,7 +87,8 @@
         <!--        <table tableName="test_resource"/>-->
 <!--                <table tableName="test_resource_pool"/>-->
 <!--                <table tableName="user_view"/>-->
-                <table tableName="exec_task_item"/>
+                <table tableName="ai_conversation"/>
+                <table tableName="ai_conversation_content"/>
         <!--        <table tableName="user"/>-->
         <!--        <table tableName="user_extend"/>-->
         <!--        <table tableName="user_key"/>-->

@@ -83,7 +83,7 @@ public class ApiTestCaseAiControllerTests extends BaseTest {
         apiTestCaseAIRequest.setApiDefinitionId(apiDefinitionId);
         apiTestCaseAIRequest.setChatModelId("deepseek-chat");
         apiTestCaseAIRequest.setPrompt("生成一个用例");
-        apiTestCaseAIRequest.setDialogueId(UUID.randomUUID().toString());
+        apiTestCaseAIRequest.setConversationId(UUID.randomUUID().toString());
         this.requestPost(CHAT, apiTestCaseAIRequest);
 
         // @@校验权限
