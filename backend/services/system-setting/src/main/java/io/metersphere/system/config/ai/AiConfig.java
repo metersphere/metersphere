@@ -1,5 +1,6 @@
-package io.metersphere.system.ai;
+package io.metersphere.system.config.ai;
 
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
@@ -16,15 +17,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class AiConfig {
 
     @Bean
-    ChatMemory getChatMemory(JdbcTemplate jdbcTemplate) {
+    ChatMemory chatMemory(JdbcTemplate jdbcTemplate) {
         ChatMemoryRepository chatMemoryRepository = JdbcChatMemoryRepository.builder()
                 .jdbcTemplate(jdbcTemplate)
                 .dialect(new MsChatMemoryDialect())
                 .build();
         ChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
-                .maxMessages(10)
+                .maxMessages(5)
                 .build();
         return chatMemory;
+    }
+
+    @Bean
+    MessageChatMemoryAdvisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
+        return MessageChatMemoryAdvisor.builder(chatMemory).build();
     }
 }

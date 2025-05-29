@@ -1,10 +1,8 @@
 package io.metersphere.ai.engine.common;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 public class AIChatOptions {
     private String baseUrl;
     private String apiKey;

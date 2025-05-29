@@ -4,6 +4,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
 import io.metersphere.api.service.definition.ApiTestCaseAIService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.security.CheckOwner;
+import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -26,6 +27,6 @@ public class ApiTestCaseAIController {
     @CheckOwner(resourceId = "#request.id", resourceType = "api_definition")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
     public Object chat(@Validated @RequestBody ApiTestCaseAIRequest request) {
-        return apiTestCaseAIService.chat(request);
+        return apiTestCaseAIService.chat(request, SessionUtils.getUserId());
     }
 }

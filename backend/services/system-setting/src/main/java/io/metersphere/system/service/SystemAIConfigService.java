@@ -1,7 +1,5 @@
 package io.metersphere.system.service;
 
-import io.metersphere.ai.engine.ChatToolEngine;
-import io.metersphere.ai.engine.common.AIChatOptions;
 import io.metersphere.ai.engine.common.AIModelParamType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -36,7 +34,8 @@ public class SystemAIConfigService {
     private ModelSourceMapper modelSourceMapper;
     @Resource
     private ExtModelSourceMapper extModelSourceMapper;
-
+    @Resource
+    private AiChatBaseService aiChatBaseService;
 
     /**
      * 编辑模型配置
@@ -44,7 +43,7 @@ public class SystemAIConfigService {
      * @param modelSourceDTO 模型配置数据传输对象
      * @param userId         用户ID
      */
-    public void editModuleConfig(ModelSourceDTO modelSourceDTO, String userId) {
+    public ModelSource editModuleConfig(ModelSourceDTO modelSourceDTO, String userId) {
         String id = IDGenerator.nextStr();
         //根据是否有id,判断新增还是编辑，并且检查模型源名称是否重复
         ModelSourceExample modelSourceExample = new ModelSourceExample();
@@ -62,13 +61,14 @@ public class SystemAIConfigService {
         ModelSource modelSource = new ModelSource();
         buildModelSource(modelSourceDTO, userId, modelSource, id);
         //进入之前进行校验
-        validModel(modelSourceDTO, modelSource);
+        validModel(modelSourceDTO);
         //保存
         if (add) {
             modelSourceMapper.insert(modelSource);
         }else {
             modelSourceMapper.updateByPrimaryKey(modelSource);
         }
+        return modelSource;
     }
 
     /**
@@ -196,17 +196,9 @@ public class SystemAIConfigService {
     /**
      * 验证模型连接是否成功
      * @param modelSourceDTO 模型源数据传输对象
-     * @param modelSource 模型源对象
      */
-    private static void validModel(ModelSourceDTO modelSourceDTO, ModelSource modelSource) {
-        String response = ChatToolEngine.builder(modelSourceDTO.getProviderName(),
-                        AIChatOptions.builder()
-                                .modelType(modelSource.getBaseName())
-                                .apiKey(modelSource.getAppKey())
-                                .baseUrl(modelSource.getApiUrl())
-                                .build())
-                .prompt("How are you?")
-                .execute();
+    private void validModel(ModelSourceDTO modelSourceDTO) {
+        String response = aiChatBaseService.chat("How are you?", modelSourceDTO).content();
         if (StringUtils.isBlank(response)) {
             throw new MSException(Translator.get("system_model_test_link_error"));
         }
@@ -266,6 +258,23 @@ public class SystemAIConfigService {
         }
         //检查个人模型查看权限
         if (StringUtils.isNotBlank(userId) && !StringUtils.equalsIgnoreCase(modelSource.getOwner(),userId)) {
+            throw new MSException(Translator.get("system_model_not_exist"));
+        }
+        return getModelSourceDTO(modelSource);
+    }
+
+    /**
+     * 根据ID获取模型源数据传输对象
+     * @param id 模型源ID
+     * @return 模型源数据传输对象
+     */
+    public ModelSourceDTO getModelSourceDTO(String id, String userId, String orgId) {
+        ModelSource modelSource = modelSourceMapper.selectByPrimaryKey(id);
+        if (modelSource == null) {
+            throw new MSException(Translator.get("system_model_not_exist"));
+        }
+        // 校验权限，全局的和自己的
+        if (!StringUtils.equalsAny(modelSource.getOwner(), userId, orgId)) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         return getModelSourceDTO(modelSource);

@@ -1,4 +1,4 @@
-package io.metersphere.system.ai;
+package io.metersphere.system.config.ai;
 
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepositoryDialect;
 
