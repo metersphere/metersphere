@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="innerVisible"
-    :title="props.currentModelId ? t('system.config.modelConfig.editModel') : t('system.config.modelConfig.addModel')"
+    :title="modelTitle"
     :width="800"
     :show-continue="true"
     no-content-padding
@@ -13,7 +13,7 @@
     <div class="p-[16px]">
       <a-form ref="formRef" :model="form" layout="vertical">
         <div>
-          <ExpandCollapseWrap :title="t('system.config.modelConfig.baseInfo')">
+          <expandCollapseWrap :title="t('system.config.modelConfig.baseInfo')">
             <template #content>
               <a-form-item
                 field="name"
@@ -110,7 +110,7 @@
                 />
               </a-form-item>
             </template>
-          </ExpandCollapseWrap>
+          </expandCollapseWrap>
         </div>
         <div class="collapse-more-top my-[16px] pt-[16px]">
           <ExpandCollapseWrap :title="t('system.config.modelConfig.advancedSettings')">
@@ -146,18 +146,17 @@
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel } from '@/components/business/ms-batch-form/types';
   import MsSelect from '@/components/business/ms-select';
-  import ExpandCollapseWrap from './expandCollapseWrap.vue';
+  import expandCollapseWrap from './expandCollapseWrap.vue';
 
   import { baseModelTypeMap, getModelDefaultConfig } from '@/config/modelConfig';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { ModelForm } from '@/models/setting/modelConfig';
-  import { ModelBaseTypeEnum } from '@/enums/modelEnum';
+  import type { ModelForm, SupplierModelItem } from '@/models/setting/modelConfig';
 
   const { t } = useI18n();
 
   const props = defineProps<{
-    supplierModelType: ModelBaseTypeEnum;
+    supplierModelItem: SupplierModelItem;
     currentModelId: string;
   }>();
 
@@ -174,7 +173,7 @@
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {
-      field: 'params',
+      field: 'name',
       type: 'input',
       label: 'system.config.modelConfig.params',
       rules: [{ required: true, message: t('common.notNull', { value: t('system.config.modelConfig.params') }) }],
@@ -182,7 +181,7 @@
       disabled: true,
     },
     {
-      field: 'name',
+      field: 'label',
       type: 'input',
       label: 'system.config.modelConfig.displayName',
       rules: [{ required: true, message: t('common.notNull', { value: t('system.config.modelConfig.displayName') }) }],
@@ -191,13 +190,22 @@
     },
     // TODO 默认值需要确认是否需要范围框
     {
-      field: 'defaultValue',
+      field: 'value',
       type: 'inputNumber',
-      label: 'system.config.modelConfig.defaultValue',
-      rules: [{ required: true, message: t('common.notNull', { value: t('system.config.modelConfig.defaultValue') }) }],
+      label: 'system.config.modelConfig.paramsValue',
+      rules: [{ required: true, message: t('common.notNull', { value: t('system.config.modelConfig.paramsValue') }) }],
       placeholder: 'common.pleaseInput',
+      maxKey: 'maxValue',
+      minKey: 'minValue',
     },
   ]);
+
+  const modelTitle = computed(
+    () =>
+      `${props.currentModelId ? t('system.config.modelConfig.editModel') : t('system.config.modelConfig.addModel')}（${
+        props.supplierModelItem.name
+      }）`
+  );
 
   const initForm = {
     id: '',
@@ -232,7 +240,7 @@
 
   function selectAutoComplete(val: string) {
     form.value.baseName = val;
-    form.value.list = getModelDefaultConfig(props.supplierModelType, form.value.baseName);
+    form.value.list = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
   }
 
   function clearBaseName() {
@@ -250,8 +258,8 @@
     () => innerVisible.value,
     (val) => {
       if (val) {
-        baseModelTypeOptions.value = baseModelTypeMap[props.supplierModelType];
-        form.value.list = getModelDefaultConfig(props.supplierModelType, form.value.baseName);
+        baseModelTypeOptions.value = baseModelTypeMap[props.supplierModelItem.value];
+        form.value.list = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
       }
     }
   );

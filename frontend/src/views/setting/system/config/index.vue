@@ -5,7 +5,7 @@
   <pageConfig v-if="isInitPageConfig" v-show="activeTab === 'pageConfig'" />
   <authConfig v-if="isInitAuthConfig" v-show="activeTab === 'authConfig'" />
   <memoryCleanup v-if="isInitMemoryCleanup" v-show="activeTab === 'memoryCleanup'" />
-  <modelConfig v-if="isInitModelConfig" v-show="activeTab === 'modelConfig'" />
+  <modelConfigCard v-if="isInitModelConfig" v-show="activeTab === 'modelConfig'" />
 </template>
 
 <script setup lang="ts">
@@ -23,7 +23,7 @@
   // 异步组件加载
   const baseConfig = defineAsyncComponent(() => import('./components/baseConfig.vue'));
   const pageConfig = defineAsyncComponent(() => import('./components/pageConfig.vue'));
-  const modelConfig = defineAsyncComponent(() => import('./components/modelConfig.vue'));
+  const modelConfigCard = defineAsyncComponent(() => import('./components/modelConfigCard.vue'));
   const qrCodeConfig = defineAsyncComponent(() => import('./components/qrCodeConfig.vue'));
   const authConfig = defineAsyncComponent(() => import('./components/authConfig.vue'));
   const memoryCleanup = defineAsyncComponent(() => import('./components/memoryCleanup.vue'));
@@ -63,7 +63,7 @@
         isInitAuthConfig.value = true;
       } else if (val === 'memoryCleanup' && !isInitMemoryCleanup.value) {
         isInitMemoryCleanup.value = true;
-      } else if (val === 'qrCodeConfig' && !isInitMemoryCleanup.value) {
+      } else if (val === 'qrCodeConfig' && !isInitQrCodeConfig.value) {
         isInitQrCodeConfig.value = true;
       } else if (val === 'modelConfig' && !isInitModelConfig.value) {
         isInitModelConfig.value = true;

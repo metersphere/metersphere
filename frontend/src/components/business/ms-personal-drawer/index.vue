@@ -2,7 +2,7 @@
   <MsDrawer
     v-model:visible="innerVisible"
     :title="t('ms.personal')"
-    :width="960"
+    :width="1200"
     :footer="false"
     unmount-on-close
     no-content-padding
@@ -17,12 +17,13 @@
           @toggle-menu="(val) => (activeMenu = val)"
         />
       </div>
-      <div class="w-[752px] p-[24px]">
+      <div :class="`w-[calc(100%-208px)] ${activeMenu === 'modelConfig' ? 'p-0' : 'p-[24px]'}`">
         <baseInfo v-if="activeMenu === 'baseInfo'" />
         <setPsw v-else-if="activeMenu === 'setPsw'" />
         <apiKey v-else-if="activeMenu === 'apiKey'" />
         <localExec v-else-if="activeMenu === 'local'" />
         <tripartite v-else-if="activeMenu === 'tripartite'" />
+        <modelConfig v-else-if="activeMenu === 'modelConfig'" model-key="personal" />
       </div>
     </div>
   </MsDrawer>
@@ -33,6 +34,7 @@
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsMenuPanel from '@/components/pure/ms-menu-panel/index.vue';
+  import modelConfig from '@/components/business/ms-personal-drawer/components/modelConfig.vue';
   import apiKey from './components/apiKey.vue';
   import baseInfo from './components/baseInfo.vue';
   import localExec from './components/localExec.vue';
@@ -88,6 +90,11 @@
     {
       name: 'tripartite',
       title: t('ms.personal.tripartite'),
+      level: 2,
+    },
+    {
+      name: 'modelConfig',
+      title: t('system.config.modelConfig.modelConfigSet'),
       level: 2,
     },
   ]);

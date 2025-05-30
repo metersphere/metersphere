@@ -123,37 +123,47 @@ export const baseModelTypeMap: Record<ModelBaseTypeEnum, SelectOptionData[]> = {
 
 export const DEEP_SEEK_REASONER: ModelAdvancedSetType[] = [
   {
-    params: 'maxTokens',
-    name: 'system.config.modelConfig.maxTokens',
-    defaultValue: 4000,
+    name: 'maxTokens',
+    label: 'system.config.modelConfig.maxTokens',
+    value: 4000,
     enable: true,
+    minValue: 4000,
+    maxValue: 8000,
   },
 ];
 
 export const DEEP_SEEK_CHAT: ModelAdvancedSetType[] = [
   {
-    params: 'frequencyPenalty',
-    name: 'system.config.modelConfig.frequencyPenalty',
-    defaultValue: 0.75,
+    name: 'frequencyPenalty',
+    label: 'system.config.modelConfig.frequencyPenalty',
+    value: 0.75,
     enable: true,
+    minValue: -2.0,
+    maxValue: 2.0,
   },
   {
-    params: 'maxTokens',
-    name: 'system.config.modelConfig.maxTokens',
-    defaultValue: 4096,
+    name: 'maxTokens',
+    label: 'system.config.modelConfig.maxTokens',
+    value: 4096,
     enable: true,
+    minValue: 1.0,
+    maxValue: 8192,
   },
   {
-    params: 'temperature',
-    name: 'system.config.modelConfig.temperature',
-    defaultValue: 1,
+    name: 'temperature',
+    label: 'system.config.modelConfig.temperature',
+    value: 1,
     enable: true,
+    minValue: 0,
+    maxValue: 2,
   },
   {
-    params: 'topP',
-    name: 'system.config.modelConfig.temperature',
-    defaultValue: 1,
+    name: 'topP',
+    label: 'system.config.modelConfig.temperature',
+    value: 1,
     enable: true,
+    minValue: 0,
+    maxValue: 1,
   },
 ];
 
@@ -166,36 +176,54 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
   [ModelBaseTypeEnum.DeepSeek]: [],
   [ModelBaseTypeEnum.OpenAI]: [
     {
-      params: 'maxTokens',
-      name: 'system.config.modelConfig.maxTokens',
-      defaultValue: 1000,
+      name: 'maxTokens',
+      label: 'system.config.modelConfig.maxTokens',
+      value: 1000,
       enable: true,
+      minValue: 4000,
+      maxValue: 8000,
     },
     {
-      params: 'topP',
-      name: 'system.config.modelConfig.temperature',
-      defaultValue: 0.1,
+      name: 'temperature',
+      label: 'system.config.modelConfig.temperature',
+      value: 0.8,
       enable: true,
+      minValue: 0,
+      maxValue: 2,
+    },
+    {
+      name: 'topP',
+      label: 'system.config.modelConfig.temperature',
+      value: 0.1,
+      enable: true,
+      minValue: 0.1,
+      maxValue: 1,
     },
   ],
   [ModelBaseTypeEnum.ZhiPuAI]: [
     {
-      params: 'temperature',
-      name: 'system.config.modelConfig.temperature',
-      defaultValue: 0.75,
+      name: 'temperature',
+      label: 'system.config.modelConfig.temperature',
+      value: 0.75,
       enable: true,
+      minValue: 0,
+      maxValue: 1,
     },
     {
-      params: 'system.config.modelConfig.topP',
       name: 'system.config.modelConfig.topP',
-      defaultValue: 0.9,
+      label: 'system.config.modelConfig.topP',
+      value: 0.9,
       enable: true,
+      minValue: 0,
+      maxValue: 1,
     },
     {
-      params: 'maxTokens',
-      name: 'system.config.modelConfig.maxTokens',
-      defaultValue: 4000,
+      name: 'maxTokens',
+      label: 'system.config.modelConfig.maxTokens',
+      value: 4000,
       enable: true,
+      minValue: 4000,
+      maxValue: 8000,
     },
   ],
 };
@@ -223,5 +251,5 @@ export function getModelDefaultConfig(supplierType: ModelBaseTypeEnum, baseModel
       lastDefaultValue = [];
       break;
   }
-  return lastDefaultValue.map((e) => ({ ...e, name: t(e.name) }));
+  return lastDefaultValue.map((e) => ({ ...e, label: t(e.label) }));
 }

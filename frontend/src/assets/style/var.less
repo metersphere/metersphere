@@ -130,6 +130,22 @@
   }
 }
 
+.btn-base-warning-hover() {
+  &:not(:disabled):hover {
+    background-color: rgb(var(--warning-5)) !important;
+  }
+}
+.btn-base-warning-active() {
+  &:not(:disabled):active {
+    background-color: rgb(var(--warning-7)) !important;
+  }
+}
+.btn-base-warning-disabled() {
+  &:disabled {
+    background-color: rgb(var(--warning-2)) !important;
+  }
+}
+
 .btn-text-sec-hover() {
   &:not(:disabled):hover {
     background-color: var(--color-text-n9) !important;

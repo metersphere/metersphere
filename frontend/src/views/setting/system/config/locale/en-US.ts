@@ -244,7 +244,7 @@ export default {
   'system.config.modelConfig.zhiPuAi': 'Zhipu AI',
   'system.config.modelConfig.params': 'Parameters',
   'system.config.modelConfig.displayName': 'Display name',
-  'system.config.modelConfig.defaultValue': 'Default value',
+  'system.config.modelConfig.paramsValue': 'Params value',
   'system.config.modelConfig.inputBaseInfoTip': 'Please fill in basic information first',
   'system.config.modelConfig.largeLanguageModel': 'Large language model',
   'system.config.modelConfig.deepSeekChatTooltip': 'Good at general conversation tasks, supports 32K context',
@@ -286,4 +286,8 @@ export default {
   'system.config.modelConfig.frequencyPenalty': 'Frequency penalty',
   'system.config.modelConfig.temperature': 'Sampling temperature',
   'system.config.modelConfig.topP': 'Top-p sampling',
+  'system.config.modelConfig.deleteModelTip':
+    'After deletion, AI assistant is not available, please careful operation!',
+  'system.config.modelConfig.closedModelTip': 'After closed, AI assistant is not available, please careful operation!',
+  'system.config.modelConfig.closedModelTitle': 'Are you sure to close {name} ?',
 };

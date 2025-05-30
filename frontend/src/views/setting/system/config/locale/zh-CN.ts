@@ -236,7 +236,7 @@ export default {
   'system.config.modelConfig.zhiPuAi': '智谱 AI',
   'system.config.modelConfig.params': '参数',
   'system.config.modelConfig.displayName': '显示名称',
-  'system.config.modelConfig.defaultValue': '默认值',
+  'system.config.modelConfig.paramsValue': '参数值',
   'system.config.modelConfig.inputBaseInfoTip': '请先填写基础信息',
   'system.config.modelConfig.largeLanguageModel': '大语言模型',
   'system.config.modelConfig.deepSeekChatTooltip': '擅长通用对话任务，支持 32K 上下文',
@@ -278,4 +278,7 @@ export default {
   'system.config.modelConfig.frequencyPenalty': '频率惩罚',
   'system.config.modelConfig.temperature': '采样温度',
   'system.config.modelConfig.topP': '核取样',
+  'system.config.modelConfig.deleteModelTip': '删除后，致AI助手不可用，请谨慎操作！',
+  'system.config.modelConfig.closedModelTip': '关闭会导致AI助手不可用，请谨慎操作！',
+  'system.config.modelConfig.closedModelTitle': '确认关闭 {name} 吗？',
 };

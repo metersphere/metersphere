@@ -1,8 +1,12 @@
+import { ModelBaseTypeEnum } from '@/enums/modelEnum';
+
 export interface ModelAdvancedSetType {
-  params: string;
   name: string;
-  defaultValue: number;
+  label: string;
+  value: number;
   enable: boolean;
+  minValue: number;
+  maxValue: number;
 }
 
 export interface ModelForm {
@@ -13,4 +17,10 @@ export interface ModelForm {
   apiUrl: string;
   appKey: string;
   list: ModelAdvancedSetType[];
+}
+
+export interface SupplierModelItem {
+  value: ModelBaseTypeEnum;
+  name: string;
+  icon: string;
 }

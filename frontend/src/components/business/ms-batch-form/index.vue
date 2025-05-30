@@ -88,8 +88,8 @@
                   v-model:model-value="element[model.field]"
                   class="flex-1"
                   :placeholder="t(model.placeholder || '')"
-                  :min="model.min"
-                  :max="model.max || 9999999"
+                  :min="model.min || element[model?.minKey || 'min']"
+                  :max="model.max || element[model?.maxKey || 'max'] || 9999999"
                   model-event="input"
                   allow-clear
                   :disabled="model.disabled"
