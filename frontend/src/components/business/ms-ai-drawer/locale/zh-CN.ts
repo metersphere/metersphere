@@ -33,4 +33,5 @@ export default {
   'ms.ai.prescript': '前置脚本',
   'ms.ai.postscript': '后置脚本',
   'ms.ai.assertion': '断言',
+  'ms.ai.choseApi': '选择接口',
 };

@@ -33,4 +33,5 @@ export default {
   'ms.ai.prescript': 'Prescript',
   'ms.ai.postscript': 'Postscript',
   'ms.ai.assertion': 'Assertion',
+  'ms.ai.choseApi': 'Select API',
 };

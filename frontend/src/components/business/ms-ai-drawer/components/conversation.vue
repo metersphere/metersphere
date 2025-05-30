@@ -97,8 +97,8 @@
       </BubbleList>
     </div>
     <div class="flex items-center gap-[12px] py-[16px]">
-      <MsAiButton :text="t('ms.ai.generateFeatureCase')" no-icon @click="jump('case')" />
-      <MsAiButton :text="t('ms.ai.generateApiCase')" no-icon @click="jump('api')" />
+      <MsAiButton v-if="props.type === 'case'" :text="t('ms.ai.generateFeatureCase')" no-icon @click="jump('case')" />
+      <MsAiButton v-if="props.type === 'api'" :text="t('ms.ai.generateApiCase')" no-icon @click="jump('api')" />
       <MsAiButton :text="t('ms.ai.openNewConversation')" @click="emit('openNewConversation')" />
     </div>
     <Sender
@@ -134,6 +134,7 @@
   </div>
   <caseConfigModal v-if="props.type === 'case'" v-model:visible="configModalVisible" />
   <apiConfigModal v-if="props.type === 'api'" v-model:visible="configModalVisible" />
+  <apiSelectModal v-if="props.type === 'api'" v-model:visible="apiSelectModalVisible" />
 </template>
 
 <script setup lang="ts">
@@ -147,13 +148,15 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSelect from '@/components/business/ms-select';
-  import apiConfigModal from './apiConfigModal.vue';
-  import caseConfigModal from './caseConfigModal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
 
-  import { ApiTestRouteEnum, CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
+  const apiConfigModal = defineAsyncComponent(() => import('./apiConfigModal.vue'));
+  const apiSelectModal = defineAsyncComponent(() => import('./apiSelectModal.vue'));
+  const caseConfigModal = defineAsyncComponent(() => import('./caseConfigModal.vue'));
 
   type listType = BubbleListItemProps & {
     key: number;
@@ -232,11 +235,10 @@
     console.log('同步', item);
   }
 
+  const apiSelectModalVisible = ref(false);
   function jump(type: 'case' | 'api') {
     if (type === 'api') {
-      openNewPage(ApiTestRouteEnum.API_TEST_MANAGEMENT, {
-        openAi: 'Y',
-      });
+      apiSelectModalVisible.value = true;
     } else {
       openNewPage(CaseManagementRouteEnum.CASE_MANAGEMENT, {
         openAi: 'Y',
