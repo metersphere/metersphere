@@ -281,4 +281,5 @@ export default {
   'system.config.modelConfig.deleteModelTip': '删除后，致AI助手不可用，请谨慎操作！',
   'system.config.modelConfig.closedModelTip': '关闭会导致AI助手不可用，请谨慎操作！',
   'system.config.modelConfig.closedModelTitle': '确认关闭 {name} 吗？',
+  'system.config.modelConfig.noModelData': '暂无模型数据',
 };

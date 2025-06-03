@@ -22,7 +22,7 @@
       <template #second>
         <div class="p-[16px]">
           <div class="mb-[16px] flex items-center justify-between">
-            <a-button type="primary" @click="addModel">
+            <a-button v-permission="['SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE']" type="primary" @click="addModel">
               {{ t('system.config.modelConfig.addModel') }}
             </a-button>
             <a-input-search
@@ -36,12 +36,13 @@
             />
           </div>
           <div
-            :class="`model-config-card-list-wrapper ${
+            :class="`model-config-card-list-wrapper  ${
               props.modelKey === 'personal' ? 'h-[calc(100vh-138px)]' : 'h-[calc(100vh-274px)]'
             }`"
           >
-            <div class="model-config-card-list">
+            <div class="model-config-card-list relative">
               <MsCardList
+                v-if="modelCardList.length"
                 mode="static"
                 :card-min-width="props.cardMinWidth || 230"
                 class="flex-1"
@@ -92,6 +93,7 @@
                     <div class="model-item-footer mt-[24px] flex items-center justify-between">
                       <div class="flex items-center gap-[12px]">
                         <a-button
+                          v-permission="['SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE']"
                           type="outline"
                           class="arco-btn-outline--secondary"
                           size="small"
@@ -114,6 +116,12 @@
                   </div>
                 </template>
               </MsCardList>
+              <div
+                v-else
+                class="absolute left-0 right-0 top-[30%] translate-y-[-60%] text-center text-[var(--color-text-4)]"
+              >
+                {{ t('system.config.modelConfig.noModelData') }}
+              </div>
             </div>
           </div>
         </div>
@@ -156,33 +164,7 @@
 
   function searchData() {}
 
-  const modelCardList = ref([
-    {
-      id: '1001',
-      name: '模型名称',
-      creatorName: '创建人名称',
-      type: ModelBaseTypeEnum.DeepSeek,
-      baseName: '基础模型',
-      enable: true,
-    },
-    {
-      id: '1002',
-      name: '模型名称模型名称模型名称模型名称模型名称模型名称模型名称模型名称模型名称模型名称模型名称模型名称',
-      creatorName:
-        '创建人名称创建人名称创建人名称创建人名称创建人名称创建人名称创建人名称创建人名称创建人名称创建人名称创建人名称v',
-      type: ModelBaseTypeEnum.ZhiPuAI,
-      baseName: '基础模型基础模型基础模型基础模型基础模型基础模型基础模型基础模型基础模型基础模型v',
-      enable: true,
-    },
-    {
-      id: '1003',
-      name: '模型名称',
-      creatorName: '创建人名称',
-      type: ModelBaseTypeEnum.OpenAI,
-      baseName: '基础模型',
-      enable: true,
-    },
-  ]);
+  const modelCardList = ref([]);
 
   const initSupplier = {
     value: ModelBaseTypeEnum.DeepSeek,

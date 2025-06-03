@@ -113,13 +113,14 @@
           </expandCollapseWrap>
         </div>
         <div class="collapse-more-top my-[16px] pt-[16px]">
-          <ExpandCollapseWrap :title="t('system.config.modelConfig.advancedSettings')">
+          <expandCollapseWrap :title="t('system.config.modelConfig.advancedSettings')">
             <template #content>
               <MsBatchForm
                 v-if="form.baseName"
                 ref="batchFormRef"
                 :models="batchFormModels"
-                :form-mode="userFormMode"
+                enable-type="circle"
+                :form-mode="baseModelForm"
                 add-text="system.user.addUser"
                 :default-vals="form.list"
                 show-enable
@@ -130,7 +131,7 @@
                 {{ t('system.config.modelConfig.inputBaseInfoTip') }}
               </div>
             </template>
-          </ExpandCollapseWrap>
+          </expandCollapseWrap>
         </div>
       </a-form>
     </div>
@@ -169,7 +170,7 @@
   });
 
   const visibility = ref(false);
-  const userFormMode = ref<'create' | 'edit'>('create');
+  const baseModelForm = ref<'create' | 'edit'>('create');
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {

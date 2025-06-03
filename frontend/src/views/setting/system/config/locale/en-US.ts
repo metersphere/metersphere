@@ -290,4 +290,5 @@ export default {
     'After deletion, AI assistant is not available, please careful operation!',
   'system.config.modelConfig.closedModelTip': 'After closed, AI assistant is not available, please careful operation!',
   'system.config.modelConfig.closedModelTitle': 'Are you sure to close {name} ?',
+  'system.config.modelConfig.noModelData': 'No model data available',
 };
