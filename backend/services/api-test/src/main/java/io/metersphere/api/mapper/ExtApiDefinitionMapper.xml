@@ -31,7 +31,7 @@
         api_definition.project_id, api_definition.module_id, api_definition.latest, api_definition.version_id,
         api_definition.ref_id, api_definition.description, api_definition.create_time, api_definition.create_user,
         api_definition.update_time, api_definition.update_user, api_definition.delete_user, api_definition.delete_time,
-        api_definition.deleted, project_version.name as version_name
+        api_definition.deleted, project_version.name as version_name, api_definition.ai_create
         from api_definition
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
         where api_definition.deleted = #{request.deleted}

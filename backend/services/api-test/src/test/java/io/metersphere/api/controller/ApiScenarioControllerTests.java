@@ -2868,6 +2868,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiDefinition.setVersionId("1.0");
             apiDefinition.setRefId(apiDefinition.getId());
             apiDefinition.setPos(i * 64L);
+            apiDefinition.setAiCreate(false);
             apiDefinitions.add(apiDefinition);
         }
         apiDefinitionMapper.batchInsert(apiDefinitions);

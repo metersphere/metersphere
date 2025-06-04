@@ -224,7 +224,7 @@ public class ApiDefinitionService extends MoveNodeService {
             List<String> apiInStepList = new ArrayList<>(CommonBeanFactory.getBean(ApiScenarioService.class).selectApiIdInCustomRequest(projectId, httpApiList));
             apiInScenarioStep.addAll(apiInStepList);
         }
-        
+
         return apiInScenarioStep;
     }
 
@@ -284,6 +284,7 @@ public class ApiDefinitionService extends MoveNodeService {
         apiDefinition.setCreateTime(System.currentTimeMillis());
         apiDefinition.setUpdateTime(System.currentTimeMillis());
         apiDefinition.setRefId(apiDefinition.getId());
+        apiDefinition.setAiCreate(request.getAiCreat());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             apiDefinition.setTags(ServiceUtils.parseTags(request.getTags()));
         }
@@ -1344,7 +1345,7 @@ public class ApiDefinitionService extends MoveNodeService {
                     }
                     if (BooleanUtils.isFalse(item.getEnable())) {
                         iterator.remove();
-                    } else if (isObjectItem(jsonSchemaItem) || isArrayItem(jsonSchemaItem)){
+                    } else if (isObjectItem(jsonSchemaItem) || isArrayItem(jsonSchemaItem)) {
                         filterDisableItem(item);
                     }
                 }
