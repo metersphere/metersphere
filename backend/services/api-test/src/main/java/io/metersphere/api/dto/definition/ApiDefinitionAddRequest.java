@@ -100,9 +100,6 @@ public class ApiDefinitionAddRequest implements Serializable {
     @Schema(description = "自定义字段集合")
     private List<ApiDefinitionCustomField> customFields;
 
-    @Schema(description = "是否是ai生成的用例")
-    private Boolean aiCreat = false;
-
     public void setPath(String path) {
         this.path = StringUtils.trim(path);
     }

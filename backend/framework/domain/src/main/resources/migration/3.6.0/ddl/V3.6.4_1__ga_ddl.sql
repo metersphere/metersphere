@@ -66,7 +66,6 @@ CREATE TABLE IF NOT EXISTS  ai_user_prompt_config(
 CREATE INDEX idx_user_id ON ai_user_prompt_config(`user_id`);
 CREATE INDEX idx_type ON ai_user_prompt_config(`type`);
 
-alter table api_definition
-    add ai_create bit default b'0' not null comment '是否是ai自动生成的用例：0-否，1-是';
+
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

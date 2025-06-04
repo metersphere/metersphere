@@ -24,7 +24,6 @@
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
-    <result column="ai_create" jdbcType="BIT" property="aiCreate" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -125,7 +124,7 @@
   <sql id="Base_Column_List">
     id, `name`, protocol, `method`, `path`, `status`, num, tags, pos, project_id, module_id, 
     latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, 
-    delete_user, delete_time, deleted, ai_create
+    delete_user, delete_time, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionExample" resultMap="BaseResultMap">
     select
@@ -160,12 +159,12 @@
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinition">
     insert into api_definition (id, `name`, protocol, 
       `method`, `path`, `status`, 
-      num, tags, pos, project_id, 
-      module_id, latest, version_id, 
-      ref_id, description, create_time, 
-      create_user, update_time, update_user, 
-      delete_user, delete_time, deleted, 
-      ai_create)
+      num, tags, 
+      pos, project_id, module_id, 
+      latest, version_id, ref_id, 
+      description, create_time, create_user, 
+      update_time, update_user, delete_user, 
+      delete_time, deleted)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{num,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
@@ -173,7 +172,7 @@
       #{latest,jdbcType=BIT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
       #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{aiCreate,jdbcType=BIT})
+      #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinition">
     insert into api_definition
@@ -244,9 +243,6 @@
       <if test="deleted != null">
         deleted,
       </if>
-      <if test="aiCreate != null">
-        ai_create,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -314,9 +310,6 @@
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
-      </if>
-      <if test="aiCreate != null">
-        #{aiCreate,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -395,9 +388,6 @@
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
-      <if test="record.aiCreate != null">
-        ai_create = #{record.aiCreate,jdbcType=BIT},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -426,8 +416,7 @@
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      deleted = #{record.deleted,jdbcType=BIT},
-      ai_create = #{record.aiCreate,jdbcType=BIT}
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -498,9 +487,6 @@
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
-      <if test="aiCreate != null">
-        ai_create = #{aiCreate,jdbcType=BIT},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -526,15 +512,14 @@
       update_user = #{updateUser,jdbcType=VARCHAR},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
-      deleted = #{deleted,jdbcType=BIT},
-      ai_create = #{aiCreate,jdbcType=BIT}
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition
     (id, `name`, protocol, `method`, `path`, `status`, num, tags, pos, project_id, module_id, 
       latest, version_id, ref_id, description, create_time, create_user, update_time, 
-      update_user, delete_user, delete_time, deleted, ai_create)
+      update_user, delete_user, delete_time, deleted)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
@@ -544,7 +529,7 @@
         #{item.latest,jdbcType=BIT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
         #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, 
-        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, #{item.aiCreate,jdbcType=BIT})
+        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -622,9 +607,6 @@
         </if>
         <if test="'deleted'.toString() == column.value">
           #{item.deleted,jdbcType=BIT}
-        </if>
-        <if test="'ai_create'.toString() == column.value">
-          #{item.aiCreate,jdbcType=BIT}
         </if>
       </foreach>
       )
