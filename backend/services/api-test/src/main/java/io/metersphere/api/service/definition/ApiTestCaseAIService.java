@@ -9,7 +9,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.service.AiChatBaseService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
@@ -26,7 +26,7 @@ public class ApiTestCaseAIService {
     AiChatBaseService aiChatBaseService;
 
 
-    public String generateApiTestCase(ApiTestCaseAIRequest request, ModelSourceDTO module) {
+    public String generateApiTestCase(ApiTestCaseAIRequest request, AiModelSourceDTO module) {
         ApiDefinitionBlob blob = apiDefinitionBlobMapper.selectByPrimaryKey(request.getApiDefinitionId());
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
 
@@ -39,7 +39,7 @@ public class ApiTestCaseAIService {
     }
 
     public String chat(ApiTestCaseAIRequest request, String userId) {
-        ModelSourceDTO module = aiChatBaseService.getModule(request, userId);
+        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
 
         String prompt = "下面一段话中是否需要生成用例？需要生成几条用例？\n" + request.getPrompt();
         ApiGenerateInfo apiGenerateInfo = aiChatBaseService.chat(prompt, module)

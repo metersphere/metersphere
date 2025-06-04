@@ -6,13 +6,14 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.AIConfigConstants;
-import io.metersphere.system.domain.ModelSource;
-import io.metersphere.system.domain.ModelSourceExample;
+import io.metersphere.system.domain.AiModelSource;
+import io.metersphere.system.domain.AiModelSourceExample;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceRequest;
-import io.metersphere.system.mapper.ExtModelSourceMapper;
-import io.metersphere.system.mapper.ModelSourceMapper;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.mapper.ExtAiModelSourceMapper;
+import io.metersphere.system.mapper.AiModelSourceMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -31,75 +32,75 @@ import java.util.Map;
 public class SystemAIConfigService {
 
     @Resource
-    private ModelSourceMapper modelSourceMapper;
+    private AiModelSourceMapper aiModelSourceMapper;
     @Resource
-    private ExtModelSourceMapper extModelSourceMapper;
+    private ExtAiModelSourceMapper extAiModelSourceMapper;
     @Resource
     private AiChatBaseService aiChatBaseService;
 
     /**
      * 编辑模型配置
      *
-     * @param modelSourceDTO 模型配置数据传输对象
+     * @param aiModelSourceDTO 模型配置数据传输对象
      * @param userId         用户ID
      */
-    public ModelSource editModuleConfig(ModelSourceDTO modelSourceDTO, String userId) {
+    public AiModelSource editModuleConfig(AiModelSourceDTO aiModelSourceDTO, String userId) {
         String id = IDGenerator.nextStr();
         //根据是否有id,判断新增还是编辑，并且检查模型源名称是否重复
-        ModelSourceExample modelSourceExample = new ModelSourceExample();
-        modelSourceExample.createCriteria().andNameEqualTo(modelSourceDTO.getName());
+        AiModelSourceExample aiModelSourceExample = new AiModelSourceExample();
+        aiModelSourceExample.createCriteria().andNameEqualTo(aiModelSourceDTO.getName());
         boolean add = true;
-        if (StringUtils.isNotBlank(modelSourceDTO.getId())) {
-            id = modelSourceDTO.getId();
+        if (StringUtils.isNotBlank(aiModelSourceDTO.getId())) {
+            id = aiModelSourceDTO.getId();
             add = false;
-            modelSourceExample.createCriteria().andIdNotEqualTo(id);
+            aiModelSourceExample.createCriteria().andIdNotEqualTo(id);
         }
-        long sameNameCount = modelSourceMapper.countByExample(modelSourceExample);
+        long sameNameCount = aiModelSourceMapper.countByExample(aiModelSourceExample);
         if (sameNameCount>0) {
             throw new MSException(Translator.get("system_model_name_exist"));
         }
-        ModelSource modelSource = new ModelSource();
-        buildModelSource(modelSourceDTO, userId, modelSource, id);
+        AiModelSource aiModelSource = new AiModelSource();
+        buildModelSource(aiModelSourceDTO, userId, aiModelSource, id);
         //进入之前进行校验
-        validModel(modelSourceDTO);
+        validModel(aiModelSourceDTO);
         //保存
         if (add) {
-            modelSourceMapper.insert(modelSource);
+            aiModelSourceMapper.insert(aiModelSource);
         }else {
-            modelSourceMapper.updateByPrimaryKey(modelSource);
+            aiModelSourceMapper.updateByPrimaryKey(aiModelSource);
         }
-        return modelSource;
+        return aiModelSource;
     }
 
     /**
      * 构建模型源对象
      *
-     * @param modelSourceDTO 模型源数据传输对象
+     * @param aiModelSourceDTO 模型源数据传输对象
      * @param userId         用户ID
-     * @param modelSource    模型源对象
+     * @param aiModelSource    模型源对象
      * @param id             模型源ID
      */
-    private void buildModelSource(ModelSourceDTO modelSourceDTO, String userId, ModelSource modelSource, String id) {
-        modelSource.setId(id);
-        modelSource.setType(modelSourceDTO.getType());
-        modelSource.setName(modelSourceDTO.getName());
-        modelSource.setProviderName(modelSourceDTO.getProviderName());
-        modelSource.setAvatar(modelSourceDTO.getAvatar());
-        modelSource.setPermissionType(modelSourceDTO.getPermissionType());
-        modelSource.setStatus(modelSourceDTO.getStatus());
-        modelSource.setOwnerType(modelSourceDTO.getOwnerType());
-        if (StringUtils.equalsIgnoreCase(modelSourceDTO.getPermissionType(), AIConfigConstants.AiPermissionType.PRIVATE.toString())) {
-            modelSource.setOwner(userId);
+    private void buildModelSource(AiModelSourceDTO aiModelSourceDTO, String userId, AiModelSource aiModelSource, String id) {
+        aiModelSource.setId(id);
+        aiModelSource.setType(aiModelSourceDTO.getType());
+        aiModelSource.setName(aiModelSourceDTO.getName());
+        aiModelSource.setProviderName(aiModelSourceDTO.getProviderName());
+        aiModelSource.setAvatar(aiModelSourceDTO.getAvatar());
+        aiModelSource.setPermissionType(aiModelSourceDTO.getPermissionType());
+        aiModelSource.setStatus(aiModelSourceDTO.getStatus());
+        aiModelSource.setOwnerType(aiModelSourceDTO.getOwnerType());
+        if (StringUtils.equalsIgnoreCase(aiModelSourceDTO.getPermissionType(), AIConfigConstants.AiPermissionType.PRIVATE.toString())) {
+            aiModelSource.setOwner(userId);
         } else {
-            modelSource.setOwner(modelSourceDTO.getOwner());
+            aiModelSource.setOwner(aiModelSourceDTO.getOwner());
         }
-        modelSource.setBaseName(modelSourceDTO.getBaseName());
-        modelSource.setAppKey(modelSourceDTO.getAppKey());
-        modelSource.setApiUrl(modelSourceDTO.getApiUrl());
+        aiModelSource.setBaseName(aiModelSourceDTO.getBaseName());
+        aiModelSource.setAppKey(aiModelSourceDTO.getAppKey());
+        aiModelSource.setApiUrl(aiModelSourceDTO.getApiUrl());
         //校验高级参数是否合格，以及默认值设置
-        List<AdvSettingDTO> advSettingDTOList = modelSourceDTO.getAdvSettingDTOList();
+        List<AdvSettingDTO> advSettingDTOList = aiModelSourceDTO.getAdvSettingDTOList();
         List<AdvSettingDTO> advSettingDTOS = getAdvSettingDTOS(advSettingDTOList);
-        modelSource.setAdvSettings(JSON.toJSONString(advSettingDTOS));
+        aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTOS));
     }
 
     /**
@@ -195,10 +196,10 @@ public class SystemAIConfigService {
 
     /**
      * 验证模型连接是否成功
-     * @param modelSourceDTO 模型源数据传输对象
+     * @param aiModelSourceDTO 模型源数据传输对象
      */
-    private void validModel(ModelSourceDTO modelSourceDTO) {
-        String response = aiChatBaseService.chat("How are you?", modelSourceDTO).content();
+    private void validModel(AiModelSourceDTO aiModelSourceDTO) {
+        String response = aiChatBaseService.chat("How are you?", aiModelSourceDTO).content();
         if (StringUtils.isBlank(response)) {
             throw new MSException(Translator.get("system_model_test_link_error"));
         }
@@ -206,15 +207,15 @@ public class SystemAIConfigService {
 
     /**
      * 获取模型源列表
-     * @param modelSourceRequest 模型源请求数据传输对象
+     * @param aiModelSourceRequest 模型源请求数据传输对象
      * @return 模型源数据传输对象列表
      */
-    public List<ModelSourceDTO> getModelSourceList(ModelSourceRequest modelSourceRequest) {
-        List<ModelSource> list = extModelSourceMapper.list(modelSourceRequest);
-        List<ModelSourceDTO>resultList = new ArrayList<>();
-        for (ModelSource modelSource : list) {
-            ModelSourceDTO modelSourceDTO = getModelSourceDTO(modelSource);
-            resultList.add(modelSourceDTO);
+    public List<AiModelSourceDTO> getModelSourceList(AiModelSourceRequest aiModelSourceRequest) {
+        List<AiModelSource> list = extAiModelSourceMapper.list(aiModelSourceRequest);
+        List<AiModelSourceDTO>resultList = new ArrayList<>();
+        for (AiModelSource aiModelSource : list) {
+            AiModelSourceDTO aiModelSourceDTO = getModelSourceDTO(aiModelSource);
+            resultList.add(aiModelSourceDTO);
         }
         return resultList;
     }
@@ -237,13 +238,13 @@ public class SystemAIConfigService {
     }
 
     @NotNull
-    private static ModelSourceDTO getModelSourceDTO(ModelSource modelSource) {
-        ModelSourceDTO modelSourceDTO = new ModelSourceDTO();
-        BeanUtils.copyBean(modelSourceDTO, modelSource);
-        modelSourceDTO.setAppKey(maskSkString(modelSource.getAppKey()));
-        List<AdvSettingDTO> advSettingDTOList = JSON.parseArray(modelSource.getAdvSettings(), AdvSettingDTO.class);
-        modelSourceDTO.setAdvSettingDTOList(advSettingDTOList);
-        return modelSourceDTO;
+    private static AiModelSourceDTO getModelSourceDTO(AiModelSource aiModelSource) {
+        AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
+        BeanUtils.copyBean(aiModelSourceDTO, aiModelSource);
+        aiModelSourceDTO.setAppKey(maskSkString(aiModelSource.getAppKey()));
+        List<AdvSettingDTO> advSettingDTOList = JSON.parseArray(aiModelSource.getAdvSettings(), AdvSettingDTO.class);
+        aiModelSourceDTO.setAdvSettingDTOList(advSettingDTOList);
+        return aiModelSourceDTO;
     }
 
     /**
@@ -251,16 +252,20 @@ public class SystemAIConfigService {
      * @param id 模型源ID
      * @return 模型源数据传输对象
      */
-    public ModelSourceDTO getModelSourceDTO(String id, String userId) {
-        ModelSource modelSource = modelSourceMapper.selectByPrimaryKey(id);
-        if (modelSource == null) {
+    public AiModelSourceDTO getModelSourceDTO(String id, String userId) {
+        AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
+        if (aiModelSource == null) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         //检查个人模型查看权限
-        if (StringUtils.isNotBlank(userId) && !StringUtils.equalsIgnoreCase(modelSource.getOwner(),userId)) {
+        if (StringUtils.isNotBlank(userId) && !StringUtils.equalsIgnoreCase(aiModelSource.getOwner(),userId)) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
-        return getModelSourceDTO(modelSource);
+        return getModelSourceDTO(aiModelSource);
+    }
+
+    public List<OptionDTO> getModelSourceNameList(String id) {
+        return extAiModelSourceMapper.sourceNameList(id);
     }
 
     /**
@@ -268,15 +273,15 @@ public class SystemAIConfigService {
      * @param id 模型源ID
      * @return 模型源数据传输对象
      */
-    public ModelSourceDTO getModelSourceDTO(String id, String userId, String orgId) {
-        ModelSource modelSource = modelSourceMapper.selectByPrimaryKey(id);
-        if (modelSource == null) {
+    public AiModelSourceDTO getModelSourceDTO(String id, String userId, String orgId) {
+        AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
+        if (aiModelSource == null) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         // 校验权限，全局的和自己的
-        if (!StringUtils.equalsAny(modelSource.getOwner(), userId, orgId)) {
+        if (!StringUtils.equalsAny(aiModelSource.getOwner(), userId, orgId)) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
-        return getModelSourceDTO(modelSource);
+        return getModelSourceDTO(aiModelSource);
     }
 }

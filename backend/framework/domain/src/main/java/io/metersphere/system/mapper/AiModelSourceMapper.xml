@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.ModelSourceMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.ModelSource">
+<mapper namespace="io.metersphere.system.mapper.AiModelSourceMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.AiModelSource">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
@@ -78,13 +78,13 @@
     id, `name`, `type`, provider_name, avatar, permission_type, `status`, `owner`, owner_type, 
     base_name, app_key, api_url, adv_settings
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.ModelSourceExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.AiModelSourceExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from model_source
+    from ai_model_source
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -95,21 +95,21 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from model_source
+    from ai_model_source
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from model_source
+    delete from ai_model_source
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.ModelSourceExample">
-    delete from model_source
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.AiModelSourceExample">
+    delete from ai_model_source
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.ModelSource">
-    insert into model_source (id, `name`, `type`, 
+  <insert id="insert" parameterType="io.metersphere.system.domain.AiModelSource">
+    insert into ai_model_source (id, `name`, `type`, 
       provider_name, avatar, permission_type, 
       `status`, `owner`, owner_type, 
       base_name, app_key, api_url, 
@@ -120,8 +120,8 @@
       #{baseName,jdbcType=VARCHAR}, #{appKey,jdbcType=VARCHAR}, #{apiUrl,jdbcType=VARCHAR}, 
       #{advSettings,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.ModelSource">
-    insert into model_source
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.AiModelSource">
+    insert into ai_model_source
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -205,14 +205,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.ModelSourceExample" resultType="java.lang.Long">
-    select count(*) from model_source
+  <select id="countByExample" parameterType="io.metersphere.system.domain.AiModelSourceExample" resultType="java.lang.Long">
+    select count(*) from ai_model_source
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update model_source
+    update ai_model_source
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -259,7 +259,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update model_source
+    update ai_model_source
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
@@ -277,8 +277,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.ModelSource">
-    update model_source
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.AiModelSource">
+    update ai_model_source
     <set>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -319,8 +319,8 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.ModelSource">
-    update model_source
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.AiModelSource">
+    update ai_model_source
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       provider_name = #{providerName,jdbcType=VARCHAR},
@@ -336,7 +336,7 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into model_source
+    insert into ai_model_source
     (id, `name`, `type`, provider_name, avatar, permission_type, `status`, `owner`, owner_type, 
       base_name, app_key, api_url, adv_settings)
     values
@@ -349,7 +349,7 @@
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into model_source (
+    insert into ai_model_source (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>

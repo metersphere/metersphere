@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.ExtModelSourceMapper">
+<mapper namespace="io.metersphere.system.mapper.ExtAiModelSourceMapper">
 
-    <select id="list" resultType="io.metersphere.system.domain.ModelSource">
+    <select id="list" resultType="io.metersphere.system.domain.AiModelSource">
 
         SELECT *
-        FROM model_source
+        FROM ai_model_source
         <where>
             <if test="request.keyword != null and request.keyword != ''">
                 and name like concat('%', #{request.keyword},'%')
@@ -15,4 +15,9 @@
             </if>
         </where>
     </select>
+    <select id="sourceNameList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        SELECT id, name
+        FROM ai_model_source where owner = #{owner}
+    </select>
+
 </mapper>

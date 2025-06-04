@@ -15,6 +15,12 @@ public class AdvSettingDTO {
     @Schema(description = "参数值")
     private Object value;
 
+    @Schema(description = "参数最大值")
+    private Object maxValue;
+
+    @Schema(description = "参数最小值")
+    private Object minValue;
+
     @Schema(description = "是否启用")
     private Boolean enable;
 

@@ -9,7 +9,7 @@ import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.dto.request.ai.AIConversationUpdateRequest;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.mapper.AiConversationContentMapper;
 import io.metersphere.system.mapper.AiConversationMapper;
 import io.metersphere.system.service.SystemAIConfigService;
@@ -43,7 +43,7 @@ public class AiConversationControllerTest extends BaseTest {
     public static final String DELETE = "delete/{0}";
 
     private static String addAiConversationId = UUID.randomUUID().toString();
-    private static ModelSource module;
+    private static AiModelSource module;
 
     @Value("${embedded.mockserver.host}")
     private String host;
@@ -119,17 +119,17 @@ public class AiConversationControllerTest extends BaseTest {
     }
 
     private void initModule() {
-        ModelSourceDTO modelSourceDTO = new ModelSourceDTO();
-        modelSourceDTO.setName(UUID.randomUUID().toString());
-        modelSourceDTO.setType("LLM");
-        modelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
-        modelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
-        modelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
-        modelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
-        modelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
-        modelSourceDTO.setApiUrl("http://" + host + ":" + port);
-        modelSourceDTO.setAppKey("sk-ryyuiioommnn");
-        modelSourceDTO.setStatus(true);
+        AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
+        aiModelSourceDTO.setName(UUID.randomUUID().toString());
+        aiModelSourceDTO.setType("LLM");
+        aiModelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
+        aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
+        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
+        aiModelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        aiModelSourceDTO.setApiUrl("http://" + host + ":" + port);
+        aiModelSourceDTO.setAppKey("sk-ryyuiioommnn");
+        aiModelSourceDTO.setStatus(true);
 
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
@@ -138,8 +138,8 @@ public class AiConversationControllerTest extends BaseTest {
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
-        modelSourceDTO.setAdvSettingDTOList(list);
-        module = systemAIConfigService.editModuleConfig(modelSourceDTO, InternalUser.ADMIN.getValue());
+        aiModelSourceDTO.setAdvSettingDTOList(list);
+        module = systemAIConfigService.editModuleConfig(aiModelSourceDTO, InternalUser.ADMIN.getValue());
     }
 
     @Test

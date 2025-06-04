@@ -9,7 +9,7 @@ import io.metersphere.system.domain.AiConversationContentExample;
 import io.metersphere.system.domain.AiConversationExample;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.dto.request.ai.AIConversationUpdateRequest;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.mapper.AiConversationContentMapper;
 import io.metersphere.system.mapper.AiConversationMapper;
 import jakarta.annotation.Resource;
@@ -35,14 +35,14 @@ public class AiConversationService {
     AiConversationContentMapper aiConversationContentMapper;
 
     public String chat(AIChatRequest request, String userId) {
-        ModelSourceDTO module = aiChatBaseService.getModule(request, userId);
+        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
         return aiChatBaseService.chatWithMemory(request, module)
                 .content();
     }
 
     public AiConversation add(AIChatRequest request, String userId) {
         String prompt = "请用简短的文字概况以下内容的主旨，字数不超过225：\n" + request.getPrompt();
-        ModelSourceDTO module = aiChatBaseService.getModule(request, userId);
+        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
         String conversationTitle = aiChatBaseService.chat(prompt, module).content();
         AiConversation aiConversation = new AiConversation();
         aiConversation.setId(request.getConversationId());

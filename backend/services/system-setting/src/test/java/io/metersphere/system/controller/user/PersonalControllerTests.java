@@ -9,19 +9,19 @@ import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.ModelSource;
+import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.domain.UserExtendExample;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceRequest;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
 import io.metersphere.system.dto.request.user.PersonalLocaleRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.mapper.ModelSourceMapper;
+import io.metersphere.system.mapper.AiModelSourceMapper;
 import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.SimpleUserService;
@@ -51,7 +51,7 @@ public class PersonalControllerTests extends BaseTest {
     @Resource
     private SimpleUserService simpleUserService;
     @Resource
-    private ModelSourceMapper modelSourceMapper;
+    private AiModelSourceMapper aiModelSourceMapper;
 
     @Test
     @Order(0)
@@ -286,16 +286,16 @@ public class PersonalControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void testEdit() throws Exception {
-        ModelSourceDTO modelSourceDTO = new ModelSourceDTO();
-        modelSourceDTO.setName("测试模型");
-        modelSourceDTO.setType("LLM");
-        modelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
-        modelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
-        modelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
-        modelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
-        modelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
-        modelSourceDTO.setApiUrl("https://api.siliconflow.cn");
-        modelSourceDTO.setAppKey("sk-ryyuiioommnn");
+        AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
+        aiModelSourceDTO.setName("测试模型");
+        aiModelSourceDTO.setType("LLM");
+        aiModelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
+        aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
+        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
+        aiModelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
+        aiModelSourceDTO.setAppKey("sk-ryyuiioommnn");
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
         advSettingDTO.setLabel("温度");
@@ -303,15 +303,15 @@ public class PersonalControllerTests extends BaseTest {
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
-        modelSourceDTO.setAdvSettingDTOList(list);
-        this.requestPost(PersonalRequestUtils.URL_PERSONAL_MODEL_EDIT_MODEL, modelSourceDTO).andExpect(status().is5xxServerError());
+        aiModelSourceDTO.setAdvSettingDTOList(list);
+        this.requestPost(PersonalRequestUtils.URL_PERSONAL_MODEL_EDIT_MODEL, aiModelSourceDTO).andExpect(status().is5xxServerError());
 
     }
 
     @Test
     @Order(5)
     public void testList() throws Exception {
-        ModelSourceRequest request = new ModelSourceRequest();
+        AiModelSourceRequest request = new AiModelSourceRequest();
         request.setCurrent(1);
         request.setPageSize(10);
         request.setOwner("admin");
@@ -332,19 +332,19 @@ public class PersonalControllerTests extends BaseTest {
 
     private String saveModel(String name, String userId){
         String id = IDGenerator.nextStr();
-        ModelSource modelSource = new ModelSource();
-        modelSource.setId(id);
-        modelSource.setType("LLM");
-        modelSource.setName(name);
-        modelSource.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
-        modelSource.setProviderName(AIModelType.DEEP_SEEK);
-        modelSource.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
-        modelSource.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
-        modelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
-        modelSource.setApiUrl("https://api.siliconflow.cn");
-        modelSource.setAppKey("sk-rtgghhjkkll");
-        modelSource.setStatus(false);
-        modelSource.setOwner(userId);
+        AiModelSource aiModelSource = new AiModelSource();
+        aiModelSource.setId(id);
+        aiModelSource.setType("LLM");
+        aiModelSource.setName(name);
+        aiModelSource.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        aiModelSource.setProviderName(AIModelType.DEEP_SEEK);
+        aiModelSource.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
+        aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());
+        aiModelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        aiModelSource.setApiUrl("https://api.siliconflow.cn");
+        aiModelSource.setAppKey("sk-rtgghhjkkll");
+        aiModelSource.setStatus(false);
+        aiModelSource.setOwner(userId);
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
         advSettingDTO.setLabel("温度");
@@ -352,8 +352,8 @@ public class PersonalControllerTests extends BaseTest {
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
-        modelSource.setAdvSettings(JSON.toJSONString(advSettingDTO));
-        modelSourceMapper.insert(modelSource);
+        aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTO));
+        aiModelSourceMapper.insert(aiModelSource);
         return id;
     }
 
