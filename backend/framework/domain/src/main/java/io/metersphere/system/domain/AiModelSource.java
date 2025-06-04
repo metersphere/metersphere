@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Data
-public class ModelSource implements Serializable {
+public class AiModelSource implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{model_source.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{model_source.id.length_range}", groups = {Created.class, Updated.class})

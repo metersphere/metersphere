@@ -11,7 +11,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ModelSourceDTO {
+public class AiModelSourceDTO {
     private String id;
 
     @Schema(description = "模型名称", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -1,12 +1,11 @@
 package io.metersphere.system.service;
 
 import io.metersphere.ai.engine.common.AIChatOptions;
-import io.metersphere.ai.engine.common.AIModelType;
 import io.metersphere.ai.engine.holder.ChatClientHolder;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ai.chat.client.ChatClient;
@@ -29,19 +28,19 @@ public class AiChatBaseService {
     @Resource
     MessageChatMemoryAdvisor messageChatMemoryAdvisor;
 
-    public ChatClient.CallResponseSpec chat(String prompt, ModelSourceDTO module) {
+    public ChatClient.CallResponseSpec chat(String prompt, AiModelSourceDTO module) {
         return getClient(module)
                 .prompt()
                 .user(prompt)
                 .call();
     }
 
-    public ModelSourceDTO getModule(AIChatRequest request, String userId) {
+    public AiModelSourceDTO getModule(AIChatRequest request, String userId) {
         return CommonBeanFactory.getBean(SystemAIConfigService.class)
                 .getModelSourceDTO(request.getChatModelId(), userId, request.getOrganizationId());
     }
 
-    public ChatClient.CallResponseSpec chatWithMemory(AIChatRequest request, ModelSourceDTO module) {
+    public ChatClient.CallResponseSpec chatWithMemory(AIChatRequest request, AiModelSourceDTO module) {
         return getClient(module)
                 .prompt()
                 .user(request.getPrompt())
@@ -50,8 +49,8 @@ public class AiChatBaseService {
                 .call();
     }
 
-    private ChatClient getClient(ModelSourceDTO model) {
-        return ChatClientHolder.getChatClient(AIModelType.DEEP_SEEK, getAiChatOptions(model));
+    private ChatClient getClient(AiModelSourceDTO model) {
+        return ChatClientHolder.getChatClient(model.getProviderName(), getAiChatOptions(model));
     }
 
     /**
@@ -59,7 +58,7 @@ public class AiChatBaseService {
      * @param model
      * @return
      */
-    private AIChatOptions getAiChatOptions(ModelSourceDTO model) {
+    private AIChatOptions getAiChatOptions(AiModelSourceDTO model) {
         // 获取模块的高级设置参数
         Map<String, Object> paramMap = new HashMap<>();
         model.getAdvSettingDTOList().stream()

@@ -15,4 +15,8 @@ public class AIConfigConstants {
     public enum AiOwnerType {
         ORGANIZATION, PERSONAL; // 企业/个人
     }
+
+    public enum AiPromptType {
+        FUNCTIONAL_CASE, API_CASE; // 启用/禁用
+    }
 }

@@ -3,14 +3,14 @@ package io.metersphere.system.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModelSourceExample {
+public class AiModelSourceExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public ModelSourceExample() {
+    public AiModelSourceExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

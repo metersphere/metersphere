@@ -1,7 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-CREATE TABLE IF NOT EXISTS model_source(
+CREATE TABLE IF NOT EXISTS ai_model_source(
                              `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                              `name` VARCHAR(255) NOT NULL   COMMENT '模型名称' ,
                              `type` VARCHAR(50) NOT NULL   COMMENT '模型类别（大语言/视觉/音频）' ,
@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS model_source(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '模型对接保存参数';
 
-CREATE INDEX idx_type ON model_source(`type`);
+CREATE INDEX idx_type ON ai_model_source(`type`);
+CREATE INDEX idx_owner ON ai_model_source(`owner`);
+
 
 -- ai 对话
 CREATE TABLE IF NOT EXISTS ai_conversation(
@@ -49,6 +51,20 @@ CREATE INDEX idx_conversation_timestamp ON ai_conversation_content(`conversation
 
 alter table functional_case
     add ai_create bit default b'0' not null comment '是否是ai自动生成的用例：0-否，1-是';
+
+-- 用户AI提示词配置表
+CREATE TABLE IF NOT EXISTS  ai_user_prompt_config(
+                                      `id` VARCHAR(50) NOT NULL   COMMENT 'id' ,
+                                      `user_id` VARCHAR(50) NOT NULL   COMMENT '用户id' ,
+                                      `type` VARCHAR(50) NOT NULL   COMMENT '配置类型（API/CASE/BUG）' ,
+                                      `config` LONGBLOB NOT NULL   COMMENT '配置内容' ,
+                                      PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '用户Ai提示词配置表';
+
+CREATE INDEX idx_user_id ON ai_user_prompt_config(`user_id`);
+CREATE INDEX idx_type ON ai_user_prompt_config(`type`);
 
 alter table api_definition
     add ai_create bit default b'0' not null comment '是否是ai自动生成的用例：0-否，1-是';

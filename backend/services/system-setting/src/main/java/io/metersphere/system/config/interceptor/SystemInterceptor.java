@@ -23,6 +23,7 @@ public class SystemInterceptor {
         configList.add(new MybatisInterceptorConfig(PluginScript.class, "script", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(PlatformSource.class, "config", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(UserLayout.class, "configuration", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(AiUserPromptConfig.class, "config", CompressUtils.class, "zip", "unzip"));
 
 
 

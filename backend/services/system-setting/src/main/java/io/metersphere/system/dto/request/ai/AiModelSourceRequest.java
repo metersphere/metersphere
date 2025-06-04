@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ModelSourceRequest extends BasePageRequest {
+public class AiModelSourceRequest extends BasePageRequest {
 
     @Schema(description =  "组织id/个人id")
     @NotBlank(message = "{model_source.owner.not_blank}")

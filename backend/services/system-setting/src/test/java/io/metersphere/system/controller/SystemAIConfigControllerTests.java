@@ -5,11 +5,11 @@ import io.metersphere.ai.engine.common.AIModelType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.constants.AIConfigConstants;
-import io.metersphere.system.domain.ModelSource;
+import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceRequest;
-import io.metersphere.system.mapper.ModelSourceMapper;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
+import io.metersphere.system.mapper.AiModelSourceMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
@@ -33,6 +33,8 @@ public class SystemAIConfigControllerTests  extends BaseTest {
     public static final String EDIT_SOURCE = "/edit-source";
     public static final String GET_LIST = "/source/list";
     public static final String DETAIL = "/get/";
+    public static final String GET_NAME_LIST = "/source/name/list/";
+
 
     @Override
     protected String getBasePath() {
@@ -41,33 +43,51 @@ public class SystemAIConfigControllerTests  extends BaseTest {
 
 
     @Resource
-    private ModelSourceMapper modelSourceMapper;
+    private AiModelSourceMapper AIModelSourceMapper;
 
 
     private String saveModel(String name){
         String id = IDGenerator.nextStr();
-        ModelSource modelSource = new ModelSource();
-        modelSource.setId(id);
-        modelSource.setType("LLM");
-        modelSource.setName(name);
-        modelSource.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
-        modelSource.setProviderName(AIModelType.DEEP_SEEK);
-        modelSource.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
-        modelSource.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
-        modelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
-        modelSource.setApiUrl("https://api.siliconflow.cn");
-        modelSource.setAppKey("sk-rtgghhjkkll");
-        modelSource.setStatus(false);
-        modelSource.setOwner(DEFAULT_ORGANIZATION_ID);
+        AiModelSource aiModelSource = new AiModelSource();
+        aiModelSource.setId(id);
+        aiModelSource.setType("LLM");
+        aiModelSource.setName(name);
+        aiModelSource.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        aiModelSource.setProviderName(AIModelType.DEEP_SEEK);
+        aiModelSource.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
+        aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        aiModelSource.setApiUrl("https://api.siliconflow.cn");
+        aiModelSource.setAppKey("sk-rtgghhjkkll");
+        aiModelSource.setStatus(false);
+        aiModelSource.setOwner(DEFAULT_ORGANIZATION_ID);
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
         advSettingDTO.setLabel("温度");
         advSettingDTO.setValue(0.7);
         advSettingDTO.setEnable(false);
+        AdvSettingDTO advSettingDTO1 = new AdvSettingDTO();
+        advSettingDTO1.setName(AIModelParamType.MAX_TOKENS);
+        advSettingDTO1.setLabel("最大Token数");
+        advSettingDTO1.setValue(null);
+        advSettingDTO1.setEnable(null);
+        AdvSettingDTO advSettingDTO2 = new AdvSettingDTO();
+        advSettingDTO2.setName(AIModelParamType.FREQUENCY_PENALTY);
+        advSettingDTO2.setLabel("频率惩罚");
+        advSettingDTO2.setValue(null);
+        advSettingDTO2.setEnable(null);
+        AdvSettingDTO advSettingDTO3 = new AdvSettingDTO();
+        advSettingDTO3.setName(AIModelParamType.TOP_P);
+        advSettingDTO3.setLabel("Top P");
+        advSettingDTO3.setValue(null);
+        advSettingDTO3.setEnable(null);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
-        modelSource.setAdvSettings(JSON.toJSONString(advSettingDTO));
-        modelSourceMapper.insert(modelSource);
+        list.add(advSettingDTO1);
+        list.add(advSettingDTO2);
+        list.add(advSettingDTO3);
+        aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTO));
+        AIModelSourceMapper.insert(aiModelSource);
         return id;
     }
 
@@ -76,16 +96,16 @@ public class SystemAIConfigControllerTests  extends BaseTest {
     @Order(0)
     public void testEdit() throws Exception {
         saveModel("测试模型1");
-        ModelSourceDTO modelSourceDTO = new ModelSourceDTO();
-        modelSourceDTO.setName("测试模型");
-        modelSourceDTO.setType("LLM");
-        modelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
-        modelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
-        modelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
-        modelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
-        modelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
-        modelSourceDTO.setApiUrl("https://api.siliconflow.cn");
-        modelSourceDTO.setAppKey("sk-");
+        AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
+        aiModelSourceDTO.setName("测试模型");
+        aiModelSourceDTO.setType("LLM");
+        aiModelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
+        aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
+        aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
+        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
+        aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
+        aiModelSourceDTO.setAppKey("sk-");
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
         advSettingDTO.setLabel("温度");
@@ -93,10 +113,10 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         advSettingDTO.setEnable(false);
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
-        modelSourceDTO.setAdvSettingDTOList(list);
-        modelSourceDTO.setName("测试模型1");
-        this.requestPost(EDIT_SOURCE, modelSourceDTO).andExpect(status().is5xxServerError());
-        this.requestPost(EDIT_SOURCE, modelSourceDTO).andExpect(status().is5xxServerError());
+        aiModelSourceDTO.setAdvSettingDTOList(list);
+        aiModelSourceDTO.setName("测试模型1");
+        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
+        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
 
 
     }
@@ -105,7 +125,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
     @Order(1)
     public void testList() throws Exception {
         saveModel("测试模型1");
-        ModelSourceRequest request = new ModelSourceRequest();
+        AiModelSourceRequest request = new AiModelSourceRequest();
         request.setCurrent(1);
         request.setPageSize(10);
         request.setOwner(DEFAULT_ORGANIZATION_ID);
@@ -118,9 +138,13 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         this.requestGet(DETAIL+"1").andExpect(status().is5xxServerError());
         String id = saveModel("测试模型2");
         this.requestGetWithOk(DETAIL+id);
-
     }
-
+    @Test
+    @Order(3)
+    public void testNameList() throws Exception {
+        String id = saveModel("测试模型3");
+        this.requestGetWithOk(GET_NAME_LIST+DEFAULT_ORGANIZATION_ID);
+    }
 
 }
 

@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
+import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
@@ -21,8 +22,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.Assert;
 
 import java.util.UUID;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -31,6 +36,8 @@ import java.util.UUID;
 public class ApiTestCaseAiControllerTests extends BaseTest {
     private static final String BASE_PATH = "/api/case/ai/";
     private static final String CHAT = "chat";
+    public static final String EDIT_CONFIG = "/save/config";
+    public static final String GET_CONFIG = "/get/config";
 
     private static String apiDefinitionId = UUID.randomUUID().toString();
     private static String anotherApiDefinitionId = UUID.randomUUID().toString();
@@ -89,6 +96,31 @@ public class ApiTestCaseAiControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, CHAT, apiTestCaseAIRequest);
+    }
+
+    @Test
+    @Order(2)
+    public void testEdit() throws Exception {
+        ApiCaseAIConfigDTO apiCaseAIConfigDTO = new ApiCaseAIConfigDTO();
+        apiCaseAIConfigDTO.setAbnormal(true);
+        apiCaseAIConfigDTO.setNormal(true);
+        apiCaseAIConfigDTO.setCaseName(true);
+        apiCaseAIConfigDTO.setRequestParams(true);
+        apiCaseAIConfigDTO.setPostScript(true);
+        apiCaseAIConfigDTO.setPreScript(true);
+        apiCaseAIConfigDTO.setAssertion(true);
+        this.requestPost(EDIT_CONFIG, apiCaseAIConfigDTO).andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(3)
+    public void testGet() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_CONFIG);
+        ApiCaseAIConfigDTO apiCaseAIConfigDTO = getResultData(mvcResult, ApiCaseAIConfigDTO.class);
+        Assert.notNull(apiCaseAIConfigDTO, "获取AI提示词配置失败");
+        System.out.println(apiCaseAIConfigDTO);
+
+
     }
 
 }

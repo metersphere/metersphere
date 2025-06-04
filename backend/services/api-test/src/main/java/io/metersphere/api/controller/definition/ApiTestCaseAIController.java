@@ -1,5 +1,6 @@
 package io.metersphere.api.controller.definition;
 
+import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
 import io.metersphere.api.service.definition.ApiTestCaseAIService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -10,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/case/ai")
@@ -28,5 +26,19 @@ public class ApiTestCaseAIController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
     public String chat(@Validated @RequestBody ApiTestCaseAIRequest request) {
         return apiTestCaseAIService.chat(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/get/config")
+    @Operation(summary = "接口管理-接口用例-获取用户AI提示词配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    public ApiCaseAIConfigDTO getUserPrompt() {
+        return apiTestCaseAIService.getUserPrompt(SessionUtils.getUserId());
+    }
+
+    @PostMapping("/save/config")
+    @Operation(summary = "接口管理-接口用例-保存用户AI提示词配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    public void saveUserPrompt(@RequestBody ApiCaseAIConfigDTO promptDTO) {
+        apiTestCaseAIService.saveUserPrompt(SessionUtils.getUserId(), promptDTO);
     }
 }

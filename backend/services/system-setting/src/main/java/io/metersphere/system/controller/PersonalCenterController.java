@@ -3,8 +3,8 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.dto.request.ai.ModelSourceDTO;
-import io.metersphere.system.dto.request.ai.ModelSourceRequest;
+import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
 import io.metersphere.system.dto.request.user.PersonalLocaleRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
@@ -77,21 +77,21 @@ public class PersonalCenterController {
 
     @PostMapping("/model/edit-source")
     @Operation(summary = "系统设置-编辑模型设置")
-    public void editModuleConfig(@Validated @RequestBody ModelSourceDTO modelSourceDTO) {
-        systemAIConfigService.editModuleConfig(modelSourceDTO, SessionUtils.getUserId());
+    public void editModuleConfig(@Validated @RequestBody AiModelSourceDTO aiModelSourceDTO) {
+        systemAIConfigService.editModuleConfig(aiModelSourceDTO, SessionUtils.getUserId());
     }
 
     @PostMapping("/model/source/list")
     @Operation(summary = "系统设置-查看模型集合")
-    public Pager<List<ModelSourceDTO>> getModelSourceList(@Validated @RequestBody ModelSourceRequest modelSourceRequest) {
-        this.checkPermission(modelSourceRequest.getOwner());
-        Page<Object> page = PageHelper.startPage(modelSourceRequest.getCurrent(), modelSourceRequest.getPageSize());
-        return PageUtils.setPageInfo(page, systemAIConfigService.getModelSourceList(modelSourceRequest));
+    public Pager<List<AiModelSourceDTO>> getModelSourceList(@Validated @RequestBody AiModelSourceRequest aiModelSourceRequest) {
+        this.checkPermission(aiModelSourceRequest.getOwner());
+        Page<Object> page = PageHelper.startPage(aiModelSourceRequest.getCurrent(), aiModelSourceRequest.getPageSize());
+        return PageUtils.setPageInfo(page, systemAIConfigService.getModelSourceList(aiModelSourceRequest));
     }
 
     @GetMapping("/model/get/{id}")
     @Operation(summary = "获取模型信息")
-    public ModelSourceDTO getModelInformation(@PathVariable String id) {
+    public AiModelSourceDTO getModelInformation(@PathVariable String id) {
         return systemAIConfigService.getModelSourceDTO(id, SessionUtils.getUserId());
     }
 
