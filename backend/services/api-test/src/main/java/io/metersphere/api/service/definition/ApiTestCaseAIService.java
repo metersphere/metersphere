@@ -13,11 +13,8 @@ import io.metersphere.system.dto.request.ai.ModelSourceDTO;
 import io.metersphere.system.service.AiChatBaseService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -29,7 +26,7 @@ public class ApiTestCaseAIService {
     AiChatBaseService aiChatBaseService;
 
 
-    public List<ApiAIResponse> generateApiTestCase(ApiTestCaseAIRequest request, ModelSourceDTO module) {
+    public String generateApiTestCase(ApiTestCaseAIRequest request, ModelSourceDTO module) {
         ApiDefinitionBlob blob = apiDefinitionBlobMapper.selectByPrimaryKey(request.getApiDefinitionId());
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
 
@@ -38,10 +35,10 @@ public class ApiTestCaseAIService {
         request.setPrompt(prompt);
 
         return aiChatBaseService.chatWithMemory(request, module)
-                .entity(new ParameterizedTypeReference<>() {});
+                .content();
     }
 
-    public Object chat(ApiTestCaseAIRequest request, String userId) {
+    public String chat(ApiTestCaseAIRequest request, String userId) {
         ModelSourceDTO module = aiChatBaseService.getModule(request, userId);
 
         String prompt = "下面一段话中是否需要生成用例？需要生成几条用例？\n" + request.getPrompt();

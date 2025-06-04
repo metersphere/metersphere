@@ -1,12 +1,14 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.domain.AiConversation;
 import io.metersphere.system.domain.AiConversationContent;
 import io.metersphere.system.domain.AiConversationContentExample;
 import io.metersphere.system.domain.AiConversationExample;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
+import io.metersphere.system.dto.request.ai.AIConversationUpdateRequest;
 import io.metersphere.system.dto.request.ai.ModelSourceDTO;
 import io.metersphere.system.mapper.AiConversationContentMapper;
 import io.metersphere.system.mapper.AiConversationMapper;
@@ -76,15 +78,21 @@ public class AiConversationService {
         return aiConversationMapper.selectByExample(example);
     }
 
-    public List<String> chatList(String conversationId, String userId) {
+    public List<AiConversationContent> chatList(String conversationId, String userId) {
         AiConversation aiConversation = aiConversationMapper.selectByPrimaryKey(conversationId);
         checkConversationPermission(userId, aiConversation);
         AiConversationContentExample example = new AiConversationContentExample();
         example.createCriteria().andConversationIdEqualTo(conversationId);
         example.setOrderByClause("timestamp DESC");
-        return aiConversationContentMapper.selectByExample(example)
-                .stream()
-                .map(AiConversationContent::getContent)
-                .toList();
+        return aiConversationContentMapper.selectByExample(example);
+    }
+
+    public AiConversation update(AIConversationUpdateRequest request, String userId) {
+        AiConversation originConversation = aiConversationMapper.selectByPrimaryKey(request.getId());
+        checkConversationPermission(userId, originConversation);
+        AiConversation aiConversation = BeanUtils.copyBean(new AiConversation(), request);
+        aiConversationMapper.updateByPrimaryKeySelective(aiConversation);
+        originConversation.setTitle(aiConversation.getTitle());
+        return originConversation;
     }
 }

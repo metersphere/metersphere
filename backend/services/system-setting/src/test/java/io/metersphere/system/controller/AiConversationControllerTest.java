@@ -7,6 +7,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
+import io.metersphere.system.dto.request.ai.AIConversationUpdateRequest;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
 import io.metersphere.system.dto.request.ai.ModelSourceDTO;
 import io.metersphere.system.mapper.AiConversationContentMapper;
@@ -35,6 +36,7 @@ public class AiConversationControllerTest extends BaseTest {
 
     public static final String BASE_PATH = "/ai/conversation/";
     public static final String ADD = "add";
+    public static final String UPDATE = "update";
     public static final String LIST = "list";
     public static final String CHAT_LIST = "chat/list/{0}";
     public static final String CHAT = "chat";
@@ -163,6 +165,18 @@ public class AiConversationControllerTest extends BaseTest {
 
     @Test
     @Order(2)
+    public void updateTitle() throws Exception {
+        AIConversationUpdateRequest request = new AIConversationUpdateRequest();
+        request.setId(addAiConversationId);
+        request.setTitle(UUID.randomUUID().toString());
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE, request);
+        AiConversation resultData = getResultData(mvcResult, AiConversation.class);
+        Assertions.assertEquals(resultData.getTitle(), request.getTitle());
+    }
+
+    @Test
+    @Order(2)
     public void list() throws Exception {
         this.requestGetWithOkAndReturn(LIST);
     }
@@ -171,7 +185,7 @@ public class AiConversationControllerTest extends BaseTest {
     @Order(3)
     public void chatList() throws Exception {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(CHAT_LIST, addAiConversationId);
-        List<String> resultDataArray = getResultDataArray(mvcResult, String.class);
+        List<AiConversationContent> resultDataArray = getResultDataArray(mvcResult, AiConversationContent.class);
         Assertions.assertFalse(resultDataArray.isEmpty());
     }
 

@@ -1,7 +1,9 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.system.domain.AiConversation;
+import io.metersphere.system.domain.AiConversationContent;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
+import io.metersphere.system.dto.request.ai.AIConversationUpdateRequest;
 import io.metersphere.system.service.AiConversationService;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +34,7 @@ public class AiConversationController {
 
     @GetMapping(value = "/chat/list/{conversationId}")
     @Operation(summary = "对话内容列表")
-    public List<String> chatList(@PathVariable String conversationId) {
+    public List<AiConversationContent> chatList(@PathVariable String conversationId) {
         return aiConversationService.chatList(conversationId, SessionUtils.getUserId());
     }
 
@@ -40,6 +42,12 @@ public class AiConversationController {
     @Operation(summary = "添加对话")
     public AiConversation add(@Validated @RequestBody AIChatRequest request) {
         return aiConversationService.add(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping(value = "/update")
+    @Operation(summary = "修改对话标题")
+    public AiConversation add(@Validated @RequestBody AIConversationUpdateRequest request) {
+        return aiConversationService.update(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/chat")
