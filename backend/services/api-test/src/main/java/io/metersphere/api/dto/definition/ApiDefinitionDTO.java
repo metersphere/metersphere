@@ -51,4 +51,7 @@ public class ApiDefinitionDTO extends ApiDefinition{
     @Schema(description = "自定义字段集合")
     private List<ApiDefinitionCustomFieldDTO> customFields;
 
+    @Schema(description = "是否ai生成用例")
+    private Boolean aiCreate;
+
 }

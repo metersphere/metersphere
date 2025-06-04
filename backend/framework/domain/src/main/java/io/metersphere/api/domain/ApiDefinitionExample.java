@@ -1607,6 +1607,66 @@ public class ApiDefinitionExample {
             addCriterion("deleted not between", value1, value2, "deleted");
             return (Criteria) this;
         }
+
+        public Criteria andAiCreateIsNull() {
+            addCriterion("ai_create is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateIsNotNull() {
+            addCriterion("ai_create is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateEqualTo(Boolean value) {
+            addCriterion("ai_create =", value, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateNotEqualTo(Boolean value) {
+            addCriterion("ai_create <>", value, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateGreaterThan(Boolean value) {
+            addCriterion("ai_create >", value, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("ai_create >=", value, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateLessThan(Boolean value) {
+            addCriterion("ai_create <", value, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateLessThanOrEqualTo(Boolean value) {
+            addCriterion("ai_create <=", value, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateIn(List<Boolean> values) {
+            addCriterion("ai_create in", values, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateNotIn(List<Boolean> values) {
+            addCriterion("ai_create not in", values, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateBetween(Boolean value1, Boolean value2) {
+            addCriterion("ai_create between", value1, value2, "aiCreate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAiCreateNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("ai_create not between", value1, value2, "aiCreate");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

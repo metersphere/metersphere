@@ -50,5 +50,7 @@ CREATE INDEX idx_conversation_timestamp ON ai_conversation_content(`conversation
 alter table functional_case
     add ai_create bit default b'0' not null comment '是否是ai自动生成的用例：0-否，1-是';
 
+alter table api_definition
+    add ai_create bit default b'0' not null comment '是否是ai自动生成的用例：0-否，1-是';
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
