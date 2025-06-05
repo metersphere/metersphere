@@ -10,6 +10,7 @@ public class PersonalRequestUtils {
     public static final String URL_PERSONAL_MODEL_EDIT_MODEL = "/personal/model/edit-source";
     public static final String URL_PERSONAL_MODEL_LIST = "/personal/model/source/list";
     public static final String URL_PERSONAL_MODEL_DETAIL = "/personal/model/get/";
+    public static final String URL_PERSONAL_MODEL_DELETE = "/personal/model/delete/";
 
 
 }

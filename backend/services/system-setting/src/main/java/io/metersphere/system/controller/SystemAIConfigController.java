@@ -34,6 +34,13 @@ public class SystemAIConfigController {
         systemAIConfigService.editModuleConfig(aiModelSourceDTO, SessionUtils.getUserId());
     }
 
+    @GetMapping("/delete/{id}")
+    @Operation(summary = "删除模型")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_UPDATE)
+    public void delModelInformation(@PathVariable String id) {
+        systemAIConfigService.delModelInformation(id, SessionUtils.getCurrentOrganizationId(), null);
+    }
+
     @PostMapping("/source/list")
     @Operation(summary = "系统设置-查看模型集合")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_READ)

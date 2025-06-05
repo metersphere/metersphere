@@ -288,4 +288,20 @@ public class SystemAIConfigService {
         }
         return getModelSourceDTOWithKey(aiModelSource);
     }
+
+    public void delModelInformation(String id, String orgId, String userId) {
+        AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
+        if (aiModelSource == null) {
+            throw new MSException(Translator.get("system_model_not_exist"));
+        }
+        // 校验全局权限
+        if (StringUtils.isNotBlank(orgId) && !StringUtils.equalsIgnoreCase(aiModelSource.getOwner(),orgId)){
+            throw new MSException(Translator.get("system_model_not_exist"));
+        }
+        //检查个人模型查看权限
+        if (StringUtils.isNotBlank(userId) && !StringUtils.equalsIgnoreCase(aiModelSource.getOwner(),userId)) {
+            throw new MSException(Translator.get("system_model_not_exist"));
+        }
+        aiModelSourceMapper.deleteByPrimaryKey(id);
+    }
 }

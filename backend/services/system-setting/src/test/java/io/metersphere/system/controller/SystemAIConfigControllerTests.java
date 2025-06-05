@@ -34,6 +34,8 @@ public class SystemAIConfigControllerTests  extends BaseTest {
     public static final String GET_LIST = "/source/list";
     public static final String DETAIL = "/get/";
     public static final String GET_NAME_LIST = "/source/name/list/";
+    public static final String DELETE = "/delete/";
+
 
 
     @Override
@@ -144,6 +146,13 @@ public class SystemAIConfigControllerTests  extends BaseTest {
     public void testNameList() throws Exception {
         String id = saveModel("测试模型3");
         this.requestGetWithOk(GET_NAME_LIST+DEFAULT_ORGANIZATION_ID);
+    }
+
+    @Test
+    @Order(4)
+    public void testDelete() throws Exception {
+        String id = saveModel("测试模型4");
+        this.requestGetWithOk(DELETE+id);
     }
 
 }

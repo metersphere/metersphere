@@ -2,6 +2,7 @@ package io.metersphere.system.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,5 +97,11 @@ public class PersonalCenterController {
         return systemAIConfigService.getModelSourceDTO(id, SessionUtils.getUserId());
     }
 
+    @GetMapping("/model/delete/{id}")
+    @Operation(summary = "删除模型")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_UPDATE)
+    public void delModelInformation(@PathVariable String id) {
+        systemAIConfigService.delModelInformation(id, null, SessionUtils.getUserId());
+    }
 
 }

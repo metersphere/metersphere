@@ -330,6 +330,13 @@ public class PersonalControllerTests extends BaseTest {
 
     }
 
+    @Test
+    @Order(7)
+    public void testDelete() throws Exception {
+        String id = saveModel("个人测试模型3", "admin");
+        this.requestGetWithOk(PersonalRequestUtils.URL_PERSONAL_MODEL_DELETE+id);
+    }
+
     private String saveModel(String name, String userId){
         String id = IDGenerator.nextStr();
         AiModelSource aiModelSource = new AiModelSource();
