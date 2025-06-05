@@ -184,6 +184,7 @@ public class ApiTestCaseService extends MoveNodeService {
         testCase.setUpdateUser(userId);
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
+        testCase.setAiCreate(request.getAiCreat());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             testCase.setTags(ServiceUtils.parseTags(request.getTags()));
         }

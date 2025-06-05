@@ -77,7 +77,8 @@
         a.protocol,
         atc.pos,
         atc.api_change,
-        atc.ignore_api_change
+        atc.ignore_api_change,
+        atc.ai_create
         FROM
         api_test_case atc
         INNER JOIN api_definition a ON atc.api_definition_id = a.id

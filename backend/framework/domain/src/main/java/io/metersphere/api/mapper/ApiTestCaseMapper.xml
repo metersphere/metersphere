@@ -25,6 +25,7 @@
     <result column="api_change" jdbcType="BIT" property="apiChange" />
     <result column="ignore_api_change" jdbcType="BIT" property="ignoreApiChange" />
     <result column="ignore_api_diff" jdbcType="BIT" property="ignoreApiDiff" />
+    <result column="ai_create" jdbcType="BIT" property="aiCreate" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -126,7 +127,7 @@
     id, `name`, priority, num, tags, `status`, last_report_status, last_report_id, pos, 
     project_id, api_definition_id, version_id, environment_id, create_time, create_user, 
     update_time, update_user, delete_time, delete_user, deleted, api_change, ignore_api_change, 
-    ignore_api_diff
+    ignore_api_diff, ai_create
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiTestCaseExample" resultMap="BaseResultMap">
     select
@@ -166,7 +167,7 @@
       version_id, environment_id, create_time, 
       create_user, update_time, update_user, 
       delete_time, delete_user, deleted, 
-      api_change, ignore_api_change, ignore_api_diff
+      api_change, ignore_api_change, ignore_api_diff, ai_create
       )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
       #{num,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
@@ -175,7 +176,7 @@
       #{versionId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
-      #{apiChange,jdbcType=BIT}, #{ignoreApiChange,jdbcType=BIT}, #{ignoreApiDiff,jdbcType=BIT}
+      #{apiChange,jdbcType=BIT}, #{ignoreApiChange,jdbcType=BIT}, #{ignoreApiDiff,jdbcType=BIT}, #{aiCreate,jdbcType=BIT}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiTestCase">
@@ -250,6 +251,9 @@
       <if test="ignoreApiDiff != null">
         ignore_api_diff,
       </if>
+      <if test="aiCreate != null">
+        ai_create,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -320,6 +324,9 @@
       </if>
       <if test="ignoreApiDiff != null">
         #{ignoreApiDiff,jdbcType=BIT},
+      </if>
+      <if test="aiCreate != null">
+        #{aiCreate,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -401,6 +408,9 @@
       <if test="record.ignoreApiDiff != null">
         ignore_api_diff = #{record.ignoreApiDiff,jdbcType=BIT},
       </if>
+      <if test="record.aiCreate != null">
+        ai_create = #{record.aiCreate,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -430,7 +440,8 @@
       deleted = #{record.deleted,jdbcType=BIT},
       api_change = #{record.apiChange,jdbcType=BIT},
       ignore_api_change = #{record.ignoreApiChange,jdbcType=BIT},
-      ignore_api_diff = #{record.ignoreApiDiff,jdbcType=BIT}
+      ignore_api_diff = #{record.ignoreApiDiff,jdbcType=BIT},
+      ai_create = #{record.aiCreate,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -504,6 +515,9 @@
       <if test="ignoreApiDiff != null">
         ignore_api_diff = #{ignoreApiDiff,jdbcType=BIT},
       </if>
+      <if test="aiCreate != null">
+        ai_create = #{aiCreate,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -530,7 +544,8 @@
       deleted = #{deleted,jdbcType=BIT},
       api_change = #{apiChange,jdbcType=BIT},
       ignore_api_change = #{ignoreApiChange,jdbcType=BIT},
-      ignore_api_diff = #{ignoreApiDiff,jdbcType=BIT}
+      ignore_api_diff = #{ignoreApiDiff,jdbcType=BIT},
+      ai_create = #{aiCreate,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
@@ -538,7 +553,7 @@
     (id, `name`, priority, num, tags, `status`, last_report_status, last_report_id, pos, 
       project_id, api_definition_id, version_id, environment_id, create_time, create_user, 
       update_time, update_user, delete_time, delete_user, deleted, api_change, ignore_api_change, 
-      ignore_api_diff)
+      ignore_api_diff, ai_create)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
@@ -548,7 +563,8 @@
         #{item.versionId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
         #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
-        #{item.apiChange,jdbcType=BIT}, #{item.ignoreApiChange,jdbcType=BIT}, #{item.ignoreApiDiff,jdbcType=BIT}
+        #{item.apiChange,jdbcType=BIT}, #{item.ignoreApiChange,jdbcType=BIT}, #{item.ignoreApiDiff,jdbcType=BIT},
+        #{item.aiCreate,jdbcType=BIT}
         )
     </foreach>
   </insert>
@@ -630,6 +646,9 @@
         </if>
         <if test="'ignore_api_diff'.toString() == column.value">
           #{item.ignoreApiDiff,jdbcType=BIT}
+        </if>
+        <if test="'ai_create'.toString() == column.value">
+          #{item.aiCreate,jdbcType=BIT}
         </if>
       </foreach>
       )

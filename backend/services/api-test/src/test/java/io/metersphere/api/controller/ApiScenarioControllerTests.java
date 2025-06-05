@@ -2894,6 +2894,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiTestCase.setApiChange(false);
             apiTestCase.setIgnoreApiChange(false);
             apiTestCase.setIgnoreApiDiff(false);
+            apiTestCase.setAiCreate(false);
             apiTestCases.add(apiTestCase);
         }
         apiTestCaseMapper.batchInsert(apiTestCases);

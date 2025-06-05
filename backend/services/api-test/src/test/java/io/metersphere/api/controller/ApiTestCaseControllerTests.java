@@ -247,6 +247,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiTestCase.setApiChange(false);
             apiTestCase.setIgnoreApiChange(false);
             apiTestCase.setIgnoreApiDiff(false);
+            apiTestCase.setAiCreate(false);
             caseMapper.insert(apiTestCase);
             ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
             apiTestCaseBlob.setId(apiTestCase.getId());

@@ -112,4 +112,7 @@ public class ApiTestCaseDTO {
 
     @Schema(description = "忽略接口定义参数变更")
     private Boolean ignoreApiChange;
+
+    @Schema(description = "是否是ai生成的用例")
+    private Boolean aiCreat = false;
 }

@@ -99,6 +99,10 @@ public class ApiTestCase implements Serializable {
     @NotNull(message = "{api_test_case.ignore_api_diff.not_blank}", groups = {Created.class})
     private Boolean ignoreApiDiff;
 
+    @Schema(description = "是否是ai自动生成的用例：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{functional_case.ai_create.not_blank}", groups = {Created.class})
+    private Boolean aiCreate;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -124,7 +128,8 @@ public class ApiTestCase implements Serializable {
         deleted("deleted", "deleted", "BIT", false),
         apiChange("api_change", "apiChange", "BIT", false),
         ignoreApiChange("ignore_api_change", "ignoreApiChange", "BIT", false),
-        ignoreApiDiff("ignore_api_diff", "ignoreApiDiff", "BIT", false);
+        ignoreApiDiff("ignore_api_diff", "ignoreApiDiff", "BIT", false),
+        aiCreate("ai_create", "aiCreate", "BIT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

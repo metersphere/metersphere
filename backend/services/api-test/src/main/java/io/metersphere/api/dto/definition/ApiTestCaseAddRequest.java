@@ -70,6 +70,9 @@ public class ApiTestCaseAddRequest implements Serializable {
     @Schema(description = "关联文件ID")
     private List<String> linkFileIds;
 
+    @Schema(description = "是否是ai生成的用例")
+    private Boolean aiCreat = false;
+
     public List<String> getTags() {
         if (tags == null) {
             return new ArrayList<>(0);
