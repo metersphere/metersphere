@@ -13,8 +13,10 @@ import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.mapper.AiConversationContentMapper;
 import io.metersphere.system.mapper.AiConversationMapper;
 import io.metersphere.system.service.SystemAIConfigService;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -154,11 +156,12 @@ public class AiConversationControllerTest extends BaseTest {
         String resultData = getResultData(mvcResult, String.class);
         Assertions.assertEquals(resultData, "生成的用例");
 
-        // 手动添加对话内容，真是场景由spring-ai处理
+        // 手动添加对话内容，真实场景由spring-ai处理
         AiConversationContent aiConversationContent = new AiConversationContent();
+        aiConversationContent.setId(IDGenerator.nextStr());
         aiConversationContent.setConversationId(addAiConversationId);
-        aiConversationContent.setType("USER");
-        aiConversationContent.setTimestamp(new Date());
+        aiConversationContent.setType(MessageType.USER.getValue());
+        aiConversationContent.setCreateTime(System.currentTimeMillis());
         aiConversationContent.setContent("生成用例");
         aiConversationContentMapper.insert(aiConversationContent);
     }

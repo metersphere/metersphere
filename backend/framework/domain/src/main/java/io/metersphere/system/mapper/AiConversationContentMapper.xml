@@ -2,9 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.AiConversationContentMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.AiConversationContent">
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="conversation_id" jdbcType="VARCHAR" property="conversationId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="timestamp" jdbcType="TIMESTAMP" property="timestamp" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.AiConversationContent">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    conversation_id, `type`, `timestamp`
+    id, conversation_id, `type`, create_time
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -103,6 +104,18 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from ai_conversation_content
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from ai_conversation_content
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.system.domain.AiConversationContentExample">
     delete from ai_conversation_content
     <if test="_parameter != null">
@@ -110,36 +123,42 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.AiConversationContent">
-    insert into ai_conversation_content (conversation_id, `type`, `timestamp`, 
-      content)
-    values (#{conversationId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{timestamp,jdbcType=TIMESTAMP}, 
-      #{content,jdbcType=LONGVARCHAR})
+    insert into ai_conversation_content (id, conversation_id, `type`, 
+      create_time, content)
+    values (#{id,jdbcType=VARCHAR}, #{conversationId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.AiConversationContent">
     insert into ai_conversation_content
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="conversationId != null">
         conversation_id,
       </if>
       <if test="type != null">
         `type`,
       </if>
-      <if test="timestamp != null">
-        `timestamp`,
+      <if test="createTime != null">
+        create_time,
       </if>
       <if test="content != null">
         content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="conversationId != null">
         #{conversationId,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
-      <if test="timestamp != null">
-        #{timestamp,jdbcType=TIMESTAMP},
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -155,14 +174,17 @@
   <update id="updateByExampleSelective" parameterType="map">
     update ai_conversation_content
     <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
       <if test="record.conversationId != null">
         conversation_id = #{record.conversationId,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.timestamp != null">
-        `timestamp` = #{record.timestamp,jdbcType=TIMESTAMP},
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
@@ -174,9 +196,10 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update ai_conversation_content
-    set conversation_id = #{record.conversationId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
+      conversation_id = #{record.conversationId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      `timestamp` = #{record.timestamp,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=BIGINT},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -184,20 +207,54 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update ai_conversation_content
-    set conversation_id = #{record.conversationId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
+      conversation_id = #{record.conversationId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      `timestamp` = #{record.timestamp,jdbcType=TIMESTAMP}
+      create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.AiConversationContent">
+    update ai_conversation_content
+    <set>
+      <if test="conversationId != null">
+        conversation_id = #{conversationId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.AiConversationContent">
+    update ai_conversation_content
+    set conversation_id = #{conversationId,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.AiConversationContent">
+    update ai_conversation_content
+    set conversation_id = #{conversationId,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
   <insert id="batchInsert" parameterType="map">
     insert into ai_conversation_content
-    (conversation_id, `type`, `timestamp`, content)
+    (id, conversation_id, `type`, create_time, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.conversationId,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.timestamp,jdbcType=TIMESTAMP}, 
-        #{item.content,jdbcType=LONGVARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.conversationId,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -210,14 +267,17 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
         <if test="'conversation_id'.toString() == column.value">
           #{item.conversationId,jdbcType=VARCHAR}
         </if>
         <if test="'type'.toString() == column.value">
           #{item.type,jdbcType=VARCHAR}
         </if>
-        <if test="'timestamp'.toString() == column.value">
-          #{item.timestamp,jdbcType=TIMESTAMP}
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
         </if>
         <if test="'content'.toString() == column.value">
           #{item.content,jdbcType=LONGVARCHAR}

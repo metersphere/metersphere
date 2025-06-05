@@ -15,6 +15,7 @@ import io.metersphere.system.mapper.AiConversationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
  * @CreateTime: 2025-05-28  13:44
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class AiConversationService {
 
     @Resource
@@ -83,7 +84,7 @@ public class AiConversationService {
         checkConversationPermission(userId, aiConversation);
         AiConversationContentExample example = new AiConversationContentExample();
         example.createCriteria().andConversationIdEqualTo(conversationId);
-        example.setOrderByClause("timestamp DESC");
+        example.setOrderByClause("create_time");
         return aiConversationContentMapper.selectByExample(example);
     }
 

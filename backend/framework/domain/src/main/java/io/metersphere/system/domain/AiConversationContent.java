@@ -6,11 +6,15 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import lombok.Data;
 
 @Data
 public class AiConversationContent implements Serializable {
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{ai_conversation_content.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 255, message = "{ai_conversation_content.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
     @Schema(description = "对话ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ai_conversation_content.conversation_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ai_conversation_content.conversation_id.length_range}", groups = {Created.class, Updated.class})
@@ -21,9 +25,8 @@ public class AiConversationContent implements Serializable {
     @Size(min = 1, max = 10, message = "{ai_conversation_content.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{ai_conversation_content.timestamp.not_blank}", groups = {Created.class})
-    private Date timestamp;
+    @Schema(description = "创建时间")
+    private Long createTime;
 
     @Schema(description = "对话标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ai_conversation_content.content.not_blank}", groups = {Created.class})
@@ -33,9 +36,10 @@ public class AiConversationContent implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
         conversationId("conversation_id", "conversationId", "VARCHAR", false),
         type("type", "type", "VARCHAR", true),
-        timestamp("timestamp", "timestamp", "TIMESTAMP", true),
+        createTime("create_time", "createTime", "BIGINT", false),
         content("content", "content", "LONGVARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

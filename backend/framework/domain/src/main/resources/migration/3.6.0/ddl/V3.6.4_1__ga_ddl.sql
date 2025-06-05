@@ -39,15 +39,17 @@ CREATE INDEX idx_create_user ON ai_conversation(`create_user`);
 
 -- ai 对话内容
 CREATE TABLE IF NOT EXISTS ai_conversation_content(
-    `conversation_id` VARCHAR(50) NOT NULL   COMMENT '对话ID' ,
-    `type` VARCHAR(10) NOT NULL   COMMENT '记录类型（USER, ASSISTANT, SYSTEM, TOOL）' ,
-    `content` text NOT NULL   COMMENT '对话标题' ,
-    `timestamp` TIMESTAMP NOT NULL   COMMENT '创建时间'
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_general_ci COMMENT = 'AI对话内容';
+`id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+`conversation_id` VARCHAR(50) NOT NULL   COMMENT '对话ID' ,
+`type` VARCHAR(10) NOT NULL   COMMENT '记录类型（USER, ASSISTANT, SYSTEM, TOOL）' ,
+`content` TEXT NOT NULL   COMMENT '对话标题' ,
+`create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+PRIMARY KEY (id)
+) ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_general_ci COMMENT = 'AI对话内容';
 
-CREATE INDEX idx_conversation_timestamp ON ai_conversation_content(`conversation_id`,`timestamp` DESC);
+CREATE INDEX idx_conversation_create_time ON ai_conversation_content(`conversation_id`,`create_time` DESC);
 
 alter table functional_case
     add ai_create bit default b'0' not null comment '是否是ai自动生成的用例：0-否，1-是';

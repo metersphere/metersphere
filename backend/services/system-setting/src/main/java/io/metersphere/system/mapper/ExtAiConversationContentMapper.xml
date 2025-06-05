@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtAiConversationContentMapper">
+
+    <select id="selectLastByConversationIdByLimit" resultType="io.metersphere.system.domain.AiConversationContent">
+        select id, conversation_id, type, content, create_time
+        from ai_conversation_content
+        where conversation_id = #{conversationId}
+        order by create_time desc
+        limit #{limit}
+    </select>
+
+</mapper>
