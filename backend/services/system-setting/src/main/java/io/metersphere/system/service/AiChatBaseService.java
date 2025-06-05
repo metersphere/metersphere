@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
+import io.metersphere.ai.engine.ChatToolEngine;
 import io.metersphere.ai.engine.common.AIChatOptions;
-import io.metersphere.ai.engine.holder.ChatClientHolder;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: jianxing
@@ -36,7 +37,7 @@ public class AiChatBaseService {
     }
 
     public AiModelSourceDTO getModule(AIChatRequest request, String userId) {
-        return CommonBeanFactory.getBean(SystemAIConfigService.class)
+        return Objects.requireNonNull(CommonBeanFactory.getBean(SystemAIConfigService.class))
                 .getModelSourceDTO(request.getChatModelId(), userId, request.getOrganizationId());
     }
 
@@ -49,12 +50,20 @@ public class AiChatBaseService {
                 .call();
     }
 
+    /**
+     * 获取 AIChatClient
+     *
+     * @param model 模型配置
+     * @return ChatClient
+     */
     private ChatClient getClient(AiModelSourceDTO model) {
-        return ChatClientHolder.getChatClient(model.getProviderName(), getAiChatOptions(model));
+        return ChatToolEngine.builder(model.getProviderName(), getAiChatOptions(model))
+                .getChatClient();
     }
 
     /**
      * 根据模型配置，获取 AIChatOptions
+     *
      * @param model
      * @return
      */

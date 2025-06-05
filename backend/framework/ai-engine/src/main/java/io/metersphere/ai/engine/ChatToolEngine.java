@@ -3,6 +3,7 @@ package io.metersphere.ai.engine;
 import io.metersphere.ai.engine.common.AIChatOptions;
 import io.metersphere.ai.engine.holder.ChatClientHolder;
 import io.metersphere.sdk.util.LogUtils;
+import lombok.Getter;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.*;
@@ -63,6 +64,7 @@ public class ChatToolEngine {
         /**
          * 聊天客户端实例。
          */
+        @Getter
         private final ChatClient chatClient;
         /**
          * 工具列表。
@@ -143,7 +145,6 @@ public class ChatToolEngine {
                     .call()
                     .content();
         }
-
 
         /**
          * 执行聊天请求，返回 {@link ChatResponse} 对象，
