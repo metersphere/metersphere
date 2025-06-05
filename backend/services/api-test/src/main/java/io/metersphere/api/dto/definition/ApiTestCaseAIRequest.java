@@ -16,4 +16,7 @@ public class ApiTestCaseAIRequest extends AIChatRequest implements Serializable 
     @Schema(description = "接口定义ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String apiDefinitionId;
+
+    @Schema(description = "配置ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String configId;
 }

@@ -38,7 +38,7 @@ public class AiChatBaseService {
 
     public AiModelSourceDTO getModule(AIChatRequest request, String userId) {
         return Objects.requireNonNull(CommonBeanFactory.getBean(SystemAIConfigService.class))
-                .getModelSourceDTO(request.getChatModelId(), userId, request.getOrganizationId());
+                .getModelSourceDTOWithKey(request.getChatModelId(), userId, request.getOrganizationId());
     }
 
     public ChatClient.CallResponseSpec chatWithMemory(AIChatRequest request, AiModelSourceDTO module) {
@@ -59,6 +59,16 @@ public class AiChatBaseService {
     private ChatClient getClient(AiModelSourceDTO model) {
         return ChatToolEngine.builder(model.getProviderName(), getAiChatOptions(model))
                 .getChatClient();
+    }
+
+    public ChatClient.CallResponseSpec chatWithMemory(AIChatRequest request, AiModelSourceDTO module, String system) {
+        return getClient(module)
+                .prompt()
+                .system(system)
+                .user(request.getPrompt())
+                .advisors(messageChatMemoryAdvisor)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
+                .call();
     }
 
     /**

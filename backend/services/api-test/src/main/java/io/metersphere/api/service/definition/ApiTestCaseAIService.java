@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.ApiAIResponse;
 import io.metersphere.api.dto.definition.ApiGenerateInfo;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
+import io.metersphere.api.utils.ApiCasePromptTemplateCache;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.util.BeanUtils;
@@ -34,6 +35,8 @@ public class ApiTestCaseAIService {
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
     @Resource
     AiChatBaseService aiChatBaseService;
+    @Resource
+    ApiCasePromptTemplateCache apiCasePromptTemplateCache;
 
     @Resource
     private AiUserPromptConfigMapper aiUserPromptConfigMapper;
@@ -42,12 +45,15 @@ public class ApiTestCaseAIService {
     public String generateApiTestCase(ApiTestCaseAIRequest request, AiModelSourceDTO module) {
         ApiDefinitionBlob blob = apiDefinitionBlobMapper.selectByPrimaryKey(request.getApiDefinitionId());
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
-
         String prompt = request.getPrompt() + "\n" + "以下是接口的定义的json格式数据,根据接口定义生成接口用例:\n" +
                 JSON.toJSONString(BeanUtils.copyBean(new ApiAIResponse(), msTestElement));
+
+        if (blob.getResponse() != null) {
+            prompt += "\n以下是接口的定义的响应示例\n" + new String(blob.getResponse());
+        }
         request.setPrompt(prompt);
 
-        return aiChatBaseService.chatWithMemory(request, module)
+        return aiChatBaseService.chatWithMemory(request, module, apiCasePromptTemplateCache.getTemplate())
                 .content();
     }
 

@@ -237,14 +237,18 @@ public class SystemAIConfigService {
         return prefix + "**** " + suffix;
     }
 
-    @NotNull
-    private static AiModelSourceDTO getModelSourceDTO(AiModelSource aiModelSource) {
-        AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
-        BeanUtils.copyBean(aiModelSourceDTO, aiModelSource);
-        aiModelSourceDTO.setAppKey(maskSkString(aiModelSource.getAppKey()));
-        List<AdvSettingDTO> advSettingDTOList = JSON.parseArray(aiModelSource.getAdvSettings(), AdvSettingDTO.class);
-        aiModelSourceDTO.setAdvSettingDTOList(advSettingDTOList);
-        return aiModelSourceDTO;
+    private AiModelSourceDTO getModelSourceDTO(AiModelSource modelSource) {
+        AiModelSourceDTO modelSourceDTO = getModelSourceDTOWithKey(modelSource);
+        modelSourceDTO.setAppKey(maskSkString(modelSource.getAppKey()));
+        return modelSourceDTO;
+    }
+
+    private AiModelSourceDTO getModelSourceDTOWithKey(AiModelSource modelSource) {
+        AiModelSourceDTO modelSourceDTO = new AiModelSourceDTO();
+        BeanUtils.copyBean(modelSourceDTO, modelSource);
+        List<AdvSettingDTO> advSettingDTOList = JSON.parseArray(modelSource.getAdvSettings(), AdvSettingDTO.class);
+        modelSourceDTO.setAdvSettingDTOList(advSettingDTOList);
+        return modelSourceDTO;
     }
 
     /**
@@ -273,7 +277,7 @@ public class SystemAIConfigService {
      * @param id 模型源ID
      * @return 模型源数据传输对象
      */
-    public AiModelSourceDTO getModelSourceDTO(String id, String userId, String orgId) {
+    public AiModelSourceDTO getModelSourceDTOWithKey(String id, String userId, String orgId) {
         AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
         if (aiModelSource == null) {
             throw new MSException(Translator.get("system_model_not_exist"));
@@ -282,6 +286,6 @@ public class SystemAIConfigService {
         if (!StringUtils.equalsAny(aiModelSource.getOwner(), userId, orgId)) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
-        return getModelSourceDTO(aiModelSource);
+        return getModelSourceDTOWithKey(aiModelSource);
     }
 }
