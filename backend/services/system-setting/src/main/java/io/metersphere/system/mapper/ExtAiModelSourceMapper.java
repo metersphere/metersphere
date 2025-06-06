@@ -11,6 +11,6 @@ public interface ExtAiModelSourceMapper {
 
     List<AiModelSource> list(@Param("request") AiModelSourceRequest aiModelSourceRequest);
 
-    List<OptionDTO> sourceNameList(@Param("owner") String owner);
+    List<OptionDTO> sourceNameList(@Param("owner") String owner, @Param("userId") String userId);
 
 }

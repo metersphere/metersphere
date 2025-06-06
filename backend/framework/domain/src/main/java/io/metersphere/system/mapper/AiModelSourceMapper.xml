@@ -6,7 +6,6 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="provider_name" jdbcType="VARCHAR" property="providerName" />
-    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
     <result column="permission_type" jdbcType="VARCHAR" property="permissionType" />
     <result column="status" jdbcType="BIT" property="status" />
     <result column="owner" jdbcType="VARCHAR" property="owner" />
@@ -75,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, provider_name, avatar, permission_type, `status`, `owner`, owner_type, 
+    id, `name`, `type`, provider_name, permission_type, `status`, `owner`, owner_type, 
     base_name, app_key, api_url, adv_settings
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.AiModelSourceExample" resultMap="BaseResultMap">
@@ -110,15 +109,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.AiModelSource">
     insert into ai_model_source (id, `name`, `type`, 
-      provider_name, avatar, permission_type, 
-      `status`, `owner`, owner_type, 
-      base_name, app_key, api_url, 
-      adv_settings)
+      provider_name, permission_type, `status`, 
+      `owner`, owner_type, base_name, 
+      app_key, api_url, adv_settings
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{providerName,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{permissionType,jdbcType=VARCHAR}, 
-      #{status,jdbcType=BIT}, #{owner,jdbcType=VARCHAR}, #{ownerType,jdbcType=VARCHAR}, 
-      #{baseName,jdbcType=VARCHAR}, #{appKey,jdbcType=VARCHAR}, #{apiUrl,jdbcType=VARCHAR}, 
-      #{advSettings,jdbcType=VARCHAR})
+      #{providerName,jdbcType=VARCHAR}, #{permissionType,jdbcType=VARCHAR}, #{status,jdbcType=BIT}, 
+      #{owner,jdbcType=VARCHAR}, #{ownerType,jdbcType=VARCHAR}, #{baseName,jdbcType=VARCHAR}, 
+      #{appKey,jdbcType=VARCHAR}, #{apiUrl,jdbcType=VARCHAR}, #{advSettings,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.AiModelSource">
     insert into ai_model_source
@@ -134,9 +133,6 @@
       </if>
       <if test="providerName != null">
         provider_name,
-      </if>
-      <if test="avatar != null">
-        avatar,
       </if>
       <if test="permissionType != null">
         permission_type,
@@ -175,9 +171,6 @@
       </if>
       <if test="providerName != null">
         #{providerName,jdbcType=VARCHAR},
-      </if>
-      <if test="avatar != null">
-        #{avatar,jdbcType=VARCHAR},
       </if>
       <if test="permissionType != null">
         #{permissionType,jdbcType=VARCHAR},
@@ -226,9 +219,6 @@
       <if test="record.providerName != null">
         provider_name = #{record.providerName,jdbcType=VARCHAR},
       </if>
-      <if test="record.avatar != null">
-        avatar = #{record.avatar,jdbcType=VARCHAR},
-      </if>
       <if test="record.permissionType != null">
         permission_type = #{record.permissionType,jdbcType=VARCHAR},
       </if>
@@ -264,7 +254,6 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       provider_name = #{record.providerName,jdbcType=VARCHAR},
-      avatar = #{record.avatar,jdbcType=VARCHAR},
       permission_type = #{record.permissionType,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=BIT},
       `owner` = #{record.owner,jdbcType=VARCHAR},
@@ -288,9 +277,6 @@
       </if>
       <if test="providerName != null">
         provider_name = #{providerName,jdbcType=VARCHAR},
-      </if>
-      <if test="avatar != null">
-        avatar = #{avatar,jdbcType=VARCHAR},
       </if>
       <if test="permissionType != null">
         permission_type = #{permissionType,jdbcType=VARCHAR},
@@ -324,7 +310,6 @@
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       provider_name = #{providerName,jdbcType=VARCHAR},
-      avatar = #{avatar,jdbcType=VARCHAR},
       permission_type = #{permissionType,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=BIT},
       `owner` = #{owner,jdbcType=VARCHAR},
@@ -337,12 +322,12 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into ai_model_source
-    (id, `name`, `type`, provider_name, avatar, permission_type, `status`, `owner`, owner_type, 
+    (id, `name`, `type`, provider_name, permission_type, `status`, `owner`, owner_type, 
       base_name, app_key, api_url, adv_settings)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
-        #{item.providerName,jdbcType=VARCHAR}, #{item.avatar,jdbcType=VARCHAR}, #{item.permissionType,jdbcType=VARCHAR}, 
+        #{item.providerName,jdbcType=VARCHAR}, #{item.permissionType,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=BIT}, #{item.owner,jdbcType=VARCHAR}, #{item.ownerType,jdbcType=VARCHAR}, 
         #{item.baseName,jdbcType=VARCHAR}, #{item.appKey,jdbcType=VARCHAR}, #{item.apiUrl,jdbcType=VARCHAR}, 
         #{item.advSettings,jdbcType=VARCHAR})
@@ -369,9 +354,6 @@
         </if>
         <if test="'provider_name'.toString() == column.value">
           #{item.providerName,jdbcType=VARCHAR}
-        </if>
-        <if test="'avatar'.toString() == column.value">
-          #{item.avatar,jdbcType=VARCHAR}
         </if>
         <if test="'permission_type'.toString() == column.value">
           #{item.permissionType,jdbcType=VARCHAR}

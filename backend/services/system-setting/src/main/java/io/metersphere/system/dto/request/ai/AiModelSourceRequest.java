@@ -12,4 +12,7 @@ public class AiModelSourceRequest extends BasePageRequest {
     @NotBlank(message = "{model_source.owner.not_blank}")
     private String owner;
 
+    @Schema(description =  "供应商名称")
+    private String providerName;
+
 }

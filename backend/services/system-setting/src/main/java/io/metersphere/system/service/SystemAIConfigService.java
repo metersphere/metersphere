@@ -85,7 +85,6 @@ public class SystemAIConfigService {
         aiModelSource.setType(aiModelSourceDTO.getType());
         aiModelSource.setName(aiModelSourceDTO.getName());
         aiModelSource.setProviderName(aiModelSourceDTO.getProviderName());
-        aiModelSource.setAvatar(aiModelSourceDTO.getAvatar());
         aiModelSource.setPermissionType(aiModelSourceDTO.getPermissionType());
         aiModelSource.setStatus(aiModelSourceDTO.getStatus());
         aiModelSource.setOwnerType(aiModelSourceDTO.getOwnerType());
@@ -268,8 +267,8 @@ public class SystemAIConfigService {
         return getModelSourceDTO(aiModelSource);
     }
 
-    public List<OptionDTO> getModelSourceNameList(String id) {
-        return extAiModelSourceMapper.sourceNameList(id);
+    public List<OptionDTO> getModelSourceNameList(String id, String userId) {
+        return extAiModelSourceMapper.sourceNameList(id, userId);
     }
 
     /**

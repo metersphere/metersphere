@@ -1,81 +1,72 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class AiModelSource implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{model_source.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{ai_model_source.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "模型名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(description = "模型类别（大语言/视觉/音频）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{model_source.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{ai_model_source.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
     @Schema(description = "模型供应商", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.provider_name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.provider_name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.provider_name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.provider_name.length_range}", groups = {Created.class, Updated.class})
     private String providerName;
 
-    @Schema(description = "模型图片", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.avatar.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.avatar.length_range}", groups = {Created.class, Updated.class})
-    private String avatar;
-
     @Schema(description = "模型类型（公有/私有）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.permission_type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{model_source.permission_type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.permission_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{ai_model_source.permission_type.length_range}", groups = {Created.class, Updated.class})
     private String permissionType;
 
     @Schema(description = "模型连接状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{model_source.status.not_blank}", groups = {Created.class})
+    @NotNull(message = "{ai_model_source.status.not_blank}", groups = {Created.class})
     private Boolean status;
 
     @Schema(description = "模型拥有者", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.owner.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.owner.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.owner.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.owner.length_range}", groups = {Created.class, Updated.class})
     private String owner;
 
     @Schema(description = "模型拥有者类型（个人/企业）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.owner_type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.owner_type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.owner_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.owner_type.length_range}", groups = {Created.class, Updated.class})
     private String ownerType;
 
     @Schema(description = "基础名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.base_name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.base_name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.base_name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.base_name.length_range}", groups = {Created.class, Updated.class})
     private String baseName;
 
     @Schema(description = "模型key", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.app_key.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.app_key.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.app_key.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.app_key.length_range}", groups = {Created.class, Updated.class})
     private String appKey;
 
     @Schema(description = "模型url", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.api_url.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.api_url.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.api_url.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.api_url.length_range}", groups = {Created.class, Updated.class})
     private String apiUrl;
 
     @Schema(description = "模型参数配置值", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.adv_settings.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{model_source.adv_settings.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ai_model_source.adv_settings.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{ai_model_source.adv_settings.length_range}", groups = {Created.class, Updated.class})
     private String advSettings;
 
     private static final long serialVersionUID = 1L;
@@ -85,7 +76,6 @@ public class AiModelSource implements Serializable {
         name("name", "name", "VARCHAR", true),
         type("type", "type", "VARCHAR", true),
         providerName("provider_name", "providerName", "VARCHAR", false),
-        avatar("avatar", "avatar", "VARCHAR", false),
         permissionType("permission_type", "permissionType", "VARCHAR", false),
         status("status", "status", "BIT", true),
         owner("owner", "owner", "VARCHAR", true),

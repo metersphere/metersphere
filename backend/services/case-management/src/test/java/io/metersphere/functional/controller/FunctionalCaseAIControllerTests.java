@@ -40,8 +40,7 @@ public class FunctionalCaseAIControllerTests extends BaseTest {
         FunctionalCaseAIDesignConfigDTO designPromptDTO = getFunctionalCaseAIDesignPromptDTO();
         functionalCaseAIConfigDTO.setDesignConfig(designPromptDTO);
         FunctionalCaseAITemplateConfigDTO templatePromptDTO = new FunctionalCaseAITemplateConfigDTO();
-        templatePromptDTO.setTextDescription(true);
-        templatePromptDTO.setStepDescription(false);
+        templatePromptDTO.setCaseEditType("TEXT");
         templatePromptDTO.setCaseName(true);
         templatePromptDTO.setPreCondition(true);
         templatePromptDTO.setCaseSteps(true);

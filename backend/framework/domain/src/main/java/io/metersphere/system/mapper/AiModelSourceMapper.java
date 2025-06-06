@@ -2,9 +2,8 @@ package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.domain.AiModelSourceExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface AiModelSourceMapper {
     long countByExample(AiModelSourceExample example);

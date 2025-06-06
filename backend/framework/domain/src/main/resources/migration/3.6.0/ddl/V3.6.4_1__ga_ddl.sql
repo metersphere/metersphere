@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS ai_model_source(
                              `name` VARCHAR(255) NOT NULL   COMMENT '模型名称' ,
                              `type` VARCHAR(50) NOT NULL   COMMENT '模型类别（大语言/视觉/音频）' ,
                              `provider_name` VARCHAR(255) NOT NULL   COMMENT '模型供应商' ,
-                             `avatar` VARCHAR(255) NOT NULL   COMMENT '模型图片' ,
                              `permission_type` VARCHAR(50) NOT NULL   COMMENT '模型类型（公有/私有）' ,
                              `status` BIT NOT NULL  DEFAULT 0 COMMENT '模型连接状态' ,
                              `owner` VARCHAR(255) NOT NULL   COMMENT '模型拥有者' ,

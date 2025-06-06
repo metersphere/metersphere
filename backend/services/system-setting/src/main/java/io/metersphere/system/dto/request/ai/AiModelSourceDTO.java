@@ -29,11 +29,6 @@ public class AiModelSourceDTO {
     @Size(min = 1, max = 255, message = "{model_source.provider.length_range}", groups = {Created.class, Updated.class})
     private String providerName;
 
-    @Schema(description = "模型图片", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.avatar.not_blank}", groups = {Created.class, Updated.class})
-    @Size(min = 1, max = 255, message = "{model_source.avatar.length_range}", groups = {Created.class, Updated.class})
-    private String avatar;
-
     @Schema(description = "模型类型（公有/私有）", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{model_source.permission_type.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{model_source.permission_type.length_range}", groups = {Created.class, Updated.class})

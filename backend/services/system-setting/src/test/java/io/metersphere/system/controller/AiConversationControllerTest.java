@@ -5,7 +5,10 @@ import io.metersphere.ai.engine.common.AIModelType;
 import io.metersphere.sdk.constants.InternalUser;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.constants.AIConfigConstants;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.AiConversation;
+import io.metersphere.system.domain.AiConversationContent;
+import io.metersphere.system.domain.AiConversationContentExample;
+import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.dto.request.ai.AIConversationUpdateRequest;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
@@ -23,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -124,7 +126,6 @@ public class AiConversationControllerTest extends BaseTest {
         AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
         aiModelSourceDTO.setName(UUID.randomUUID().toString());
         aiModelSourceDTO.setType("LLM");
-        aiModelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
         aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
         aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());

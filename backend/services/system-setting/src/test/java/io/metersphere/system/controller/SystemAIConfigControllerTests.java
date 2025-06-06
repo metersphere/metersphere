@@ -54,7 +54,6 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSource.setId(id);
         aiModelSource.setType("LLM");
         aiModelSource.setName(name);
-        aiModelSource.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
         aiModelSource.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSource.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
         aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
@@ -101,7 +100,6 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
         aiModelSourceDTO.setName("测试模型");
         aiModelSourceDTO.setType("LLM");
-        aiModelSourceDTO.setAvatar("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYA…9HyMkoW0e16yd+t8gdf0PxNHdl2KDVEMAAAAASUVORK5CYII=");
         aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
         aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());

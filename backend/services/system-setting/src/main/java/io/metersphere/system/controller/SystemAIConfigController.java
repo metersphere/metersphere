@@ -60,7 +60,7 @@ public class SystemAIConfigController {
     @Operation(summary = "系统设置-查看模型名称集合")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_READ)
     public List<OptionDTO> getModelSourceNameList(@PathVariable String id) {
-        return systemAIConfigService.getModelSourceNameList(id);
+        return systemAIConfigService.getModelSourceNameList(id, SessionUtils.getUserId());
     }
 
 }

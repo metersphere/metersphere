@@ -13,11 +13,16 @@
             <if test="request.owner != null and request.owner != ''">
                 and owner = #{request.owner}
             </if>
+            <if test="request.providerName != null and request.providerName != ''">
+                and provider_name = #{request.providerName}
+            </if>
         </where>
     </select>
     <select id="sourceNameList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name
-        FROM ai_model_source where owner = #{owner}
+        FROM ai_model_source where (owner = #{owner}
+                                or owner = #{userId})
+
     </select>
 
 </mapper>
