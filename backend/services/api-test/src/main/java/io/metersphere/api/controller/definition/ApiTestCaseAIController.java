@@ -2,8 +2,10 @@ package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseAiDTO;
 import io.metersphere.api.service.definition.ApiTestCaseAIService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,5 +42,13 @@ public class ApiTestCaseAIController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     public void saveUserPrompt(@RequestBody ApiCaseAIConfigDTO promptDTO) {
         apiTestCaseAIService.saveUserPrompt(SessionUtils.getUserId(), promptDTO);
+    }
+
+
+    @PostMapping("/transform")
+    @Operation(summary = "接口管理-接口用例-单条AI数据生成用例对象")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    public ApiTestCaseAiDTO transformToDTO(@Validated @RequestBody AIChatRequest request) {
+        return apiTestCaseAIService.transformToDTO(request, SessionUtils.getUserId());
     }
 }

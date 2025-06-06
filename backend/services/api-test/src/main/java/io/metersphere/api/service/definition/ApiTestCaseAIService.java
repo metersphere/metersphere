@@ -5,6 +5,7 @@ import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiAIResponse;
 import io.metersphere.api.dto.definition.ApiGenerateInfo;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseAiDTO;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.utils.ApiCasePromptTemplateCache;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -14,6 +15,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.AiUserPromptConfig;
 import io.metersphere.system.domain.AiUserPromptConfigExample;
+import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.mapper.AiUserPromptConfigMapper;
 import io.metersphere.system.service.AiChatBaseService;
@@ -73,7 +75,6 @@ public class ApiTestCaseAIService {
     }
 
 
-
     /**
      * 获取用户的AI提示词
      *
@@ -95,7 +96,7 @@ public class ApiTestCaseAIService {
     /**
      * 保存用户的AI提示词
      *
-     * @param userId 用户ID
+     * @param userId    用户ID
      * @param promptDTO 包含AI模型用例生成方法提示词和生成用例的提示语
      */
     public void saveUserPrompt(String userId, ApiCaseAIConfigDTO promptDTO) {
@@ -118,5 +119,12 @@ public class ApiTestCaseAIService {
         } else {
             aiUserPromptConfigMapper.updateByPrimaryKey(aiUserPromptConfig);
         }
+    }
+
+    public ApiTestCaseAiDTO transformToDTO(AIChatRequest request, String userId) {
+        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
+        String prompt = "请解析以下格式并转为java对象:\n" + request.getPrompt();
+        ApiTestCaseAiDTO entity = aiChatBaseService.chat(prompt, module).entity(ApiTestCaseAiDTO.class);
+        return entity;
     }
 }

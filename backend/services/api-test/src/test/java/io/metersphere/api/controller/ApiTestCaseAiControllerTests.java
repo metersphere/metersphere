@@ -13,6 +13,7 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ public class ApiTestCaseAiControllerTests extends BaseTest {
     private static final String CHAT = "chat";
     public static final String EDIT_CONFIG = "/save/config";
     public static final String GET_CONFIG = "/get/config";
+    public static final String TRANSFORM = "/transform";
 
     private static String apiDefinitionId = UUID.randomUUID().toString();
     private static String anotherApiDefinitionId = UUID.randomUUID().toString();
@@ -120,6 +122,30 @@ public class ApiTestCaseAiControllerTests extends BaseTest {
         Assert.notNull(apiCaseAIConfigDTO, "获取AI提示词配置失败");
         System.out.println(apiCaseAIConfigDTO);
 
+
+    }
+
+    @Test
+    @Order(3)
+    public void transform() throws Exception {
+        AIChatRequest aiChatRequest = new AIChatRequest();
+        aiChatRequest.setPrompt("# 用例名称\n" +
+                "登入成功用例\n" +
+                "\n" +
+                "## 请求头\n" +
+                "| 参数名称 | 参数值 | 描述 |\n" +
+                "| --- | --- | --- |\n" +
+                "| name | admin | 用户名 |\n" +
+                "\n" +
+                "## Query参数\n" +
+                "| 参数名称 | 类型 | 参数值 | 描述 |\n" +
+                "| --- | --- | --- | --- |\n" +
+                "| name | string | admin | 用户名 |");
+        aiChatRequest.setChatModelId("deepseek-chat");
+        aiChatRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        aiChatRequest.setConversationId(UUID.randomUUID().toString());
+
+        this.requestPost(TRANSFORM, aiChatRequest);
 
     }
 
