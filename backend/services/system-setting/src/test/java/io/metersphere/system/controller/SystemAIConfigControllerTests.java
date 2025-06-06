@@ -45,7 +45,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
 
 
     @Resource
-    private AiModelSourceMapper AIModelSourceMapper;
+    private AiModelSourceMapper aiModelSourceMapper;
 
 
     private String saveModel(String name){
@@ -90,7 +90,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         list.add(advSettingDTO2);
         list.add(advSettingDTO3);
         aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTO));
-        AIModelSourceMapper.insert(aiModelSource);
+        aiModelSourceMapper.insert(aiModelSource);
         return id;
     }
 
