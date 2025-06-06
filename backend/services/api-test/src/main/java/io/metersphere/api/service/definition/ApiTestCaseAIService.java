@@ -3,7 +3,6 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiAIResponse;
-import io.metersphere.api.dto.definition.ApiGenerateInfo;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAiDTO;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
@@ -16,6 +15,7 @@ import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.AiUserPromptConfig;
 import io.metersphere.system.domain.AiUserPromptConfigExample;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
+import io.metersphere.system.dto.request.ai.AIChatOption;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.mapper.AiUserPromptConfigMapper;
 import io.metersphere.system.service.AiChatBaseService;
@@ -55,23 +55,48 @@ public class ApiTestCaseAIService {
         }
         request.setPrompt(prompt);
 
-        return aiChatBaseService.chatWithMemory(request, module, apiCasePromptTemplateCache.getTemplate())
+        AIChatOption aiChatOption = AIChatOption.builder()
+                .conversationId(request.getConversationId())
+                .module(module)
+                .prompt(prompt)
+                .system(apiCasePromptTemplateCache.getTemplate())
+                .build();
+
+        return aiChatBaseService.chatWithMemory(aiChatOption)
                 .content();
     }
 
     public String chat(ApiTestCaseAIRequest request, String userId) {
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
 
-        String prompt = "下面一段话中是否需要生成用例？需要生成几条用例？\n" + request.getPrompt();
-        ApiGenerateInfo apiGenerateInfo = aiChatBaseService.chat(prompt, module)
-                .entity(ApiGenerateInfo.class);
+        // 持久化原始提示词
+        aiChatBaseService.saveUserConversationContent(request.getConversationId(), request.getPrompt());
 
-        if (BooleanUtils.isTrue(apiGenerateInfo.getGenerateCase())) {
+        String prompt = "下面一段话中是否需要生成用例？\n" + request.getPrompt();
+
+        AIChatOption aiChatOption = AIChatOption.builder()
+                .conversationId(request.getConversationId())
+                .module(module)
+                .prompt(prompt)
+                .build();
+
+        Boolean isGenerateCase = aiChatBaseService.chat(aiChatOption)
+                .entity(Boolean.class);
+
+        String assistantMessage;
+        if (BooleanUtils.isTrue(isGenerateCase)) {
             // 判断对话是否是需要生成用例
-            return generateApiTestCase(request, module);
+            assistantMessage = generateApiTestCase(request, module);
         } else {
-            return aiChatBaseService.chatWithMemory(request, module).content();
+            aiChatOption.setPrompt(request.getPrompt());
+            assistantMessage = aiChatBaseService.chatWithMemory(aiChatOption)
+                    .content();
         }
+
+        // 持久化回答内容
+        aiChatBaseService.saveAssistantConversationContent(request.getConversationId(), assistantMessage);
+
+        return assistantMessage;
     }
 
 
@@ -124,7 +149,12 @@ public class ApiTestCaseAIService {
     public ApiTestCaseAiDTO transformToDTO(AIChatRequest request, String userId) {
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
         String prompt = "请解析以下格式并转为java对象:\n" + request.getPrompt();
-        ApiTestCaseAiDTO entity = aiChatBaseService.chat(prompt, module).entity(ApiTestCaseAiDTO.class);
+        AIChatOption aiChatOption = AIChatOption.builder()
+                .module(module)
+                .prompt(prompt)
+                .build();
+        ApiTestCaseAiDTO entity = aiChatBaseService.chat(aiChatOption)
+                .entity(ApiTestCaseAiDTO.class);
         return entity;
     }
 }

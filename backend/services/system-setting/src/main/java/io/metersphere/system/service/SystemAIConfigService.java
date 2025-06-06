@@ -8,6 +8,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.domain.AiModelSourceExample;
+import io.metersphere.system.dto.request.ai.AIChatOption;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
@@ -198,7 +199,11 @@ public class SystemAIConfigService {
      * @param aiModelSourceDTO 模型源数据传输对象
      */
     private void validModel(AiModelSourceDTO aiModelSourceDTO) {
-        String response = aiChatBaseService.chat("How are you?", aiModelSourceDTO).content();
+        AIChatOption aiChatOption = AIChatOption.builder()
+                .module(aiModelSourceDTO)
+                .prompt("How are you?")
+                .build();
+        String response = aiChatBaseService.chat(aiChatOption).content();
         if (StringUtils.isBlank(response)) {
             throw new MSException(Translator.get("system_model_test_link_error"));
         }

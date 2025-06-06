@@ -1,9 +1,8 @@
 package io.metersphere.system.config.ai;
 
+import io.metersphere.ai.engine.utils.TextCleaner;
 import io.metersphere.system.domain.AiConversationContent;
-import io.metersphere.system.mapper.AiConversationContentMapper;
 import io.metersphere.system.mapper.ExtAiConversationContentMapper;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.*;
@@ -26,26 +25,13 @@ public class MsMessageChatMemory implements ChatMemory {
      */
     private static final int DEFAULT_MAX_MESSAGES = 10;
 
-    @Resource
-    private AiConversationContentMapper aiConversationContentMapper;
+
     @Resource
     private ExtAiConversationContentMapper extAiConversationContentMapper;
 
     @Override
     public void add(String conversationId, List<Message> messages) {
-        // 插入当前消息
-        List<AiConversationContent> contents = messages.stream()
-                .map(message -> {
-                    AiConversationContent aiConversationContent = new AiConversationContent();
-                    aiConversationContent.setId(IDGenerator.nextStr());
-                    aiConversationContent.setConversationId(conversationId);
-                    aiConversationContent.setContent(message.getText());
-                    aiConversationContent.setType(message.getMessageType().getValue());
-                    aiConversationContent.setCreateTime(System.currentTimeMillis());
-                    return aiConversationContent;
-                })
-                .toList();
-        aiConversationContentMapper.batchInsert(contents);
+        // 这里不处理，手动保存原始的提示词
     }
 
     @Override
@@ -54,12 +40,19 @@ public class MsMessageChatMemory implements ChatMemory {
         List<AiConversationContent> contents = extAiConversationContentMapper.selectLastByConversationIdByLimit(conversationId, DEFAULT_MAX_MESSAGES)
                 .reversed();
 
+        // 先持久化了提示词，会重复，这里去掉最后一条
+        contents.removeLast();
+
         return contents.stream()
                 .map(conversationContent -> {
                     MessageType type = MessageType.fromValue(conversationContent.getType());
                     String content = conversationContent.getContent();
                     Message message = switch (type) {
-                        case USER -> new UserMessage(content);
+                        case USER -> {
+                            // 过滤，简化提示词
+                            TextCleaner.fullClean(content);
+                            yield new UserMessage(content);
+                        }
                         case ASSISTANT -> new AssistantMessage(content);
                         case SYSTEM -> new SystemMessage(content);
                         // The content is always stored empty for ToolResponseMessages.
