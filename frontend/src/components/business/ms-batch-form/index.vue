@@ -217,7 +217,7 @@
             <template #icon>
               <icon-plus class="text-[14px]" />
             </template>
-            {{ t(props.addText) }}
+            {{ t(props.addText || 'common.add') }}
           </a-button>
           <template #content>
             <div>
@@ -249,7 +249,7 @@
   export interface BatchFormProps {
     models: FormItemModel[];
     formMode: FormMode;
-    addText: string;
+    addText?: string;
     maxHeight?: string;
     defaultVals?: any[]; // 当外层是编辑状态时，可传入已填充的数据
     isShowDrag?: boolean; // 是否可以拖拽

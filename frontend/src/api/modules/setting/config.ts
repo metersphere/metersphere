@@ -2,6 +2,8 @@ import MSR from '@/api/http/index';
 import {
   AddAuthUrl,
   DeleteAuthUrl,
+  DeleteModelConfigUrl,
+  EditModelConfigUrl,
   EditUploadConfigUrl,
   GetAuthDetailByTypeUrl,
   GetAuthDetailUrl,
@@ -9,7 +11,10 @@ import {
   GetBaseInfoUrl,
   GetCleanConfigUrl,
   GetEmailInfoUrl,
+  GetModelConfigDetailUrl,
+  GetModelConfigNameListUrl,
   GetPageConfigUrl,
+  ModelConfigListUrl,
   SaveBaseInfoUrl,
   SaveBaseUrlUrl,
   SaveCleanConfigUrl,
@@ -37,6 +42,12 @@ import type {
   TestEmailParams,
   UpdateAuthStatusParams,
 } from '@/models/setting/config';
+import type {
+  GetModelConfigListQueryParams,
+  ModelConfigItem,
+  ModelConfigNameItem,
+  ModelFormConfigParams,
+} from '@/models/setting/modelConfig';
 
 // 测试邮箱连接
 export function testEmail(data: TestEmailParams) {
@@ -136,4 +147,30 @@ export function getCleanupConfig() {
 // 保存内存清理配置
 export function saveUploadConfig(data: SaveInfoParams) {
   return MSR.post({ url: EditUploadConfigUrl, data });
+}
+
+// 系统设置-模型配置
+// 查看模型集合
+export function getModelConfigList(data: GetModelConfigListQueryParams) {
+  return MSR.post<CommonList<ModelConfigItem>>({ url: ModelConfigListUrl, data });
+}
+
+// 编辑模型
+export function editModelConfig(data: ModelFormConfigParams) {
+  return MSR.post({ url: EditModelConfigUrl, data });
+}
+
+// 模型详情
+export function getModelConfigDetail(id: string) {
+  return MSR.get<ModelConfigItem>({ url: `${GetModelConfigDetailUrl}/${id}` });
+}
+
+// 模型名称下拉集合
+export function getModelConfigNameList(id: string) {
+  return MSR.get<ModelConfigNameItem[]>({ url: `${GetModelConfigNameListUrl}/${id}` });
+}
+
+// 删除模型
+export function deleteModelConfig(id: string) {
+  return MSR.get({ url: `${DeleteModelConfigUrl}/${id}` });
 }

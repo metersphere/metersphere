@@ -55,7 +55,6 @@
       margin-left: 4px;
       color: transparent;
       background-clip: text;
-      background-clip: text;
       background-image: linear-gradient(90deg, #3370ff 0%, #783887 100%);
     }
   }

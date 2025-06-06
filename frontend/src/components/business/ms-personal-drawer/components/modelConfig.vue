@@ -42,12 +42,17 @@
           >
             <div class="model-config-card-list relative">
               <MsCardList
-                v-if="modelCardList.length"
-                mode="static"
+                ref="modelCardListRef"
+                mode="remote"
+                :remote-func="modelConfigListApiMap"
+                :remote-params="{
+                  owner: props.modelKey === 'personal' ? userStore.id : '',
+                  keyword,
+                  providerName: activeModelType,
+                }"
                 :card-min-width="props.cardMinWidth || 230"
                 class="flex-1"
                 :shadow-limit="50"
-                :list="modelCardList"
                 :is-proportional="false"
                 :gap="16"
               >
@@ -66,8 +71,8 @@
                           <div class="text-[var(--color-text-4)]">
                             {{ t('system.config.modelConfig.modelCreateUser') }}
                           </div>
-                          <a-tooltip :content="item.creatorName" :mouse-enter-delay="300">
-                            <div class="one-line-text">{{ item.creatorName }}</div>
+                          <a-tooltip :content="item.createUserName" :mouse-enter-delay="300">
+                            <div class="one-line-text">{{ item.createUserName }}</div>
                           </a-tooltip>
                         </div>
                       </div>
@@ -82,11 +87,11 @@
                         </div>
                       </div>
                       <div class="one-line-text flex flex-col gap-[8px]">
-                        <a-tooltip :content="item.modelType" :mouse-enter-delay="300">
-                          <div class="one-line-text"> {{ item.modelType }}</div>
+                        <a-tooltip :content="item.type" :mouse-enter-delay="300">
+                          <div class="one-line-text"> {{ item.type }}</div>
                         </a-tooltip>
-                        <a-tooltip :content="item.baseModel" :mouse-enter-delay="300">
-                          <div class="one-line-text"> {{ item.baseModel }}</div>
+                        <a-tooltip :content="item.baseName" :mouse-enter-delay="300">
+                          <div class="one-line-text"> {{ item.baseName }}</div>
                         </a-tooltip>
                       </div>
                     </div>
@@ -115,13 +120,14 @@
                     </div>
                   </div>
                 </template>
+                <template #empty>
+                  <div
+                    class="absolute left-0 right-0 top-[30%] translate-y-[-60%] text-center text-[var(--color-text-4)]"
+                  >
+                    {{ t('system.config.modelConfig.noModelData') }}
+                  </div>
+                </template>
               </MsCardList>
-              <div
-                v-else
-                class="absolute left-0 right-0 top-[30%] translate-y-[-60%] text-center text-[var(--color-text-4)]"
-              >
-                {{ t('system.config.modelConfig.noModelData') }}
-              </div>
             </div>
           </div>
         </div>
@@ -129,6 +135,7 @@
           v-model:visible="showModelConfigDrawer"
           :current-model-id="currentModelId"
           :supplier-model-item="supplierModelItem"
+          :model-key="props.modelKey"
           @close="handleCancel"
         />
       </template>
@@ -144,27 +151,49 @@
   import MsCardList from '@/components/business/ms-card-list/index.vue';
   import modelEditDrawer from './modelEditDrawer.vue';
 
+  import { deleteModelConfig, editModelConfig, getModelConfigList } from '@/api/modules/setting/config';
+  import { deletePersonalModelConfig, editPersonalModelConfig, getPersonalModelConfigList } from '@/api/modules/user';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import { useUserStore } from '@/store';
   import { characterLimit } from '@/utils';
 
-  import type { SupplierModelItem } from '@/models/setting/modelConfig';
+  import type { ModelConfigItem, SupplierModelItem } from '@/models/setting/modelConfig';
   import { ModelBaseTypeEnum } from '@/enums/modelEnum';
 
   const { openModal } = useModal();
 
   const { t } = useI18n();
+  const userStore = useUserStore();
 
   const props = defineProps<{
     modelKey: 'personal' | 'system';
     cardMinWidth?: number;
   }>();
 
+  const modelConfigListApiMap = {
+    personal: getPersonalModelConfigList,
+    system: getModelConfigList,
+  }[props.modelKey];
+
+  const modelConfigDeleteApiMap = {
+    personal: deletePersonalModelConfig,
+    system: deleteModelConfig,
+  }[props.modelKey];
+
+  const modelEditApiMap = {
+    personal: editPersonalModelConfig,
+    system: editModelConfig,
+  }[props.modelKey];
+
   const keyword = ref('');
+  const modelCardListRef = ref<InstanceType<typeof MsCardList>>();
 
-  function searchData() {}
-
-  const modelCardList = ref([]);
+  function searchData() {
+    nextTick(() => {
+      modelCardListRef.value?.reload();
+    });
+  }
 
   const initSupplier = {
     value: ModelBaseTypeEnum.DeepSeek,
@@ -193,10 +222,11 @@
   function changeModelType(item: SupplierModelItem) {
     activeModelType.value = item.value;
     supplierModelItem.value = item;
+    searchData();
   }
 
-  function getModelSvg(item: any) {
-    switch (item.type) {
+  function getModelSvg(item: ModelConfigItem) {
+    switch (item.providerName) {
       case ModelBaseTypeEnum.DeepSeek:
         return 'deepSeek';
       case ModelBaseTypeEnum.ZhiPuAI:
@@ -206,11 +236,21 @@
     }
   }
 
-  function enableModel(item: any) {
-    Message.success(t('common.enableSuccess'));
+  async function enableModel(item: ModelConfigItem) {
+    try {
+      await modelEditApiMap({
+        ...item,
+        status: true,
+      });
+      Message.success(t('common.enableSuccess'));
+      searchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
-  function closedModel(item: any) {
+  function closedModel(item: ModelConfigItem) {
     openModal({
       type: 'warning',
       title: t('system.config.modelConfig.closedModelTitle', { name: characterLimit(item.name) }),
@@ -222,7 +262,12 @@
       },
       onBeforeOk: async () => {
         try {
-          // TODO
+          await modelEditApiMap({
+            ...item,
+            status: false,
+          });
+          Message.success(t('common.closeSuccess'));
+          searchData();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -232,7 +277,7 @@
     });
   }
 
-  function changeStatus(newValue: string | number | boolean, item: any) {
+  function changeStatus(newValue: string | number | boolean, item: ModelConfigItem) {
     if (newValue) {
       enableModel(item);
     } else {
@@ -244,8 +289,7 @@
   const showModelConfigDrawer = ref(false);
   const currentModelId = ref<string>('');
 
-  //  TODO 类型
-  function editModel(item: any) {
+  function editModel(item: ModelConfigItem) {
     currentModelId.value = item.id;
     showModelConfigDrawer.value = true;
   }
@@ -258,7 +302,7 @@
     showModelConfigDrawer.value = true;
   }
 
-  function deleteModel(item: any) {
+  function deleteModel(item: ModelConfigItem) {
     openModal({
       type: 'error',
       title: t('common.deleteConfirmTitle', { name: characterLimit(item.name) }),
@@ -270,7 +314,9 @@
       },
       onBeforeOk: async () => {
         try {
-          // TODO
+          await modelConfigDeleteApiMap(item.id);
+          Message.success(t('common.deleteSuccess'));
+          searchData();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

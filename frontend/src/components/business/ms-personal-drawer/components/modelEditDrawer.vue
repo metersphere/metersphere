@@ -3,11 +3,13 @@
     v-model:visible="innerVisible"
     :title="modelTitle"
     :width="800"
-    :show-continue="true"
+    :show-continue="!props.currentModelId"
     no-content-padding
     unmount-on-close
+    :ok-loading="loading"
     :ok-text="props.currentModelId ? t('common.update') : t('common.save')"
     @confirm="handleDrawerConfirm"
+    @continue="handleDrawerConfirm(true)"
     @cancel="handleDrawerCancel"
   >
     <div class="p-[16px]">
@@ -51,7 +53,15 @@
               >
                 <MsSelect v-model:model-value="form.type" :options="modelTypeOptions" />
               </a-form-item>
-              <a-form-item field="baseName" :label="t('system.config.modelConfig.baseModel')" class="w-[400px]">
+              <a-form-item
+                field="baseName"
+                :label="t('system.config.modelConfig.baseModel')"
+                class="w-[400px]"
+                :rules="[
+                  { required: true, message: t('common.notNull', { value: t('system.config.modelConfig.baseModel') }) },
+                ]"
+                asterisk-position="end"
+              >
                 <a-auto-complete
                   v-model:model-value="form.baseName"
                   :data="baseModelTypeOptions"
@@ -85,6 +95,7 @@
                   },
                 ]"
                 field="apiUrl"
+                asterisk-position="end"
                 :label="t('system.config.modelConfig.apiHostName')"
               >
                 <a-input
@@ -98,6 +109,7 @@
                   { required: true, message: t('common.notNull', { value: t('system.config.modelConfig.secretKey') }) },
                 ]"
                 field="appKey"
+                asterisk-position="end"
                 :label="t('system.config.modelConfig.apiKey')"
               >
                 <a-input-password
@@ -121,8 +133,7 @@
                 :models="batchFormModels"
                 enable-type="circle"
                 :form-mode="baseModelForm"
-                add-text="system.user.addUser"
-                :default-vals="form.list"
+                :default-vals="form.advSettingDTOList"
                 show-enable
                 hide-add
                 @change="handleBatchFormChange"
@@ -140,7 +151,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { SelectOptionData } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -149,16 +160,20 @@
   import MsSelect from '@/components/business/ms-select';
   import expandCollapseWrap from './expandCollapseWrap.vue';
 
+  import { editModelConfig, getModelConfigDetail } from '@/api/modules/setting/config';
+  import { editPersonalModelConfig, getPersonalModelConfigDetail } from '@/api/modules/user';
   import { baseModelTypeMap, getModelDefaultConfig } from '@/config/modelConfig';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { ModelForm, SupplierModelItem } from '@/models/setting/modelConfig';
+  import type { ModelFormConfigParams, SupplierModelItem } from '@/models/setting/modelConfig';
+  import { ModelBaseTypeEnum, ModelOwnerTypeTypeEnum, ModelPermissionTypeEnum, ModelTypeEnum } from '@/enums/modelEnum';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     supplierModelItem: SupplierModelItem;
     currentModelId: string;
+    modelKey: 'personal' | 'system';
   }>();
 
   const emit = defineEmits<{
@@ -168,6 +183,16 @@
   const innerVisible = defineModel<boolean>('visible', {
     required: true,
   });
+
+  const modelDetailApiMap = {
+    personal: getPersonalModelConfigDetail,
+    system: getModelConfigDetail,
+  }[props.modelKey];
+
+  const modelEditApiMap = {
+    personal: editPersonalModelConfig,
+    system: editModelConfig,
+  }[props.modelKey];
 
   const visibility = ref(false);
   const baseModelForm = ref<'create' | 'edit'>('create');
@@ -189,7 +214,6 @@
       placeholder: 'common.pleaseInput',
       disabled: true,
     },
-    // TODO 默认值需要确认是否需要范围框
     {
       field: 'value',
       type: 'inputNumber',
@@ -211,14 +235,19 @@
   const initForm = {
     id: '',
     name: '',
-    type: 'LLM',
+    type: ModelTypeEnum.LLM,
+    providerName: ModelBaseTypeEnum.DeepSeek,
+    permissionType: props.modelKey === 'personal' ? ModelPermissionTypeEnum.PRIVATE : ModelPermissionTypeEnum.PUBLIC,
+    status: true,
+    owner: '',
+    ownerType: props.modelKey === 'personal' ? ModelOwnerTypeTypeEnum.PERSONAL : ModelOwnerTypeTypeEnum.ORGANIZATION,
     baseName: '',
-    apiUrl: '',
     appKey: '',
-    list: [],
+    apiUrl: '',
+    advSettingDTOList: [],
   };
 
-  const form = ref<ModelForm>(cloneDeep(initForm));
+  const form = ref<ModelFormConfigParams>(cloneDeep(initForm));
 
   const modelTypeOptions = [
     {
@@ -241,26 +270,81 @@
 
   function selectAutoComplete(val: string) {
     form.value.baseName = val;
-    form.value.list = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
+    form.value.advSettingDTOList = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
   }
 
   function clearBaseName() {
-    form.value.list = [];
+    form.value.advSettingDTOList = [];
   }
 
-  function handleDrawerConfirm() {}
-
+  const formRef = ref<FormInstance | null>(null);
   function handleDrawerCancel() {
     form.value = cloneDeep(initForm);
+    formRef.value?.resetFields();
     emit('close');
+  }
+
+  const loading = ref(false);
+  function validateAdvanceConfig(cb: (data: ModelFormConfigParams) => Promise<any>, isContinue = false) {
+    batchFormRef.value?.formValidate(async (list: any) => {
+      try {
+        loading.value = true;
+        form.value.advSettingDTOList = [...list];
+        await cb(form.value);
+
+        if (isContinue) {
+          form.value = cloneDeep(initForm);
+        } else {
+          handleDrawerCancel();
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        loading.value = false;
+      }
+    });
+  }
+
+  function handleDrawerConfirm(isContinue = false) {
+    formRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          if (form.value.id) {
+            validateAdvanceConfig(modelEditApiMap);
+            Message.success(t('common.updateSuccess'));
+          } else {
+            // TODO 添加接口未出
+            validateAdvanceConfig(modelEditApiMap, isContinue);
+            Message.success(t('common.createSuccess'));
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      }
+    });
+  }
+
+  async function getDetail() {
+    if (props.currentModelId) {
+      try {
+        form.value = await modelDetailApiMap(props.currentModelId);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
   }
 
   watch(
     () => innerVisible.value,
     (val) => {
       if (val) {
+        getDetail();
+        form.value.providerName = props.supplierModelItem.value;
         baseModelTypeOptions.value = baseModelTypeMap[props.supplierModelItem.value];
-        form.value.list = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
+        form.value.advSettingDTOList = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
       }
     }
   );

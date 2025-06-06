@@ -37,3 +37,8 @@ export const GetLarkCallbackUrl = '/sso/callback/lark'; // 获取飞书登陆的
 export const GeLarkSuiteInfoUrl = '/lark_suite/info'; // 获取国际飞书登陆的配置信息
 export const GetLarkSuiteCallbackUrl = '/sso/callback/lark_suite'; // 获取国际飞书登陆的回调信息
 export const GetDefaultLocaleUrl = '/user/local/config/default-locale'; // 获取默认语言配置
+// 个人中心-模型配置
+export const PersonalModelConfigListUrl = '/personal/model/source/list'; // 查看模型集合
+export const PersonalEditModelConfigUrl = '/personal/model/edit-source'; // 编辑模型设置
+export const PersonalGetModelConfigDetailUrl = '/personal/model/get'; // 获取模型信息
+export const PersonalDeleteModelConfigUrl = '/personal/model/delete'; // 删除模型

@@ -4,4 +4,20 @@ export enum ModelBaseTypeEnum {
   OpenAI = 'Open AI',
 }
 
+export enum ModelTypeEnum {
+  LLM = 'LLM', // 大语言
+  VISION = 'VISION', // 视觉
+  AUDIO = 'AUDIO', // 音频
+}
+
+export enum ModelPermissionTypeEnum {
+  PUBLIC = 'PUBLIC', // 公有
+  PRIVATE = 'PRIVATE', // 私有
+}
+
+export enum ModelOwnerTypeTypeEnum {
+  ORGANIZATION = 'ORGANIZATION', // 企业
+  PERSONAL = 'PERSONAL', // 个人
+}
+
 export default {};

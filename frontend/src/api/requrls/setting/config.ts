@@ -47,3 +47,14 @@ export const GetLoginLogoUrl = `${import.meta.env.VITE_API_BASE_URL}/base-displa
 export const GetLoginImageUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/login-image`;
 // 获取平台标签图标
 export const GetPlatformIconUrl = `${import.meta.env.VITE_API_BASE_URL}/base-display/get/icon`;
+// 模型配置
+// 系统设置-查看模型集合
+export const ModelConfigListUrl = '/ai/config/source/list';
+// 编辑模型设置
+export const EditModelConfigUrl = '/ai/config/edit-source';
+// 获取模型信息
+export const GetModelConfigDetailUrl = '/ai/config/get';
+// 查看模型名称集合
+export const GetModelConfigNameListUrl = '/ai/config/source/name/list';
+// 删除模型
+export const DeleteModelConfigUrl = '/ai/config/delete';

@@ -32,6 +32,10 @@ import {
   ldapLoginUrl,
   LoginUrl,
   LogoutUrl,
+  PersonalDeleteModelConfigUrl,
+  PersonalEditModelConfigUrl,
+  PersonalGetModelConfigDetailUrl,
+  PersonalModelConfigListUrl,
   SavePlatformUrl,
   UpdateAPIKEYUrl,
   UpdateInfoUrl,
@@ -43,6 +47,12 @@ import {
   ValidLocalConfigUrl,
 } from '@/api/requrls/user';
 
+import type { CommonList } from '@/models/common';
+import type {
+  GetModelConfigListQueryParams,
+  ModelConfigItem,
+  ModelFormConfigParams,
+} from '@/models/setting/modelConfig';
 import type {
   AddLocalConfigParams,
   APIKEY,
@@ -262,4 +272,22 @@ export function addView(viewType: string, data: ViewParams) {
 // 删除视图
 export function deleteView(viewType: string, id: string) {
   return MSR.get({ url: `/user-view/${viewType}/delete/${id}` });
+}
+
+// 个人中心-模型配置
+// 查看模型集合
+export function getPersonalModelConfigList(data: GetModelConfigListQueryParams) {
+  return MSR.post<CommonList<ModelConfigItem>>({ url: PersonalModelConfigListUrl, data });
+}
+// 编辑模型
+export function editPersonalModelConfig(data: ModelFormConfigParams) {
+  return MSR.post({ url: PersonalEditModelConfigUrl, data });
+}
+// 模型详情
+export function getPersonalModelConfigDetail(id: string) {
+  return MSR.get<ModelConfigItem>({ url: `${PersonalGetModelConfigDetailUrl}/${id}` });
+}
+// 删除模型
+export function deletePersonalModelConfig(id: string) {
+  return MSR.get({ url: `${PersonalDeleteModelConfigUrl}/${id}` });
 }
