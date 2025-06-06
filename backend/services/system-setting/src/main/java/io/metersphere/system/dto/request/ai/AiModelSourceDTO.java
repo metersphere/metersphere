@@ -38,9 +38,7 @@ public class AiModelSourceDTO {
     @NotNull(message = "{model_source.status.not_blank}", groups = {Created.class, Updated.class})
     private Boolean status;
 
-    @Schema(description = "模型拥有者", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{model_source.owner.not_blank}", groups = {Created.class, Updated.class})
-    @Size(min = 1, max = 255, message = "{model_source.owner.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "模型拥有者(system/用户id)")
     private String owner;
 
     @Schema(description = "模型拥有者类型（个人/企业）", requiredMode = Schema.RequiredMode.REQUIRED)

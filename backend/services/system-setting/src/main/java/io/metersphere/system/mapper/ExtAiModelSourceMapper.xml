@@ -19,9 +19,9 @@
         </where>
         order by ai.create_time desc
     </select>
-    <select id="sourceNameList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+    <select id="enableSourceNameList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name
-        FROM ai_model_source where (owner = #{owner}
+        FROM ai_model_source where status = true and (owner = 'system'
                                 or owner = #{userId})
 
     </select>

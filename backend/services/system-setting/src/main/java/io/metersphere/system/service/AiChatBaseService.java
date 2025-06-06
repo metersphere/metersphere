@@ -39,7 +39,7 @@ public class AiChatBaseService {
 
     public AiModelSourceDTO getModule(AIChatRequest request, String userId) {
         return Objects.requireNonNull(CommonBeanFactory.getBean(SystemAIConfigService.class))
-                .getModelSourceDTOWithKey(request.getChatModelId(), userId, request.getOrganizationId());
+                .getModelSourceDTOWithKey(request.getChatModelId(), userId);
     }
 
     /**

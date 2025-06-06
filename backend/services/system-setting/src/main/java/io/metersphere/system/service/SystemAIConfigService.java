@@ -40,6 +40,8 @@ public class SystemAIConfigService {
     @Resource
     private AiChatBaseService aiChatBaseService;
 
+    private static final String DEFAULT_OWNER = "system";
+
     /**
      * 编辑模型配置
      *
@@ -93,7 +95,7 @@ public class SystemAIConfigService {
         if (StringUtils.equalsIgnoreCase(aiModelSourceDTO.getPermissionType(), AIConfigConstants.AiPermissionType.PRIVATE.toString())) {
             aiModelSource.setOwner(userId);
         } else {
-            aiModelSource.setOwner(aiModelSourceDTO.getOwner());
+            aiModelSource.setOwner(DEFAULT_OWNER);
         }
         aiModelSource.setBaseName(aiModelSourceDTO.getBaseName());
         aiModelSource.setAppKey(aiModelSourceDTO.getAppKey());
@@ -276,8 +278,8 @@ public class SystemAIConfigService {
         return getModelSourceDTO(aiModelSource);
     }
 
-    public List<OptionDTO> getModelSourceNameList(String id, String userId) {
-        return extAiModelSourceMapper.sourceNameList(id, userId);
+    public List<OptionDTO> getModelSourceNameList(String userId) {
+        return extAiModelSourceMapper.enableSourceNameList(userId);
     }
 
     /**
@@ -285,25 +287,21 @@ public class SystemAIConfigService {
      * @param id 模型源ID
      * @return 模型源数据传输对象
      */
-    public AiModelSourceDTO getModelSourceDTOWithKey(String id, String userId, String orgId) {
+    public AiModelSourceDTO getModelSourceDTOWithKey(String id, String userId) {
         AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
         if (aiModelSource == null)  {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         // 校验权限，全局的和自己的
-        if (!StringUtils.equalsAny(aiModelSource.getOwner(), userId, orgId)) {
+        if (!StringUtils.equalsAny(aiModelSource.getOwner(), userId, DEFAULT_OWNER)) {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         return getModelSourceDTOWithKey(aiModelSource);
     }
 
-    public void delModelInformation(String id, String orgId, String userId) {
+    public void delModelInformation(String id, String userId) {
         AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
         if (aiModelSource == null) {
-            throw new MSException(Translator.get("system_model_not_exist"));
-        }
-        // 校验全局权限
-        if (StringUtils.isNotBlank(orgId) && !StringUtils.equalsIgnoreCase(aiModelSource.getOwner(),orgId)){
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         //检查个人模型查看权限

@@ -38,7 +38,7 @@ public class SystemAIConfigController {
     @Operation(summary = "删除模型")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_UPDATE)
     public void delModelInformation(@PathVariable String id) {
-        systemAIConfigService.delModelInformation(id, SessionUtils.getCurrentOrganizationId(), null);
+        systemAIConfigService.delModelInformation(id, null);
     }
 
     @PostMapping("/source/list")
@@ -56,11 +56,11 @@ public class SystemAIConfigController {
         return systemAIConfigService.getModelSourceDTO(id, null);
     }
 
-    @GetMapping("/source/name/list/{id}")
+    @GetMapping("/source/name/list")
     @Operation(summary = "系统设置-查看模型名称集合")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_READ)
-    public List<OptionDTO> getModelSourceNameList(@PathVariable String id) {
-        return systemAIConfigService.getModelSourceNameList(id, SessionUtils.getUserId());
+    public List<OptionDTO> getModelSourceNameList() {
+        return systemAIConfigService.getModelSourceNameList(SessionUtils.getUserId());
     }
 
 }

@@ -101,7 +101,7 @@ public class PersonalCenterController {
     @Operation(summary = "删除模型")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_UPDATE)
     public void delModelInformation(@PathVariable String id) {
-        systemAIConfigService.delModelInformation(id, null, SessionUtils.getUserId());
+        systemAIConfigService.delModelInformation(id, SessionUtils.getUserId());
     }
 
 }
