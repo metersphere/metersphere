@@ -10,7 +10,7 @@
         >
           {{ t('caseManagement.featureCase.creatingCase') }}
         </a-button>
-        <MsAiButton :text="t('settings.navbar.ai')" @click="openAI" />
+        <MsAiButton v-if="aiStore.aiSourceNameList.length > 0" :text="t('settings.navbar.ai')" @click="openAI" />
       </div>
       <MsAdvanceFilter
         ref="msAdvanceFilterRef"
@@ -369,6 +369,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useCacheStore from '@/store/modules/cache/cache';
+  import useAIStore from '@/store/modules/setting/ai';
   import { characterLimit, operationWidth } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -418,6 +419,7 @@
 
   const route = useRoute();
   const appStore = useAppStore();
+  const aiStore = useAIStore();
   const { t } = useI18n();
   const tableStore = useTableStore();
   const { openModal } = useModal();

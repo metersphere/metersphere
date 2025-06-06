@@ -166,8 +166,8 @@ export function getModelConfigDetail(id: string) {
 }
 
 // 模型名称下拉集合
-export function getModelConfigNameList(id: string) {
-  return MSR.get<ModelConfigNameItem[]>({ url: `${GetModelConfigNameListUrl}/${id}` });
+export function getModelConfigNameList() {
+  return MSR.get<ModelConfigNameItem[]>({ url: GetModelConfigNameListUrl }, { ignoreCancelToken: true });
 }
 
 // 删除模型

@@ -33,7 +33,12 @@
                 {{ t('common.newCreate') }}
               </a-button>
               <ImportCase ref="importCaseRef" @init-modules="emit('initModules')" @confirm-import="confirmImport" />
-              <MsAiButton class="ml-[12px]" :text="t('settings.navbar.ai')" @click="openAI" />
+              <MsAiButton
+                v-if="aiStore.aiSourceNameList.length > 0"
+                class="ml-[12px]"
+                :text="t('settings.navbar.ai')"
+                @click="openAI"
+              />
             </div>
           </template>
           <template #right>
@@ -456,6 +461,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useMinderStore from '@/store/modules/components/minder-editor';
   import { ShowType } from '@/store/modules/components/minder-editor/types';
+  import useAIStore from '@/store/modules/setting/ai';
   import {
     characterLimit,
     downloadByteFile,
@@ -515,6 +521,7 @@
   }>();
 
   const minderStore = useMinderStore();
+  const aiStore = useAIStore();
 
   const keyword = ref<string>('');
   const groupKeyword = ref<string>('');

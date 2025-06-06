@@ -16,6 +16,7 @@
   import { WHITE_LIST } from '@/router/constants';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
+  import useAIStore from '@/store/modules/setting/ai';
   import useLicenseStore from '@/store/modules/setting/license';
   import { getQueryVariable, getUrlParameterWidthRegExp } from '@/utils';
   import { setLoginExpires, setLongType, setToken } from '@/utils/auth';
@@ -30,6 +31,7 @@
   const appStore = useAppStore();
   const userStore = useUserStore();
   const licenseStore = useLicenseStore();
+  const aiStore = useAIStore();
   const { currentLocale } = useLocale();
   const locale = computed(() => {
     switch (currentLocale.value) {
@@ -60,6 +62,7 @@
       if (licenseStore.hasLicense()) {
         appStore.initPageConfig(); // 初始化页面配置
       }
+      aiStore.getAISourceNameList();
       // 项目初始化时需要获取基础设置信息，看当前站点 url是否为系统内置默认地址，如果是需要替换为当前项目部署的 url 地址
       const isInitUrl = getLocalStorage('isInitUrl'); // 是否已经初始化过 url
       if (isInitUrl === 'true') return;

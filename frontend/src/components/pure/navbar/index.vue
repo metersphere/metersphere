@@ -57,7 +57,7 @@
     <ul v-if="!props.isPreview && !props.hideRight" class="right-side">
       <li>
         <a-tooltip :content="t('settings.navbar.ai')" position="br">
-          <a-button type="secondary" @click="openAI">
+          <a-button v-if="aiStore.aiSourceNameList.length > 0" type="secondary" @click="openAI">
             <template #icon>
               <svg-icon width="18px" height="18px" name="ai" />
             </template>
@@ -214,6 +214,7 @@
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
   import useGlobalStore from '@/store/modules/global';
+  import useAIStore from '@/store/modules/setting/ai';
   import useUserStore from '@/store/modules/user';
   import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
   import { setDarkTheme, watchStyle, watchTheme } from '@/utils/theme';
@@ -239,6 +240,7 @@
   const appStore = useAppStore();
   const userStore = useUserStore();
   const globalStore = useGlobalStore();
+  const aiStore = useAIStore();
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
