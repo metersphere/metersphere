@@ -19,6 +19,7 @@
   >
     <template #titleName>
       <div :class="`case-title flex flex-1 items-center gap-[8px] overflow-hidden ${isEditTitle ? 'w-full' : ''}`">
+        <MsAiTag v-if="!isEditTitle && detailInfo.aiCreate" />
         <a-select
           v-if="!isEditTitle"
           v-model:model-value="caseLevels"
@@ -222,6 +223,7 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsAiTag from '@/components/pure/ms-ai-tag/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsTab from '@/components/pure/ms-tab/index.vue';

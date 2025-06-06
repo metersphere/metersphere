@@ -3,6 +3,7 @@
     <div class="p-[16px]">
       <MsDetailCard :title="`[${caseDetail.num}] ${caseDetail.name}`" :description="description" class="mb-[8px]">
         <template #titlePrefix>
+          <MsAiTag v-if="caseDetail.aiCreate" />
           <caseLevel :case-level="caseDetail.priority as CaseLevel" />
         </template>
         <template v-if="!props.isDrawer" #titleAppend>
@@ -124,6 +125,7 @@
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import MsAiTag from '@/components/pure/ms-ai-tag/index.vue';
   import MsDetailCard from '@/components/pure/ms-detail-card/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';

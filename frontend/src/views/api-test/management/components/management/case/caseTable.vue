@@ -1,14 +1,17 @@
 <template>
   <div class="overflow-hidden p-[16px_22px]">
-    <div :class="['mb-[16px]', 'flex', 'items-center', props.isApi ? 'justify-between' : 'justify-end']">
-      <a-button
-        v-show="props.isApi"
-        v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
-        type="primary"
-        @click="createCase"
-      >
-        {{ t('caseManagement.featureCase.creatingCase') }}
-      </a-button>
+    <div :class="['mb-[16px]', 'flex', 'items-center', 'justify-between']">
+      <div class="flex gap-[12px]">
+        <a-button
+          v-show="props.isApi"
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+          type="primary"
+          @click="createCase"
+        >
+          {{ t('caseManagement.featureCase.creatingCase') }}
+        </a-button>
+        <MsAiButton :text="t('settings.navbar.ai')" @click="openAI" />
+      </div>
       <MsAdvanceFilter
         ref="msAdvanceFilterRef"
         v-model:keyword="keyword"
@@ -42,7 +45,8 @@
         </div>
       </template>
       <template #num="{ record }">
-        <div class="flex items-center">
+        <div class="flex items-center gap-[8px]">
+          <MsAiTag v-if="record.aiCreate" />
           <MsButton type="text" @click="openCaseTab(record)">
             {{ record.num }}
           </MsButton>
@@ -313,6 +317,8 @@
     @sync="syncParamsHandler"
     @load-list="loadCaseListAndResetSelector"
   />
+  <!-- AI 生成 -->
+  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="chat" />
 </template>
 
 <script setup lang="ts">
@@ -322,6 +328,8 @@
 
   import MsAdvanceFilter from '@/components/pure/ms-advance-filter/index.vue';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
+  import MsAiButton from '@/components/pure/ms-ai-button/index.vue';
+  import MsAiTag from '@/components/pure/ms-ai-tag/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -385,6 +393,8 @@
   import type { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
 
+  const MsAIDrawer = defineAsyncComponent(() => import('@/components/business/ms-ai-drawer/index.vue'));
+
   defineOptions({
     name: CacheTabTypeEnum.API_TEST_CASE_TABLE,
   });
@@ -413,6 +423,11 @@
   const { openModal } = useModal();
 
   const keyword = ref('');
+
+  const aiDrawerVisible = ref<boolean>(false);
+  function openAI() {
+    aiDrawerVisible.value = true;
+  }
 
   const hasOperationPermission = computed(() =>
     hasAnyPermission([

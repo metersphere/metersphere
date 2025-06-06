@@ -23,7 +23,7 @@
           @refresh="fetchData()"
         >
           <template #left>
-            <div>
+            <div class="flex">
               <a-button
                 v-permission="['FUNCTIONAL_CASE:READ+ADD']"
                 class="mr-[12px]"
@@ -33,6 +33,7 @@
                 {{ t('common.newCreate') }}
               </a-button>
               <ImportCase ref="importCaseRef" @init-modules="emit('initModules')" @confirm-import="confirmImport" />
+              <MsAiButton class="ml-[12px]" :text="t('settings.navbar.ai')" @click="openAI" />
             </div>
           </template>
           <template #right>
@@ -67,9 +68,12 @@
           @filter-change="filterChange"
         >
           <template #num="{ record }">
-            <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
-              {{ record.num }}
-            </span>
+            <div class="flex items-center gap-[8px]">
+              <MsAiTag v-if="record.aiCreate" />
+              <span type="text" class="one-line-text cursor-pointer px-0 text-[rgb(var(--primary-5))]">
+                {{ record.num }}
+              </span>
+            </div>
           </template>
           <template #name="{ record }">
             <div class="one-line-text">{{ record.name }}</div>
@@ -383,6 +387,8 @@
     :platform-info="platformInfo"
     @save="saveThirdDemand"
   />
+  <!-- AI 生成 -->
+  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="chat" />
 </template>
 
 <script setup lang="ts">
@@ -393,6 +399,8 @@
 
   import { getFilterCustomFields, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult } from '@/components/pure/ms-advance-filter/type';
+  import MsAiButton from '@/components/pure/ms-ai-button/index.vue';
+  import MsAiTag from '@/components/pure/ms-ai-tag/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCacheWrapper from '@/components/pure/ms-cache-wrapper/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -479,6 +487,8 @@
   import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
+  const MsAIDrawer = defineAsyncComponent(() => import('@/components/business/ms-ai-drawer/index.vue'));
+
   const cacheStore = useCacheStore();
 
   const MsExportDrawer = defineAsyncComponent(() => import('@/components/pure/ms-export-drawer/index.vue'));
@@ -514,6 +524,11 @@
   const modulesCount = computed(() => {
     return featureCaseStore.modulesCount;
   });
+
+  const aiDrawerVisible = ref<boolean>(false);
+  function openAI() {
+    aiDrawerVisible.value = true;
+  }
 
   function handleShowTypeChange(val: string | number | boolean) {
     minderStore.setShowType(MinderKeyEnum.FEATURE_CASE_MINDER, val as ShowType);
