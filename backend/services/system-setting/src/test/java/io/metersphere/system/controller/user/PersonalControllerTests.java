@@ -342,6 +342,8 @@ public class PersonalControllerTests extends BaseTest {
         aiModelSource.setId(id);
         aiModelSource.setType("LLM");
         aiModelSource.setName(name);
+        aiModelSource.setCreateTime(System.currentTimeMillis());
+        aiModelSource.setCreateUser("admin");
         aiModelSource.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSource.setPermissionType(AIConfigConstants.AiPermissionType.PRIVATE.toString());
         aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.PERSONAL.toString());

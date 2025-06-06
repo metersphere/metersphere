@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS ai_model_source(
                              `app_key` VARCHAR(255) NOT NULL   COMMENT '模型key' ,
                              `api_url` VARCHAR(255) NOT NULL   COMMENT '模型url' ,
                              `adv_settings` VARCHAR(255) NOT NULL   COMMENT '模型参数配置值' ,
+                             `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                             `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人(操作人）' ,
                              PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

@@ -9,11 +9,12 @@ import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.domain.AiModelSourceExample;
 import io.metersphere.system.dto.request.ai.AdvSettingDTO;
+import io.metersphere.system.dto.request.ai.AiModelSourceCreateNameDTO;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.mapper.ExtAiModelSourceMapper;
 import io.metersphere.system.mapper.AiModelSourceMapper;
+import io.metersphere.system.mapper.ExtAiModelSourceMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -100,6 +101,8 @@ public class SystemAIConfigService {
         List<AdvSettingDTO> advSettingDTOList = aiModelSourceDTO.getAdvSettingDTOList();
         List<AdvSettingDTO> advSettingDTOS = getAdvSettingDTOS(advSettingDTOList);
         aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTOS));
+        aiModelSource.setCreateTime(System.currentTimeMillis());
+        aiModelSource.setCreateUser(userId);
     }
 
     /**
@@ -210,10 +213,11 @@ public class SystemAIConfigService {
      * @return 模型源数据传输对象列表
      */
     public List<AiModelSourceDTO> getModelSourceList(AiModelSourceRequest aiModelSourceRequest) {
-        List<AiModelSource> list = extAiModelSourceMapper.list(aiModelSourceRequest);
+        List<AiModelSourceCreateNameDTO> list = extAiModelSourceMapper.list(aiModelSourceRequest);
         List<AiModelSourceDTO>resultList = new ArrayList<>();
-        for (AiModelSource aiModelSource : list) {
+        for (AiModelSourceCreateNameDTO aiModelSource : list) {
             AiModelSourceDTO aiModelSourceDTO = getModelSourceDTO(aiModelSource);
+            aiModelSourceDTO.setCreateUserName(aiModelSource.getCreateUserName());
             resultList.add(aiModelSourceDTO);
         }
         return resultList;
@@ -278,7 +282,7 @@ public class SystemAIConfigService {
      */
     public AiModelSourceDTO getModelSourceDTOWithKey(String id, String userId, String orgId) {
         AiModelSource aiModelSource = aiModelSourceMapper.selectByPrimaryKey(id);
-        if (aiModelSource == null) {
+        if (aiModelSource == null)  {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
         // 校验权限，全局的和自己的

@@ -1,12 +1,16 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class AiModelSource implements Serializable {
@@ -69,6 +73,13 @@ public class AiModelSource implements Serializable {
     @Size(min = 1, max = 255, message = "{ai_model_source.adv_settings.length_range}", groups = {Created.class, Updated.class})
     private String advSettings;
 
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "创建人(操作人）")
+    private String createUser;
+
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -83,7 +94,9 @@ public class AiModelSource implements Serializable {
         baseName("base_name", "baseName", "VARCHAR", false),
         appKey("app_key", "appKey", "VARCHAR", false),
         apiUrl("api_url", "apiUrl", "VARCHAR", false),
-        advSettings("adv_settings", "advSettings", "VARCHAR", false);
+        advSettings("adv_settings", "advSettings", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        createUser("create_user", "createUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

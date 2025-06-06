@@ -60,6 +60,15 @@ public class AiModelSourceDTO {
     @NotBlank(message = "{model_source.api_url.not_blank}", groups = {Created.class, Updated.class})
     private String apiUrl;
 
+    @Schema(description = "创建人名称")
+    private String createUserName;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "创建人(操作人）")
+    private String createUser;
+
     @Schema(description = "模型参数配置")
     private List<AdvSettingDTO> advSettingDTOList;
 

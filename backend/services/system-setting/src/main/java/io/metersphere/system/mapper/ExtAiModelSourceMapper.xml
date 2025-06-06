@@ -2,21 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtAiModelSourceMapper">
 
-    <select id="list" resultType="io.metersphere.system.domain.AiModelSource">
+    <select id="list" resultType="io.metersphere.system.dto.request.ai.AiModelSourceCreateNameDTO">
 
-        SELECT *
-        FROM ai_model_source
+        SELECT ai.id, ai.name, ai.type, ai.owner, ai.status, ai.owner_type as ownerType, ai.base_name as baseName, ai.app_key as appKey, ai.api_url as apiUrl, ai.provider_name as providerName, ai.create_time as createTime, ai.permission_type as permissionType, ai.adv_settings as advSettings, ai.create_user as createUser, u.name as createUserName
+        FROM ai_model_source ai left join user u on ai.create_user = u.id
         <where>
             <if test="request.keyword != null and request.keyword != ''">
-                and name like concat('%', #{request.keyword},'%')
+                and ai.name like concat('%', #{request.keyword},'%')
             </if>
             <if test="request.owner != null and request.owner != ''">
-                and owner = #{request.owner}
+                and ai.owner = #{request.owner}
             </if>
             <if test="request.providerName != null and request.providerName != ''">
-                and provider_name = #{request.providerName}
+                and ai.provider_name = #{request.providerName}
             </if>
         </where>
+        order by ai.create_time desc
     </select>
     <select id="sourceNameList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         SELECT id, name

@@ -14,6 +14,8 @@
     <result column="app_key" jdbcType="VARCHAR" property="appKey" />
     <result column="api_url" jdbcType="VARCHAR" property="apiUrl" />
     <result column="adv_settings" jdbcType="VARCHAR" property="advSettings" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, provider_name, permission_type, `status`, `owner`, owner_type, 
-    base_name, app_key, api_url, adv_settings
+    base_name, app_key, api_url, adv_settings, create_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.AiModelSourceExample" resultMap="BaseResultMap">
     select
@@ -111,13 +113,13 @@
     insert into ai_model_source (id, `name`, `type`, 
       provider_name, permission_type, `status`, 
       `owner`, owner_type, base_name, 
-      app_key, api_url, adv_settings
-      )
+      app_key, api_url, adv_settings, 
+      create_time, create_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{providerName,jdbcType=VARCHAR}, #{permissionType,jdbcType=VARCHAR}, #{status,jdbcType=BIT}, 
       #{owner,jdbcType=VARCHAR}, #{ownerType,jdbcType=VARCHAR}, #{baseName,jdbcType=VARCHAR}, 
-      #{appKey,jdbcType=VARCHAR}, #{apiUrl,jdbcType=VARCHAR}, #{advSettings,jdbcType=VARCHAR}
-      )
+      #{appKey,jdbcType=VARCHAR}, #{apiUrl,jdbcType=VARCHAR}, #{advSettings,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.AiModelSource">
     insert into ai_model_source
@@ -158,6 +160,12 @@
       <if test="advSettings != null">
         adv_settings,
       </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -195,6 +203,12 @@
       </if>
       <if test="advSettings != null">
         #{advSettings,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -243,6 +257,12 @@
       <if test="record.advSettings != null">
         adv_settings = #{record.advSettings,jdbcType=VARCHAR},
       </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -261,7 +281,9 @@
       base_name = #{record.baseName,jdbcType=VARCHAR},
       app_key = #{record.appKey,jdbcType=VARCHAR},
       api_url = #{record.apiUrl,jdbcType=VARCHAR},
-      adv_settings = #{record.advSettings,jdbcType=VARCHAR}
+      adv_settings = #{record.advSettings,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +324,12 @@
       <if test="advSettings != null">
         adv_settings = #{advSettings,jdbcType=VARCHAR},
       </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,20 +345,23 @@
       base_name = #{baseName,jdbcType=VARCHAR},
       app_key = #{appKey,jdbcType=VARCHAR},
       api_url = #{apiUrl,jdbcType=VARCHAR},
-      adv_settings = #{advSettings,jdbcType=VARCHAR}
+      adv_settings = #{advSettings,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into ai_model_source
     (id, `name`, `type`, provider_name, permission_type, `status`, `owner`, owner_type, 
-      base_name, app_key, api_url, adv_settings)
+      base_name, app_key, api_url, adv_settings, create_time, create_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
         #{item.providerName,jdbcType=VARCHAR}, #{item.permissionType,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=BIT}, #{item.owner,jdbcType=VARCHAR}, #{item.ownerType,jdbcType=VARCHAR}, 
         #{item.baseName,jdbcType=VARCHAR}, #{item.appKey,jdbcType=VARCHAR}, #{item.apiUrl,jdbcType=VARCHAR}, 
-        #{item.advSettings,jdbcType=VARCHAR})
+        #{item.advSettings,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -378,6 +409,12 @@
         </if>
         <if test="'adv_settings'.toString() == column.value">
           #{item.advSettings,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

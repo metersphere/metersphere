@@ -62,6 +62,8 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSource.setAppKey("sk-rtgghhjkkll");
         aiModelSource.setStatus(false);
         aiModelSource.setOwner(DEFAULT_ORGANIZATION_ID);
+        aiModelSource.setCreateTime(System.currentTimeMillis());
+        aiModelSource.setCreateUser("admin");
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
         advSettingDTO.setLabel("温度");
