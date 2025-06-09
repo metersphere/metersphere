@@ -220,6 +220,9 @@ public class SystemAIConfigService {
      * @return 模型源数据传输对象列表
      */
     public List<AiModelSourceDTO> getModelSourceList(AiModelSourceRequest aiModelSourceRequest) {
+        if (StringUtils.isBlank(aiModelSourceRequest.getOwner())) {
+            aiModelSourceRequest.setOwner(DEFAULT_OWNER);
+        }
         List<AiModelSourceCreateNameDTO> list = extAiModelSourceMapper.list(aiModelSourceRequest);
         List<AiModelSourceDTO>resultList = new ArrayList<>();
         for (AiModelSourceCreateNameDTO aiModelSource : list) {
