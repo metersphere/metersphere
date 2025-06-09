@@ -27,14 +27,13 @@ public class FunctionalCaseAITemplateConfigDTO {
     private Boolean remark;
 
     public FunctionalCaseAITemplateConfigDTO() {
+        // 默认构造函数
+        this.caseEditType = "TEXT"; // 默认文本模式
+        this.caseName = true;
+        this.preCondition = true;
+        this.caseSteps = true;
+        this.expectedResult = true;
+        this.remark = true;
     }
 
-    public FunctionalCaseAITemplateConfigDTO(String caseEditType, Boolean caseName, Boolean preCondition, Boolean caseSteps, Boolean expectedResult, Boolean remark) {
-        this.caseEditType = caseEditType;
-        this.caseName = caseName;
-        this.preCondition = preCondition;
-        this.caseSteps = caseSteps;
-        this.expectedResult = expectedResult;
-        this.remark = remark;
-    }
 }

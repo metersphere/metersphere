@@ -19,16 +19,15 @@ public class ApiCaseAIConfigDTO {
     //断言
     private Boolean assertion;
 
-    public ApiCaseAIConfigDTO(Boolean normal, Boolean abnormal, Boolean caseName, Boolean requestParams, Boolean preScript, Boolean postScript, Boolean assertion) {
-        this.normal = normal;
-        this.abnormal = abnormal;
-        this.caseName = caseName;
-        this.requestParams = requestParams;
-        this.preScript = preScript;
-        this.postScript = postScript;
-        this.assertion = assertion;
-    }
 
     public ApiCaseAIConfigDTO() {
+        // 默认构造函数
+        this.normal = true; // 默认生成正常场景
+        this.abnormal = true; // 默认生成异常场景
+        this.caseName = true; // 默认生成用例名称
+        this.requestParams = true; // 默认生成请求参数
+        this.preScript = true; // 默认生成前置脚本
+        this.postScript = true; // 默认生成后置脚本
+        this.assertion = true; // 默认生成断言
     }
 }

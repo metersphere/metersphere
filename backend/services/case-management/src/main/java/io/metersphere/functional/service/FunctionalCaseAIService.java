@@ -57,8 +57,8 @@ public class FunctionalCaseAIService {
      */
     @NotNull
     private static FunctionalCaseAIConfigDTO getFunctionalCaseAIConfigDTO() {
-        FunctionalCaseAIDesignConfigDTO aiDesignConfigDTO = new FunctionalCaseAIDesignConfigDTO(true, false, false, false, false, false, false, false, null);
-        FunctionalCaseAITemplateConfigDTO templateConfigDTO = new FunctionalCaseAITemplateConfigDTO(FunctionalCaseTypeConstants.CaseEditType.TEXT.name(), true, true, true, true, true);
+        FunctionalCaseAIDesignConfigDTO aiDesignConfigDTO = new FunctionalCaseAIDesignConfigDTO();
+        FunctionalCaseAITemplateConfigDTO templateConfigDTO = new FunctionalCaseAITemplateConfigDTO();
         FunctionalCaseAIConfigDTO functionalCaseAIConfigDTO = new FunctionalCaseAIConfigDTO();
         functionalCaseAIConfigDTO.setDesignConfig(aiDesignConfigDTO);
         functionalCaseAIConfigDTO.setTemplateConfig(templateConfigDTO);

@@ -33,19 +33,16 @@ public class FunctionalCaseAIDesignConfigDTO {
     @Schema(description = "场景法描述")
     private String scenarioMethodDescription;
 
-    public FunctionalCaseAIDesignConfigDTO(Boolean normal, Boolean abnormal, Boolean equivalenceClassPartitioning, Boolean boundaryValueAnalysis, Boolean decisionTableTesting, Boolean causeEffectGraphing, Boolean orthogonalExperimentMethod, Boolean scenarioMethod, String scenarioMethodDescription) {
-        this.normal = normal;
-        this.abnormal = abnormal;
-        this.equivalenceClassPartitioning = equivalenceClassPartitioning;
-        this.boundaryValueAnalysis = boundaryValueAnalysis;
-        this.decisionTableTesting = decisionTableTesting;
-        this.causeEffectGraphing = causeEffectGraphing;
-        this.orthogonalExperimentMethod = orthogonalExperimentMethod;
-        this.scenarioMethod = scenarioMethod;
-        this.scenarioMethodDescription = scenarioMethodDescription;
-    }
-
     public FunctionalCaseAIDesignConfigDTO() {
         // 默认构造函数
+        this.normal = true;
+        this.abnormal = true;
+        this.equivalenceClassPartitioning = true;
+        this.boundaryValueAnalysis = true;
+        this.decisionTableTesting = true;
+        this.causeEffectGraphing = true;
+        this.orthogonalExperimentMethod = true;
+        this.scenarioMethod = true;
+        this.scenarioMethodDescription = "";
     }
 }
