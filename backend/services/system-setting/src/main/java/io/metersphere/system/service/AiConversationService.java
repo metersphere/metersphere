@@ -101,7 +101,7 @@ public class AiConversationService {
         AiConversationContentExample example = new AiConversationContentExample();
         example.createCriteria().andConversationIdEqualTo(conversationId);
         example.setOrderByClause("create_time");
-        return aiConversationContentMapper.selectByExample(example);
+        return aiConversationContentMapper.selectByExampleWithBLOBs(example);
     }
 
     public AiConversation update(AIConversationUpdateRequest request, String userId) {

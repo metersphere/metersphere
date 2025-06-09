@@ -191,6 +191,7 @@ public class AiConversationControllerTest extends BaseTest {
         MvcResult mvcResult = this.requestGetWithOkAndReturn(CHAT_LIST, addAiConversationId);
         List<AiConversationContent> resultDataArray = getResultDataArray(mvcResult, AiConversationContent.class);
         Assertions.assertFalse(resultDataArray.isEmpty());
+        Assertions.assertNotNull(resultDataArray.get(0).getContent());
     }
 
     @Test
