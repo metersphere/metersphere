@@ -25,4 +25,16 @@ public class FunctionalCaseAITemplateConfigDTO {
     //备注
     @Schema(description = "备注")
     private Boolean remark;
+
+    public FunctionalCaseAITemplateConfigDTO() {
+    }
+
+    public FunctionalCaseAITemplateConfigDTO(String caseEditType, Boolean caseName, Boolean preCondition, Boolean caseSteps, Boolean expectedResult, Boolean remark) {
+        this.caseEditType = caseEditType;
+        this.caseName = caseName;
+        this.preCondition = preCondition;
+        this.caseSteps = caseSteps;
+        this.expectedResult = expectedResult;
+        this.remark = remark;
+    }
 }

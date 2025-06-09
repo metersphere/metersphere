@@ -52,12 +52,14 @@ public class SystemAIConfigService {
         String id = IDGenerator.nextStr();
         //根据是否有id,判断新增还是编辑，并且检查模型源名称是否重复
         AiModelSourceExample aiModelSourceExample = new AiModelSourceExample();
-        aiModelSourceExample.createCriteria().andNameEqualTo(aiModelSourceDTO.getName());
         boolean add = true;
         if (StringUtils.isNotBlank(aiModelSourceDTO.getId())) {
             id = aiModelSourceDTO.getId();
             add = false;
-            aiModelSourceExample.createCriteria().andIdNotEqualTo(id);
+            validateAppKey(aiModelSourceDTO, id);
+            aiModelSourceExample.createCriteria().andNameEqualTo(aiModelSourceDTO.getName()).andIdNotEqualTo(id);
+        } else {
+            aiModelSourceExample.createCriteria().andNameEqualTo(aiModelSourceDTO.getName());
         }
         long sameNameCount = aiModelSourceMapper.countByExample(aiModelSourceExample);
         if (sameNameCount>0) {
@@ -74,6 +76,14 @@ public class SystemAIConfigService {
             aiModelSourceMapper.updateByPrimaryKey(aiModelSource);
         }
         return aiModelSource;
+    }
+
+    private void validateAppKey(AiModelSourceDTO aiModelSourceDTO, String id) {
+        AiModelSource oldSource = aiModelSourceMapper.selectByPrimaryKey(id);
+        String oldKey = maskSkString(oldSource.getAppKey());
+        if (StringUtils.equalsIgnoreCase(oldKey, aiModelSourceDTO.getAppKey())) {
+            aiModelSourceDTO.setAppKey(oldSource.getAppKey());
+        }
     }
 
     /**
@@ -106,6 +116,7 @@ public class SystemAIConfigService {
         aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTOS));
         aiModelSource.setCreateTime(System.currentTimeMillis());
         aiModelSource.setCreateUser(userId);
+        aiModelSource.setStatus(aiModelSourceDTO.getStatus() != null && aiModelSourceDTO.getStatus());
     }
 
     /**
@@ -204,15 +215,23 @@ public class SystemAIConfigService {
      * @param aiModelSourceDTO 模型源数据传输对象
      */
     private void validModel(AiModelSourceDTO aiModelSourceDTO) {
-        AIChatOption aiChatOption = AIChatOption.builder()
-                .module(aiModelSourceDTO)
-                .prompt("How are you?")
-                .build();
-        String response = aiChatBaseService.chat(aiChatOption).content();
-        if (StringUtils.isBlank(response)) {
-            throw new MSException(Translator.get("system_model_test_link_error"));
+        try {
+            AIChatOption aiChatOption = AIChatOption.builder()
+                    .module(aiModelSourceDTO)
+                    .prompt("How are you?")
+                    .build();
+            String response = aiChatBaseService.chat(aiChatOption).content();
+            if (StringUtils.isBlank(response)) {
+                throw new MSException(Translator.get("system_model_test_link_error"));
+            }
+        } catch (Exception e) {
+            String message = e.getMessage();
+            int i = message.indexOf("-");
+            String substring = message.substring(0, i);
+            throw new MSException(Translator.get("system_model_test_chat_error")+"["+substring+"]", e);
         }
     }
+
 
     /**
      * 获取模型源列表

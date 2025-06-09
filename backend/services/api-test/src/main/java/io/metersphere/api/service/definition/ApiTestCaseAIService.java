@@ -110,7 +110,7 @@ public class ApiTestCaseAIService {
         example.createCriteria().andUserIdEqualTo(userId).andTypeEqualTo(AIConfigConstants.AiPromptType.API_CASE.toString());
         List<AiUserPromptConfig> aiUserPromptConfigs = aiUserPromptConfigMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isEmpty(aiUserPromptConfigs)) {
-            return new ApiCaseAIConfigDTO();
+            return new ApiCaseAIConfigDTO(true, true, true, true, true, true, true);
         }
         AiUserPromptConfig aiUserPromptConfig = aiUserPromptConfigs.getFirst();
         // 解析AI模型用例生成方法提示词
@@ -142,7 +142,7 @@ public class ApiTestCaseAIService {
             aiUserPromptConfig.setId(IDGenerator.nextStr());
             aiUserPromptConfigMapper.insert(aiUserPromptConfig);
         } else {
-            aiUserPromptConfigMapper.updateByPrimaryKey(aiUserPromptConfig);
+            aiUserPromptConfigMapper.updateByPrimaryKeyWithBLOBs(aiUserPromptConfig);
         }
     }
 

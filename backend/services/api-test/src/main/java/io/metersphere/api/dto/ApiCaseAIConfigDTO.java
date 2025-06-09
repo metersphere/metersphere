@@ -19,4 +19,16 @@ public class ApiCaseAIConfigDTO {
     //断言
     private Boolean assertion;
 
+    public ApiCaseAIConfigDTO(Boolean normal, Boolean abnormal, Boolean caseName, Boolean requestParams, Boolean preScript, Boolean postScript, Boolean assertion) {
+        this.normal = normal;
+        this.abnormal = abnormal;
+        this.caseName = caseName;
+        this.requestParams = requestParams;
+        this.preScript = preScript;
+        this.postScript = postScript;
+        this.assertion = assertion;
+    }
+
+    public ApiCaseAIConfigDTO() {
+    }
 }

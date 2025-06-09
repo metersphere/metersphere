@@ -98,16 +98,17 @@ public class SystemAIConfigControllerTests  extends BaseTest {
     @Test
     @Order(0)
     public void testEdit() throws Exception {
-        saveModel("测试模型1");
+        String s = saveModel("测试模型1");
         AiModelSourceDTO aiModelSourceDTO = new AiModelSourceDTO();
         aiModelSourceDTO.setName("测试模型");
         aiModelSourceDTO.setType("LLM");
+        aiModelSourceDTO.setId(s);
         aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
         aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
         aiModelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
         aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
-        aiModelSourceDTO.setAppKey("sk-");
+        aiModelSourceDTO.setAppKey("sk-r**** ll");
         AdvSettingDTO advSettingDTO = new AdvSettingDTO();
         advSettingDTO.setName(AIModelParamType.TEMPERATURE);
         advSettingDTO.setLabel("温度");
@@ -118,8 +119,19 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSourceDTO.setAdvSettingDTOList(list);
         aiModelSourceDTO.setName("测试模型1");
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
+        aiModelSourceDTO.setId(null);
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
-
+        aiModelSourceDTO = new AiModelSourceDTO();
+        aiModelSourceDTO.setName("智谱 THUDM/GLM-Z1-9B-0414");
+        aiModelSourceDTO.setType("LLM");
+        aiModelSourceDTO.setProviderName(AIModelType.ZHI_PU_AI);
+        aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
+        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSourceDTO.setBaseName("THUDM/GLM-Z1-9B-0414");
+        aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
+        aiModelSourceDTO.setAppKey("sk-eaglapmcezyovozbzaypm");
+        aiModelSourceDTO.setAdvSettingDTOList(new ArrayList<>());
+        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
 
     }
 

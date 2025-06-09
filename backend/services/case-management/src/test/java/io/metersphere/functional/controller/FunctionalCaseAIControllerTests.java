@@ -39,7 +39,11 @@ public class FunctionalCaseAIControllerTests extends BaseTest {
     @Test
     @Order(0)
     public void testEdit() throws Exception {
-        FunctionalCaseAIConfigDTO functionalCaseAIConfigDTO = new FunctionalCaseAIConfigDTO();
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(GET_CONFIG);
+        FunctionalCaseAIConfigDTO functionalCaseAIConfigDTO = getResultData(mvcResult, FunctionalCaseAIConfigDTO.class);
+        Assert.notNull(functionalCaseAIConfigDTO, "获取AI提示词失败");
+        System.out.println(functionalCaseAIConfigDTO);
+        functionalCaseAIConfigDTO = new FunctionalCaseAIConfigDTO();
         FunctionalCaseAIDesignConfigDTO designPromptDTO = getFunctionalCaseAIDesignPromptDTO();
         functionalCaseAIConfigDTO.setDesignConfig(designPromptDTO);
         FunctionalCaseAITemplateConfigDTO templatePromptDTO = new FunctionalCaseAITemplateConfigDTO();
@@ -51,6 +55,12 @@ public class FunctionalCaseAIControllerTests extends BaseTest {
         templatePromptDTO.setRemark(true);
         functionalCaseAIConfigDTO.setTemplateConfig(templatePromptDTO);
         this.requestPost(EDIT_CONFIG, functionalCaseAIConfigDTO).andExpect(status().isOk());
+        designPromptDTO.setAbnormal(false);
+        designPromptDTO.setScenarioMethod(false);
+        designPromptDTO.setScenarioMethodDescription(null);
+        functionalCaseAIConfigDTO.setDesignConfig(designPromptDTO);
+        this.requestPost(EDIT_CONFIG, functionalCaseAIConfigDTO).andExpect(status().isOk());
+
     }
 
     @NotNull

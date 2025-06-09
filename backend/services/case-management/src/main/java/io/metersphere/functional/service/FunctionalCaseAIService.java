@@ -16,6 +16,7 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -41,12 +42,27 @@ public class FunctionalCaseAIService {
         example.createCriteria().andUserIdEqualTo(userId).andTypeEqualTo(AIConfigConstants.AiPromptType.FUNCTIONAL_CASE.toString());
         List<AiUserPromptConfig> aiUserPromptConfigs = aiUserPromptConfigMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isEmpty(aiUserPromptConfigs)) {
-            return new FunctionalCaseAIConfigDTO();
+            // 如果没有配置，则返回一个空的配置对象
+            return getFunctionalCaseAIConfigDTO();
         }
         AiUserPromptConfig aiUserPromptConfig = aiUserPromptConfigs.getFirst();
         // 解析AI模型用例生成方法提示词
         String configStr = new String(aiUserPromptConfig.getConfig(), StandardCharsets.UTF_8);
         return JSON.parseObject(configStr, FunctionalCaseAIConfigDTO.class);
+    }
+
+
+    /**
+     * 获取默认的AI提示词配置
+     */
+    @NotNull
+    private static FunctionalCaseAIConfigDTO getFunctionalCaseAIConfigDTO() {
+        FunctionalCaseAIDesignConfigDTO aiDesignConfigDTO = new FunctionalCaseAIDesignConfigDTO(true, false, false, false, false, false, false, false, null);
+        FunctionalCaseAITemplateConfigDTO templateConfigDTO = new FunctionalCaseAITemplateConfigDTO(FunctionalCaseTypeConstants.CaseEditType.TEXT.name(), true, true, true, true, true);
+        FunctionalCaseAIConfigDTO functionalCaseAIConfigDTO = new FunctionalCaseAIConfigDTO();
+        functionalCaseAIConfigDTO.setDesignConfig(aiDesignConfigDTO);
+        functionalCaseAIConfigDTO.setTemplateConfig(templateConfigDTO);
+        return functionalCaseAIConfigDTO;
     }
 
     /**
@@ -73,7 +89,7 @@ public class FunctionalCaseAIService {
             aiUserPromptConfig.setId(IDGenerator.nextStr());
             aiUserPromptConfigMapper.insert(aiUserPromptConfig);
         } else {
-            aiUserPromptConfigMapper.updateByPrimaryKey(aiUserPromptConfig);
+            aiUserPromptConfigMapper.updateByPrimaryKeyWithBLOBs(aiUserPromptConfig);
         }
     }
 
