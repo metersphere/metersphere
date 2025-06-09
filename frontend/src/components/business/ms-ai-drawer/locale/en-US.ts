@@ -34,4 +34,7 @@ export default {
   'ms.ai.postscript': 'Postscript',
   'ms.ai.assertion': 'Assertion',
   'ms.ai.choseApi': 'Select API',
+  'ms.ai.thinking': 'Thinking...',
+  'ms.ai.failed': 'Generation failed, please try again later',
+  'ms.ai.hasStopped': 'Generation has stopped',
 };

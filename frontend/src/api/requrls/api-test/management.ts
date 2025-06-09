@@ -103,6 +103,9 @@ export const caseTableBatchSyncUrl = '/api/case/batch/api-change/sync'; // 接�
 export const ignoreEveryTimeApiChangeUrl = '/api/case/api-change/ignore'; // 接口测试-接口用例-忽略每次接口变更
 export const diffDataUrl = '/api/case/api/compare'; // 接口测试-接口用例-定义对比用例
 export const CaseFileCopyUrl = '/api/case/file/copy'; // 接口用例文件复制
+export const SaveAiConfigUrl = '/api/case/ai/save/config'; // 接口用例AI配置保存
+export const GetAiConfigUrl = '/api/case/ai/get/config'; // 接口用例AI配置获取
+export const ApiAiChatUrl = '/api/case/ai/chat'; // 接口用例AI聊天
 
 /**
  * 接口用例回收站

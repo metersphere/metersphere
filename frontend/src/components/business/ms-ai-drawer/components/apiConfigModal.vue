@@ -12,17 +12,17 @@
     @cancel="handleCancel"
   >
     <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('ms.ai.generateScene') }}</div>
-    <a-checkbox-group v-model:model-value="config.generateScene">
-      <a-checkbox value="normalScene">{{ t('ms.ai.normalScene') }}</a-checkbox>
-      <a-checkbox value="abnormalScene">{{ t('ms.ai.abnormalScene') }}</a-checkbox>
+    <a-checkbox-group>
+      <a-checkbox v-model:model-value="config.normal">{{ t('ms.ai.normalScene') }}</a-checkbox>
+      <a-checkbox v-model:model-value="config.abnormal">{{ t('ms.ai.abnormalScene') }}</a-checkbox>
     </a-checkbox-group>
     <div class="mb-[8px] mt-[16px] text-[var(--color-text-1)]">{{ t('ms.ai.caseContent') }}</div>
-    <a-checkbox-group v-model:model-value="config.designMethod">
-      <a-checkbox value="name">{{ t('ms.ai.caseName') }}</a-checkbox>
-      <a-checkbox value="param">{{ t('ms.ai.requestParam') }}</a-checkbox>
-      <a-checkbox value="prescript">{{ t('ms.ai.prescript') }}</a-checkbox>
-      <a-checkbox value="postscript">{{ t('ms.ai.postscript') }}</a-checkbox>
-      <a-checkbox value="assertion">{{ t('ms.ai.assertion') }}</a-checkbox>
+    <a-checkbox-group>
+      <a-checkbox v-model:model-value="config.caseName">{{ t('ms.ai.caseName') }}</a-checkbox>
+      <a-checkbox v-model:model-value="config.requestParams">{{ t('ms.ai.requestParam') }}</a-checkbox>
+      <a-checkbox v-model:model-value="config.preScript">{{ t('ms.ai.prescript') }}</a-checkbox>
+      <a-checkbox v-model:model-value="config.postScript">{{ t('ms.ai.postscript') }}</a-checkbox>
+      <a-checkbox v-model:model-value="config.assertion">{{ t('ms.ai.assertion') }}</a-checkbox>
     </a-checkbox-group>
   </a-modal>
 </template>
@@ -32,15 +32,22 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ApiAiChatConfig } from '@/models/ai';
+
   const { t } = useI18n();
 
   const visible = defineModel<boolean>('visible', {
     required: true,
   });
 
-  const config = ref({
-    generateScene: ['normalScene', 'abnormalScene'],
-    designMethod: ['equivalence', 'boundaryValue', 'decision', 'caseEffect', 'scene', 'orthogonal'],
+  const config = ref<ApiAiChatConfig>({
+    normal: true,
+    abnormal: true,
+    caseName: true,
+    requestParams: true,
+    preScript: true,
+    postScript: true,
+    assertion: true,
   });
   const saveLoading = ref(false);
 

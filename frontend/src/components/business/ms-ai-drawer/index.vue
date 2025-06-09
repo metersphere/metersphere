@@ -7,7 +7,12 @@
         </div>
       </template>
       <template #second>
-        <conversation :id="activeConversation" :type="props.type" @open-new-conversation="openNewConversation" />
+        <conversation
+          v-model:value="activeConversation"
+          :type="props.type"
+          @open-new-conversation="openNewConversation"
+          @add-success="handleAddConversationSuccess"
+        />
       </template>
     </MsSplitBox>
   </MsDrawer>
@@ -21,6 +26,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { AiChatListItem } from '@/models/ai';
+
   const props = defineProps<{
     type: 'chat' | 'case' | 'api';
   }>();
@@ -32,11 +39,15 @@
   });
 
   const splitSize = ref(300);
-  const activeConversation = ref('');
+  const activeConversation = ref<AiChatListItem | undefined>();
   const conversationListRef = ref<InstanceType<typeof conversationList>>();
 
   function openNewConversation() {
     conversationListRef.value?.openNewConversation();
+  }
+
+  function handleAddConversationSuccess() {
+    conversationListRef.value?.initList(false);
   }
 </script>
 

@@ -38,6 +38,7 @@ import {
   ExportXMindCaseUrl,
   exportXMindCheckUrl,
   FollowerCaseUrl,
+  GetAiConfigUrl,
   GetAssociatedCaseIdsUrl,
   GetAssociatedDebuggerUrl,
   GetAssociatedDrawerCaseUrl,
@@ -78,6 +79,7 @@ import {
   publicAssociatedCaseUrl,
   RecoverRecycleCaseListUrl,
   RestoreCaseListUrl,
+  SaveAiConfigUrl,
   SaveCaseMinderUrl,
   StopCaseExportUrl,
   TransferFileUrl,
@@ -88,6 +90,7 @@ import {
   UploadOrAssociationFileUrl,
 } from '@/api/requrls/case-management/featureCase';
 
+import type { CaseAiChatConfig } from '@/models/ai';
 import type { BugListItem } from '@/models/bug-management';
 import type {
   AssociatedList,
@@ -503,4 +506,12 @@ export function getTestPlanExecuteCommentList(caseId: string) {
   return MSR.get<CommentItem[]>({ url: `${GetPlanExecuteCommentListUrl}/${caseId}` });
 }
 
-export default {};
+// 保存AI配置
+export function saveAiConfig(data: CaseAiChatConfig) {
+  return MSR.post({ url: SaveAiConfigUrl, data });
+}
+
+// 获取AI配置
+export function getAiConfig() {
+  return MSR.get<CaseAiChatConfig>({ url: GetAiConfigUrl });
+}

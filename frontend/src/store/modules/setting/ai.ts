@@ -12,7 +12,7 @@ const useAIStore = defineStore('ai', {
   actions: {
     async getAISourceNameList() {
       try {
-        this.aiSourceNameList = await getModelConfigNameList();
+        this.aiSourceNameList = (await getModelConfigNameList()) || [];
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);

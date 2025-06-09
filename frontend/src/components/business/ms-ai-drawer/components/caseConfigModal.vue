@@ -14,36 +14,52 @@
     <MsTab v-model:active-key="activeTab" :content-tab-list="tabList" :show-badge="false">
       <template #template>
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('ms.ai.caseType') }}</div>
-        <a-radio-group v-model:model-value="config.caseType" class="mb-[16px] w-full">
-          <a-radio value="text">{{ t('ms.ai.textDesc') }}</a-radio>
-          <a-radio value="step">{{ t('ms.ai.stepDesc') }}</a-radio>
+        <a-radio-group v-model:model-value="config.templateConfig.caseEditType" class="mb-[16px] w-full">
+          <a-radio value="TEXT">{{ t('ms.ai.textDesc') }}</a-radio>
+          <a-radio value="STEP">{{ t('ms.ai.stepDesc') }}</a-radio>
         </a-radio-group>
-        <a-checkbox-group v-model:model-value="config.template">
-          <a-checkbox value="name">{{ t('ms.ai.caseName') }}</a-checkbox>
-          <a-checkbox value="precondition">{{ t('ms.ai.precondition') }}</a-checkbox>
-          <a-checkbox value="step">{{ t('ms.ai.caseStep') }}</a-checkbox>
-          <a-checkbox value="result">{{ t('ms.ai.expectResult') }}</a-checkbox>
-          <a-checkbox value="remark">{{ t('ms.ai.remark') }}</a-checkbox>
+        <a-checkbox-group>
+          <a-checkbox v-model:model-value="config.templateConfig.caseName">{{ t('ms.ai.caseName') }}</a-checkbox>
+          <a-checkbox v-model:model-value="config.templateConfig.preCondition">
+            {{ t('ms.ai.precondition') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.templateConfig.caseSteps">{{ t('ms.ai.caseStep') }}</a-checkbox>
+          <a-checkbox v-model:model-value="config.templateConfig.expectedResult">
+            {{ t('ms.ai.expectResult') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.templateConfig.remark">{{ t('ms.ai.remark') }}</a-checkbox>
         </a-checkbox-group>
       </template>
       <template #design>
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('ms.ai.generateScene') }}</div>
-        <a-checkbox-group v-model:model-value="config.generateScene">
-          <a-checkbox value="normalScene">{{ t('ms.ai.normalScene') }}</a-checkbox>
-          <a-checkbox value="abnormalScene">{{ t('ms.ai.abnormalScene') }}</a-checkbox>
+        <a-checkbox-group>
+          <a-checkbox v-model:model-value="config.designConfig.normal">{{ t('ms.ai.normalScene') }}</a-checkbox>
+          <a-checkbox v-model:model-value="config.designConfig.abnormal">{{ t('ms.ai.abnormalScene') }}</a-checkbox>
         </a-checkbox-group>
         <div class="mb-[8px] mt-[16px] text-[var(--color-text-1)]">{{ t('ms.ai.designMethod') }}</div>
-        <a-checkbox-group v-model:model-value="config.designMethod" @change="handleDesignMethodChange">
-          <a-checkbox value="equivalence">{{ t('ms.ai.equivalence') }}</a-checkbox>
-          <a-checkbox value="boundaryValue">{{ t('ms.ai.boundaryValue') }}</a-checkbox>
-          <a-checkbox value="decision">{{ t('ms.ai.decision') }}</a-checkbox>
-          <a-checkbox value="caseEffect">{{ t('ms.ai.caseEffect') }}</a-checkbox>
-          <a-checkbox value="scene">{{ t('ms.ai.scene') }}</a-checkbox>
-          <a-checkbox value="orthogonal">{{ t('ms.ai.orthogonal') }}</a-checkbox>
+        <a-checkbox-group @change="handleDesignMethodChange">
+          <a-checkbox v-model:model-value="config.designConfig.equivalenceClassPartitioning">
+            {{ t('ms.ai.equivalence') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.designConfig.boundaryValueAnalysis">
+            {{ t('ms.ai.boundaryValue') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.designConfig.decisionTableTesting">
+            {{ t('ms.ai.decision') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.designConfig.causeEffectGraphing">
+            {{ t('ms.ai.caseEffect') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.designConfig.scenarioMethod">
+            {{ t('ms.ai.scene') }}
+          </a-checkbox>
+          <a-checkbox v-model:model-value="config.designConfig.orthogonalExperimentMethod">
+            {{ t('ms.ai.orthogonal') }}
+          </a-checkbox>
         </a-checkbox-group>
         <a-textarea
-          v-if="config.designMethod.includes('scene')"
-          v-model:model-value="config.scene"
+          v-if="config.designConfig.scenarioMethod"
+          v-model:model-value="config.designConfig.scenarioMethodDescription"
           class="mt-[16px]"
           :placeholder="t('ms.ai.sceneTip')"
           :max-length="150"
@@ -60,6 +76,8 @@
   import MsTab from '@/components/pure/ms-tab/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+
+  import { CaseAiChatConfig } from '@/models/ai';
 
   const { t } = useI18n();
 
@@ -78,18 +96,32 @@
       label: t('ms.ai.designMethod'),
     },
   ];
-  const config = ref({
-    caseType: 'text',
-    template: ['name', 'precondition', 'step', 'result', 'remark'],
-    generateScene: ['normalScene', 'abnormalScene'],
-    designMethod: ['equivalence', 'boundaryValue', 'decision', 'caseEffect', 'scene', 'orthogonal'],
-    scene: '',
+  const config = ref<CaseAiChatConfig>({
+    designConfig: {
+      normal: true,
+      abnormal: true,
+      equivalenceClassPartitioning: true,
+      boundaryValueAnalysis: true,
+      decisionTableTesting: true,
+      orthogonalExperimentMethod: true,
+      causeEffectGraphing: true,
+      scenarioMethod: true,
+      scenarioMethodDescription: '',
+    },
+    templateConfig: {
+      caseEditType: 'TEXT',
+      caseName: true,
+      preCondition: true,
+      caseSteps: true,
+      expectedResult: true,
+      remark: true,
+    },
   });
   const saveLoading = ref(false);
 
   function handleDesignMethodChange() {
-    if (!config.value.designMethod.includes('scene')) {
-      config.value.scene = '';
+    if (!config.value.designConfig.scenarioMethod) {
+      config.value.designConfig.scenarioMethodDescription = '';
     }
   }
 

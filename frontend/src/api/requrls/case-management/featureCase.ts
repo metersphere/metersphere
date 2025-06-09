@@ -178,3 +178,5 @@ export const GetAssociatedTestPlanUrl = '/functional/case/test/has/associate/pla
 
 // 评审评论
 export const GetPlanExecuteCommentListUrl = '/functional/case/test/plan/comment';
+export const SaveAiConfigUrl = '/functional/case/ai/save/config';
+export const GetAiConfigUrl = '/functional/case/ai/get/config';
