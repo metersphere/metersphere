@@ -21,7 +21,7 @@
     <div v-if="activeApiTab.id !== 'all'" class="flex-1 overflow-hidden">
       <div class="mt-[8px] flex items-center justify-between px-[16px]">
         <MsTab
-          v-model:activeKey="activeApiTab.definitionActiveKey"
+          v-model:active-key="activeApiTab.definitionActiveKey"
           :content-tab-list="contentTabList"
           mode="button"
           class="ms-api-tab-nav"
@@ -408,6 +408,12 @@
           activeTab: (apiInfo as ApiDefinitionDetail).activeTab,
         };
       }
+      let definitionActiveKey = 'preview';
+      if (route.query.openAi === 'Y') {
+        definitionActiveKey = 'case';
+      } else if (isCopy || isExecute || isEdit) {
+        definitionActiveKey = 'definition';
+      }
       addApiTab({
         label: name,
         ...res,
@@ -422,7 +428,7 @@
         id: isCopy ? getGenerateId() : res.id,
         isExecute,
         mode: isExecute ? 'debug' : 'definition',
-        definitionActiveKey: isCopy || isExecute || isEdit ? 'definition' : 'preview',
+        definitionActiveKey,
         ...parseRequestBodyResult,
       });
       nextTick(() => {

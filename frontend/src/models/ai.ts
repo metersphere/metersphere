@@ -65,6 +65,22 @@ export interface CaseAiChatConfig {
   templateConfig: CaseTemplateConfig;
 }
 
+export interface AiCaseStepDescription {
+  id: string;
+  num: number;
+  desc: string;
+  result: string;
+}
+export interface AiCaseTransformResult {
+  name: string;
+  description: string;
+  prerequisite: string;
+  stepDescription: AiCaseStepDescription[];
+  textDescription: string;
+  expectedResult: string;
+  caseEditType: string;
+}
+
 export interface ApiAiChatConfig {
   normal: boolean;
   abnormal: boolean;

@@ -17,6 +17,7 @@ import {
   CancelAssociationDemandUrl,
   cancelDisassociate,
   cancelPreAndPostCaseUrl,
+  CaseAiTransformUrl,
   CheckCaseExportTaskUrl,
   checkFileIsUpdateUrl,
   CreateCaseModuleTreeUrl,
@@ -90,7 +91,7 @@ import {
   UploadOrAssociationFileUrl,
 } from '@/api/requrls/case-management/featureCase';
 
-import type { CaseAiChatConfig } from '@/models/ai';
+import type { AiCaseTransformResult, AiChatPrams, CaseAiChatConfig } from '@/models/ai';
 import type { BugListItem } from '@/models/bug-management';
 import type {
   AssociatedList,
@@ -514,4 +515,9 @@ export function saveAiConfig(data: CaseAiChatConfig) {
 // 获取AI配置
 export function getAiConfig() {
   return MSR.get<CaseAiChatConfig>({ url: GetAiConfigUrl });
+}
+
+// AI用例结构转换
+export function caseAiTransform(data: AiChatPrams) {
+  return MSR.post<AiCaseTransformResult>({ url: CaseAiTransformUrl, data });
 }

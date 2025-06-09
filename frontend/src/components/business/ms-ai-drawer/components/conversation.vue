@@ -1,13 +1,15 @@
 <template>
-  <a-spin :loading="loading" class="flex h-full flex-col p-[24px]">
+  <a-spin :loading="loading" class="flex h-full flex-col overflow-hidden p-[24px]">
     <template v-if="title">
       <a-input
         v-if="editTitle"
         ref="titleInputRef"
-        v-model:model-value="title"
+        v-model:model-value="tempTitle"
         size="large"
         class="conversation-title"
-        @keydown.enter="editTitle = false"
+        :max-length="255"
+        @keydown.enter="handleSaveTitle"
+        @keydown.esc="editTitle = false"
       />
       <div
         v-else
@@ -18,7 +20,7 @@
       </div>
     </template>
     <div class="flex-1 overflow-hidden">
-      <BubbleList :list="conversationItems" :btn-loading="answering" max-height="100%">
+      <BubbleList ref="bubbleListRef" :list="conversationItems" :btn-loading="answering" max-height="100%">
         <!-- 自定义 loading -->
         <template #loading>
           <div class="loading-wrapper">
@@ -29,7 +31,7 @@
         <template #avatar="{ item }">
           <div class="avatar-wrapper">
             <svg-icon v-if="item.type === AiChatContentRoleTypeEnum.ASSISTANT" width="40px" height="40px" name="ai" />
-            <img v-else :src="avatar" alt="avatar" />
+            <MsAvatar v-else is-user />
           </div>
         </template>
 
@@ -48,7 +50,6 @@
                 class="content-text"
                 :content="item.content"
                 :class="item.type === AiChatContentRoleTypeEnum.ASSISTANT ? '!rounded-none !bg-transparent' : ''"
-                typing
                 :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
               />
             </div>
@@ -95,7 +96,13 @@
                   <span>{{ t('ms.ai.regenerate') }}</span>
                 </template>
               </a-tooltip>
-              <a-tooltip :mouse-enter-delay="300">
+              <a-tooltip
+                v-if="
+                  props.type !== 'chat' &&
+                  (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
+                "
+                :mouse-enter-delay="300"
+              >
                 <MsButton type="icon" status="default" class="!mr-0" @click="handleSync(item)">
                   <MsIcon type="icon-icon_synchronous" class="text-[var(--color-text-4)]" />
                 </MsButton>
@@ -109,8 +116,10 @@
       </BubbleList>
     </div>
     <div class="flex items-center gap-[12px] py-[16px]">
-      <MsAiButton v-if="props.type === 'case'" :text="t('ms.ai.generateFeatureCase')" no-icon @click="jump('case')" />
-      <MsAiButton v-if="props.type === 'api'" :text="t('ms.ai.generateApiCase')" no-icon @click="jump('api')" />
+      <template v-if="props.type === 'chat'">
+        <MsAiButton :text="t('ms.ai.generateFeatureCase')" no-icon @click="jump('case')" />
+        <MsAiButton :text="t('ms.ai.generateApiCase')" no-icon @click="jump('api')" />
+      </template>
       <MsAiButton :text="t('ms.ai.openNewConversation')" @click="handleOpenNewConversation" />
     </div>
     <Sender
@@ -158,21 +167,24 @@
   </a-spin>
   <caseConfigModal v-if="props.type === 'case'" v-model:visible="configModalVisible" />
   <apiConfigModal v-if="props.type === 'api'" v-model:visible="configModalVisible" />
-  <apiSelectModal v-if="props.type === 'api'" v-model:visible="apiSelectModalVisible" />
+  <apiSelectModal v-if="props.type === 'chat'" v-model:visible="apiSelectModalVisible" />
 </template>
 
 <script setup lang="ts">
+  import { useRoute } from 'vue-router';
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { Bubble, BubbleList, Sender } from 'vue-element-plus-x';
 
   import MsAiButton from '@/components/pure/ms-ai-button/index.vue';
+  import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
   import { AxiosCanceler } from '@/api/http/axiosCancel';
-  import { addAiChat, aiChat, getAiChatDetail } from '@/api/modules/ai';
+  import { addAiChat, aiChat, getAiChatDetail, updateAiChatTitle } from '@/api/modules/ai';
+  import { apiAiChat } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -200,6 +212,7 @@
     (e: 'addSuccess'): void;
   }>();
 
+  const route = useRoute();
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
   const { copy, isSupported } = useClipboard({ legacy: true });
@@ -214,12 +227,34 @@
   const title = computed(() => activeConversation.value?.title || '');
   const editTitle = ref(false);
   const titleInputRef = ref<InstanceType<typeof HTMLInputElement>>();
+  const tempTitle = ref('');
 
   function handleEditTitle() {
+    tempTitle.value = title.value;
     editTitle.value = true;
     nextTick(() => {
       titleInputRef.value?.focus();
     });
+  }
+
+  async function handleSaveTitle() {
+    try {
+      if (!tempTitle.value.trim()) {
+        Message.error(t('ms.ai.titleNotNull'));
+        return;
+      }
+      await updateAiChatTitle({
+        id: activeConversation.value?.id || '',
+        title: tempTitle.value.trim(),
+      });
+      if (activeConversation.value) {
+        activeConversation.value.title = tempTitle.value.trim();
+      }
+      editTitle.value = false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error saving title:', error);
+    }
   }
 
   const senderRef = ref<InstanceType<typeof Sender>>();
@@ -233,9 +268,8 @@
     }))
   );
   const configModalVisible = ref(false);
-
+  const bubbleListRef = ref<any>();
   const conversationItems = ref<AiChatContentItem[]>([]);
-  const avatar = ref('https://avatars.githubusercontent.com/u/76239030?v=4');
 
   function handleCopy(item: AiChatContentItem) {
     if (isSupported) {
@@ -291,6 +325,9 @@
     });
     const prompt = senderValue.value.trim();
     senderValue.value = '';
+    nextTick(() => {
+      bubbleListRef.value?.scrollToBottom();
+    });
     try {
       answering.value = true;
       let res = '';
@@ -311,12 +348,30 @@
         };
         emit('addSuccess');
       }
-      res = await aiChat({
-        prompt,
-        chatModelId: model.value,
-        conversationId: activeConversation.value?.id || newId,
-        organizationId: appStore.currentOrgId || '',
-      });
+      if (props.type === 'case') {
+        res = await aiChat({
+          prompt,
+          chatModelId: model.value,
+          conversationId: activeConversation.value?.id || newId,
+          organizationId: appStore.currentOrgId || '',
+        });
+      } else if (props.type === 'api') {
+        res = await apiAiChat({
+          prompt,
+          chatModelId: model.value,
+          conversationId: activeConversation.value?.id || newId,
+          organizationId: appStore.currentOrgId || '',
+          apiDefinitionId: route.query.id?.toString() || '',
+        });
+      } else {
+        res = await aiChat({
+          prompt,
+          chatModelId: model.value,
+          conversationId: activeConversation.value?.id || newId,
+          organizationId: appStore.currentOrgId || '',
+        });
+      }
+
       conversationItems.value[conversationItems.value.length - 1] = {
         ...conversationItems.value[conversationItems.value.length - 1],
         content: res,
@@ -465,15 +520,20 @@
 
     max-width: 80%;
     .content-text {
+      @apply w-full;
+
       padding: 12px;
       min-height: 48px;
       font-size: 14px;
       border-radius: 12px 0 12px 12px;
-      color: #333333;
+      color: var(--color-text-1);
       background: rgb(var(--link-1));
       :deep(.typer-content) {
         background: rgb(var(--link-1));
       }
+    }
+    :deep(.markdown-body) {
+      color: var(--color-text-1) !important;
     }
   }
   :deep(.el-bubble-loading-wrap) {
@@ -483,7 +543,7 @@
     padding: 8px;
     min-height: 48px;
     font-size: 12px;
-    color: #333333;
+    color: var(--color-text-1);
     :deep(.arco-dot-loading) {
       width: 48px;
       .arco-dot-loading-item {

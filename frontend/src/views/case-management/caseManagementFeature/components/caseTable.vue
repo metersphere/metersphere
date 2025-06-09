@@ -125,7 +125,7 @@
           <template #moduleId="{ record }">
             <a-tree-select
               v-if="record.showModuleTree"
-              v-model:modelValue="record.moduleId"
+              v-model:model-value="record.moduleId"
               dropdown-class-name="tree-dropdown"
               class="param-input w-full"
               :data="caseTreeData"
@@ -393,7 +393,7 @@
     @save="saveThirdDemand"
   />
   <!-- AI 生成 -->
-  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="chat" />
+  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="case" />
 </template>
 
 <script setup lang="ts">
@@ -1824,6 +1824,9 @@
 
   // 获取三方需求
   onBeforeMount(async () => {
+    if (route.query.openAi === 'Y') {
+      openAI();
+    }
     try {
       const result = await getCaseRelatedInfo(currentProjectId.value);
       if (result && result.platform_key) {

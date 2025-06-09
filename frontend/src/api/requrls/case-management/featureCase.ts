@@ -180,3 +180,4 @@ export const GetAssociatedTestPlanUrl = '/functional/case/test/has/associate/pla
 export const GetPlanExecuteCommentListUrl = '/functional/case/test/plan/comment';
 export const SaveAiConfigUrl = '/functional/case/ai/save/config';
 export const GetAiConfigUrl = '/functional/case/ai/get/config';
+export const CaseAiTransformUrl = '/functional/case/ai/transform'; // AI用例结构转换

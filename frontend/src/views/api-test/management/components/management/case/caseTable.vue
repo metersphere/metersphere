@@ -318,7 +318,7 @@
     @load-list="loadCaseListAndResetSelector"
   />
   <!-- AI 生成 -->
-  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="chat" />
+  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="api" />
 </template>
 
 <script setup lang="ts">
@@ -1227,6 +1227,10 @@
 
     if (route.query.home) {
       propsRes.value.filter = { ...NAV_NAVIGATION[route.query.home as WorkNavValueEnum] };
+    }
+
+    if (route.query.openAi === 'Y') {
+      openAI();
     }
   });
 

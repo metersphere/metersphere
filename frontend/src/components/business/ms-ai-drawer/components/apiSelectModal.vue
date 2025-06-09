@@ -147,6 +147,7 @@
       openAi: 'Y',
       id: selectedKeys.value[0],
     });
+    return true;
   }
 
   function handleCancel() {

@@ -102,7 +102,6 @@
       item.title = tempInputVal.value.trim();
       tempInputVal.value = '';
       item.isEditing = false;
-      Message.success(t('common.updateSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -119,9 +118,9 @@
       tempInputVal.value = item.title;
       item.isEditing = true;
       nextTick(() => {
-        const inputElement = document.getElementById(`ai-title-${item.id}`) as HTMLInputElement;
+        const inputElement = document.querySelector(`#ai-title-${item.id}`) as HTMLInputElement;
         if (inputElement) {
-          inputElement.focus();
+          (inputElement.querySelector('.arco-input') as HTMLInputElement)?.focus();
         }
       });
     } else if (event.eventTag === 'delete') {

@@ -1,5 +1,12 @@
 <template>
-  <MsDrawer v-model:visible="visible" :title="t('settings.navbar.ai')" width="80vw" :footer="false" no-content-padding>
+  <MsDrawer
+    v-model:visible="visible"
+    :title="t('settings.navbar.ai')"
+    width="80vw"
+    :footer="false"
+    :esc-to-close="false"
+    no-content-padding
+  >
     <MsSplitBox v-model:size="splitSize">
       <template #first>
         <div class="flex h-full flex-col overflow-hidden py-[24px] pl-[16px] pr-[8px]">

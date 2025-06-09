@@ -37,4 +37,5 @@ export default {
   'ms.ai.thinking': '思考中...',
   'ms.ai.failed': '生成失败，请稍后再试',
   'ms.ai.hasStopped': '已停止生成',
+  'ms.ai.titleNotNull': '对话标题不能为空',
 };

@@ -37,4 +37,5 @@ export default {
   'ms.ai.thinking': 'Thinking...',
   'ms.ai.failed': 'Generation failed, please try again later',
   'ms.ai.hasStopped': 'Generation has stopped',
+  'ms.ai.titleNotNull': 'Conversation title cannot be empty',
 };
