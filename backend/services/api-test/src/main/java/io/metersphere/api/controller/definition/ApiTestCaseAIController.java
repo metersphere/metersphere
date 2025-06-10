@@ -1,11 +1,12 @@
 package io.metersphere.api.controller.definition;
 
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseAiDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseAiAddRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.service.definition.ApiTestCaseAIService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,8 @@ import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/case/ai")
@@ -48,7 +51,15 @@ public class ApiTestCaseAIController {
     @PostMapping("/transform")
     @Operation(summary = "接口管理-接口用例-单条AI数据生成用例对象")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
-    public ApiTestCaseAiDTO transformToDTO(@Validated @RequestBody AIChatRequest request) {
+    public ApiTestCaseDTO transformToDTO(@Validated @RequestBody ApiTestCaseAIRequest request) {
         return apiTestCaseAIService.transformToDTO(request, SessionUtils.getUserId());
     }
+
+    @PostMapping("/batch/save")
+    @Operation(summary = "接口管理-接口用例-批量保存AI用例")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)
+    public List<ApiTestCase> batchSave(@Validated @RequestBody ApiTestCaseAiAddRequest request) {
+        return apiTestCaseAIService.batchSave(request, SessionUtils.getUserId());
+    }
+
 }

@@ -6,6 +6,7 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseAiAddRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
@@ -40,6 +41,7 @@ public class ApiTestCaseAiControllerTests extends BaseTest {
     public static final String EDIT_CONFIG = "/save/config";
     public static final String GET_CONFIG = "/get/config";
     public static final String TRANSFORM = "/transform";
+    public static final String BATCH_SAVE = "/batch/save";
 
     private static String apiDefinitionId = UUID.randomUUID().toString();
     private static String anotherApiDefinitionId = UUID.randomUUID().toString();
@@ -149,4 +151,152 @@ public class ApiTestCaseAiControllerTests extends BaseTest {
 
     }
 
+
+    @Test
+    @Order(4)
+    public void batchSave() throws Exception {
+        ApiTestCaseAiAddRequest aiChatRequest = new ApiTestCaseAiAddRequest();
+        aiChatRequest.setPrompt("caseStart\n" +
+                "# 用例名称\n" +
+                "登入成功用例测试1\n" +
+                "\n" +
+                "## 请求头\n" +
+                "| 参数名称 | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ |\n" +
+                "| name     | admin  | 用户名 |\n" +
+                "\n" +
+                "## Query参数\n" +
+                "| 参数名称 | 类型   | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ | ------ |\n" +
+                "| name     | string | admin  | 用户名 |\n" +
+                "\n" +
+                "## Rest参数\n" +
+                "| 参数名称 | 类型   | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ | ------ |\n" +
+                "| name     | string | admin  | 用户名 |\n" +
+                "\n" +
+                "# 请求体\n" +
+                "请求体类型： from-data/x-www-form-urlencoded\n" +
+                "\n" +
+                "| 参数名称 | 类型   | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ | ------ |\n" +
+                "| name     | string | admin  | 用户名 |\n" +
+                "\n" +
+                "请求体类型：json/xml/raw\n" +
+                "\n" +
+                "```json/xml/tex\n" +
+                "{\n" +
+                "  \"name\":\"admin\"\n" +
+                "}\n" +
+                "```\n" +
+                "\n" +
+                "# 断言\n" +
+                "### 状态码\n" +
+                "| 匹配条件 | 匹配值 |\n" +
+                "| 等于 | admin |\n" +
+                "\n" +
+                "### 响应头\n" +
+                "| 响应头       | 匹配条件 | 匹配值 |\n" +
+                "| ------------ | -------- | ------ |\n" +
+                "| Content-Type | 等于     | admin  |\n" +
+                "\n" +
+                "### 响应体\n" +
+                "#### JSONPath\n" +
+                "| 表达式 | 匹配条件    | 匹配值 |\n" +
+                "| ------ | ----------- | ------ |\n" +
+                "| $.name | 等于/不等于 | admin  |\n" +
+                "\n" +
+                "#### xpath\n" +
+                "响应格式： XML/HTML\n" +
+                "\n" +
+                "| 表达式                        |\n" +
+                "| ----------------------------- |\n" +
+                "| /html/body//a/@href=http://xx |\n" +
+                "\n" +
+                "#### 正则\n" +
+                "| 表达式    |\n" +
+                "| --------- |\n" +
+                "| (?=\\d{3}) |\n" +
+                "\n" +
+                "# 前置脚本\n" +
+                "获取登入token\n" +
+                "# 后置脚本\n" +
+                "清理缓存\n" +
+                "caseEnd" +
+                "caseStart\n" +
+                "# 用例名称\n" +
+                "登入成功用例测试2\n" +
+                "\n" +
+                "## 请求头\n" +
+                "| 参数名称 | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ |\n" +
+                "| name     | admin  | 用户名 |\n" +
+                "\n" +
+                "## Query参数\n" +
+                "| 参数名称 | 类型   | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ | ------ |\n" +
+                "| name     | string | admin  | 用户名 |\n" +
+                "\n" +
+                "## Rest参数\n" +
+                "| 参数名称 | 类型   | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ | ------ |\n" +
+                "| name     | string | admin  | 用户名 |\n" +
+                "\n" +
+                "# 请求体\n" +
+                "请求体类型： from-data/x-www-form-urlencoded\n" +
+                "\n" +
+                "| 参数名称 | 类型   | 参数值 | 描述   |\n" +
+                "| -------- | ------ | ------ | ------ |\n" +
+                "| name     | string | admin  | 用户名 |\n" +
+                "\n" +
+                "请求体类型：json/xml/raw\n" +
+                "\n" +
+                "```json/xml/tex\n" +
+                "{\n" +
+                "  \"name\":\"admin\"\n" +
+                "}\n" +
+                "```\n" +
+                "\n" +
+                "# 断言\n" +
+                "### 状态码\n" +
+                "| 匹配条件 | 匹配值 |\n" +
+                "| 等于 | admin |\n" +
+                "\n" +
+                "### 响应头\n" +
+                "| 响应头       | 匹配条件 | 匹配值 |\n" +
+                "| ------------ | -------- | ------ |\n" +
+                "| Content-Type | 等于     | admin  |\n" +
+                "\n" +
+                "### 响应体\n" +
+                "#### JSONPath\n" +
+                "| 表达式 | 匹配条件    | 匹配值 |\n" +
+                "| ------ | ----------- | ------ |\n" +
+                "| $.name | 等于/不等于 | admin  |\n" +
+                "\n" +
+                "#### xpath\n" +
+                "响应格式： XML/HTML\n" +
+                "\n" +
+                "| 表达式                        |\n" +
+                "| ----------------------------- |\n" +
+                "| /html/body//a/@href=http://xx |\n" +
+                "\n" +
+                "#### 正则\n" +
+                "| 表达式    |\n" +
+                "| --------- |\n" +
+                "| (?=\\d{3}) |\n" +
+                "\n" +
+                "# 前置脚本\n" +
+                "获取登入token\n" +
+                "# 后置脚本\n" +
+                "清理缓存\n" +
+                "caseEnd");
+        aiChatRequest.setChatModelId("deepseek-chat");
+        aiChatRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        aiChatRequest.setProjectId(DEFAULT_PROJECT_ID);
+        aiChatRequest.setApiDefinitionId(apiDefinitionId);
+        aiChatRequest.setConversationId(UUID.randomUUID().toString());
+
+        this.requestPost(BATCH_SAVE, aiChatRequest);
+
+    }
 }
