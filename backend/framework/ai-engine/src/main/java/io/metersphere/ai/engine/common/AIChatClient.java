@@ -3,7 +3,7 @@ package io.metersphere.ai.engine.common;
 import io.metersphere.ai.engine.advisor.LoggingAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.chat.prompt.ChatOptions;
 
 import java.util.Optional;
 
@@ -34,9 +34,9 @@ public abstract class AIChatClient {
      * @param options AIChatOptions 对象
      * @return OpenAiChatOptions.Builder 实例
      */
-    public OpenAiChatOptions.Builder builderChatOptions(AIChatOptions options) {
+    public ChatOptions.Builder builderChatOptions(AIChatOptions options) {
         // 使用单一的 OpenAiChatOptions.Builder 配置所有参数
-        OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder();
+        ChatOptions.Builder optionsBuilder = ChatOptions.builder();
 
         // 温度设置
         Optional.of(options.getTemperature())

@@ -45,8 +45,10 @@ public class AIZhiPuAiChatClient extends AIChatClient {
         this.addAdvisor(options, builder);
 
         // 将构建好的选项应用到 ChatClient.Builder 中
-       // builder.defaultOptions(this.builderChatOptions(options).build());
-
+        builder.defaultOptions(ZhiPuAiChatOptions.builder()
+                .topP(options.getTopP())
+                .temperature(options.getTemperature())
+                .maxTokens(options.getMaxTokens()).build());
         return builder.build();
     }
 
