@@ -245,7 +245,6 @@ export default {
   'system.config.modelConfig.params': 'Parameters',
   'system.config.modelConfig.displayName': 'Display name',
   'system.config.modelConfig.paramsValue': 'Params value',
-  'system.config.modelConfig.inputBaseInfoTip': 'Please fill in basic information first',
   'system.config.modelConfig.largeLanguageModel': 'Large language model',
   'system.config.modelConfig.deepSeekChatTooltip': 'Good at general conversation tasks, supports 32K context',
   'system.config.modelConfig.zhiPuAiGlm4PlusTooltip':

@@ -88,7 +88,7 @@
                       </div>
                       <div class="one-line-text flex flex-col gap-[8px]">
                         <a-tooltip :content="item.type" :mouse-enter-delay="300">
-                          <div class="one-line-text"> {{ item.type }}</div>
+                          <div class="one-line-text"> {{ getTypeName(item) }}</div>
                         </a-tooltip>
                         <a-tooltip :content="item.baseName" :mouse-enter-delay="300">
                           <div class="one-line-text"> {{ item.baseName }}</div>
@@ -98,7 +98,7 @@
                     <div class="model-item-footer mt-[24px] flex items-center justify-between">
                       <div class="flex items-center gap-[12px]">
                         <a-button
-                          v-permission="['SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE']"
+                          v-permission="modelConfigPermissionMap"
                           type="outline"
                           class="arco-btn-outline--secondary"
                           size="small"
@@ -116,7 +116,7 @@
                         </a-button>
                       </div>
 
-                      <a-switch v-model="item.enable" size="small" :before-change="(val) => changeStatus(val, item)" />
+                      <a-switch v-model="item.status" size="small" :before-change="(val) => changeStatus(val, item)" />
                     </div>
                   </div>
                 </template>
@@ -137,6 +137,7 @@
           :supplier-model-item="supplierModelItem"
           :model-key="props.modelKey"
           @close="handleCancel"
+          @refresh="() => searchData()"
         />
       </template>
     </MsSplitBox>
@@ -153,6 +154,7 @@
 
   import { deleteModelConfig, editModelConfig, getModelConfigList } from '@/api/modules/setting/config';
   import { deletePersonalModelConfig, editPersonalModelConfig, getPersonalModelConfigList } from '@/api/modules/user';
+  import { modelTypeOptions } from '@/config/modelConfig';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useUserStore } from '@/store';
@@ -186,6 +188,11 @@
     system: editModelConfig,
   }[props.modelKey];
 
+  const modelConfigPermissionMap = {
+    personal: [],
+    system: ['SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE'],
+  }[props.modelKey];
+
   const keyword = ref('');
   const modelCardListRef = ref<InstanceType<typeof MsCardList>>();
 
@@ -215,11 +222,14 @@
     },
   ];
 
+  const getTypeName = (item: ModelConfigItem) => t(modelTypeOptions.find((e) => e.value === item.type)?.label ?? '');
+
   const activeModelType = ref(ModelBaseTypeEnum.DeepSeek);
 
   const supplierModelItem = ref<SupplierModelItem>(initSupplier);
 
   function changeModelType(item: SupplierModelItem) {
+    keyword.value = '';
     activeModelType.value = item.value;
     supplierModelItem.value = item;
     searchData();
@@ -359,7 +369,7 @@
     }
   }
   .model-item-img {
-    border-radius: var(--border-radius-large);
+    border-radius: var(--border-radius-small);
     background: var(--color-text-n9);
   }
 </style>

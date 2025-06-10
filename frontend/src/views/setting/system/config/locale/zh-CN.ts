@@ -237,7 +237,6 @@ export default {
   'system.config.modelConfig.params': '参数',
   'system.config.modelConfig.displayName': '显示名称',
   'system.config.modelConfig.paramsValue': '参数值',
-  'system.config.modelConfig.inputBaseInfoTip': '请先填写基础信息',
   'system.config.modelConfig.largeLanguageModel': '大语言模型',
   'system.config.modelConfig.deepSeekChatTooltip': '擅长通用对话任务，支持 32K 上下文',
   'system.config.modelConfig.zhiPuAiGlm4PlusTooltip':

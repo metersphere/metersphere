@@ -210,7 +210,7 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
       maxValue: 1,
     },
     {
-      name: 'system.config.modelConfig.topP',
+      name: 'topP',
       label: 'system.config.modelConfig.topP',
       value: 0.9,
       enable: true,
@@ -228,22 +228,28 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
   ],
 };
 
+export const modelTypeOptions = [
+  {
+    label: t('system.config.modelConfig.largeLanguageModel'),
+    value: 'LLM',
+  },
+];
+
 export function getModelDefaultConfig(supplierType: ModelBaseTypeEnum, baseModelType = ''): ModelAdvancedSetType[] {
   const defaultAdvancedSetValue = defaultAdvancedSetValueMap;
   let lastDefaultValue: ModelAdvancedSetType[] = [];
   switch (supplierType) {
-    case ModelBaseTypeEnum.OpenAI:
-      lastDefaultValue = defaultAdvancedSetValue[supplierType];
-      break;
-    case ModelBaseTypeEnum.ZhiPuAI:
-      lastDefaultValue = defaultAdvancedSetValue[supplierType];
+    case ModelBaseTypeEnum.OpenAI || ModelBaseTypeEnum.ZhiPuAI:
+      const includesBaseModelValues = baseModelTypeMap[supplierType].map((e) => e.value);
+      lastDefaultValue = includesBaseModelValues.includes(baseModelType) ? defaultAdvancedSetValue[supplierType] : [];
       break;
     case ModelBaseTypeEnum.DeepSeek:
       if (baseModelType.toLocaleUpperCase().includes('REASONER')) {
         defaultAdvancedSetValue[supplierType] = DEEP_SEEK_REASONER;
-      }
-      if (baseModelType.toLocaleUpperCase().includes('CHAT')) {
+      } else if (baseModelType.toLocaleUpperCase().includes('CHAT')) {
         defaultAdvancedSetValue[supplierType] = DEEP_SEEK_CHAT;
+      } else {
+        defaultAdvancedSetValue[supplierType] = [];
       }
       lastDefaultValue = defaultAdvancedSetValue[supplierType];
       break;

@@ -64,13 +64,13 @@
               >
                 <a-auto-complete
                   v-model:model-value="form.baseName"
-                  :data="baseModelTypeOptions"
-                  class="ms-form-table-input ms-form-table-input--hasPlaceholder"
+                  :data="baseModelTypeOptions.filter((e) => e.isShow === true)"
                   :filter-option="false"
                   allow-clear
                   :placeholder="t('system.config.modelConfig.baseModelPlaceholder')"
                   @search="(val) => handleSearchParams(val)"
                   @select="(val) => selectAutoComplete(val)"
+                  @change="(val) => selectAutoComplete(val)"
                   @clear="clearBaseName"
                 >
                   <template #option="{ data: opt }">
@@ -106,7 +106,7 @@
               </a-form-item>
               <a-form-item
                 :rules="[
-                  { required: true, message: t('common.notNull', { value: t('system.config.modelConfig.secretKey') }) },
+                  { required: true, message: t('common.notNull', { value: t('system.config.modelConfig.apiKey') }) },
                 ]"
                 field="appKey"
                 asterisk-position="end"
@@ -124,11 +124,10 @@
             </template>
           </expandCollapseWrap>
         </div>
-        <div class="collapse-more-top my-[16px] pt-[16px]">
+        <div v-if="form.advSettingDTOList.length" class="collapse-more-top my-[16px] pt-[16px]">
           <expandCollapseWrap :title="t('system.config.modelConfig.advancedSettings')">
             <template #content>
               <MsBatchForm
-                v-if="form.baseName"
                 ref="batchFormRef"
                 :models="batchFormModels"
                 enable-type="circle"
@@ -138,9 +137,6 @@
                 hide-add
                 @change="handleBatchFormChange"
               />
-              <div v-else class="bg-[var(--color-text-n9)] p-[16px] text-center text-[var(--color-text-4)]">
-                {{ t('system.config.modelConfig.inputBaseInfoTip') }}
-              </div>
             </template>
           </expandCollapseWrap>
         </div>
@@ -162,13 +158,16 @@
 
   import { editModelConfig, getModelConfigDetail } from '@/api/modules/setting/config';
   import { editPersonalModelConfig, getPersonalModelConfigDetail } from '@/api/modules/user';
-  import { baseModelTypeMap, getModelDefaultConfig } from '@/config/modelConfig';
+  import { baseModelTypeMap, getModelDefaultConfig, modelTypeOptions } from '@/config/modelConfig';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
 
   import type { ModelFormConfigParams, SupplierModelItem } from '@/models/setting/modelConfig';
   import { ModelBaseTypeEnum, ModelOwnerTypeTypeEnum, ModelPermissionTypeEnum, ModelTypeEnum } from '@/enums/modelEnum';
 
   const { t } = useI18n();
+
+  const userStore = useUserStore();
 
   const props = defineProps<{
     supplierModelItem: SupplierModelItem;
@@ -178,6 +177,7 @@
 
   const emit = defineEmits<{
     (e: 'close'): void;
+    (e: 'refresh'): void;
   }>();
 
   const innerVisible = defineModel<boolean>('visible', {
@@ -194,7 +194,7 @@
     system: editModelConfig,
   }[props.modelKey];
 
-  const visibility = ref(false);
+  const visibility = ref(true);
   const baseModelForm = ref<'create' | 'edit'>('create');
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
   const batchFormModels: Ref<FormItemModel[]> = ref([
@@ -239,7 +239,7 @@
     providerName: ModelBaseTypeEnum.DeepSeek,
     permissionType: props.modelKey === 'personal' ? ModelPermissionTypeEnum.PRIVATE : ModelPermissionTypeEnum.PUBLIC,
     status: true,
-    owner: '',
+    owner: (props.modelKey === 'personal' ? userStore?.id : '') || '',
     ownerType: props.modelKey === 'personal' ? ModelOwnerTypeTypeEnum.PERSONAL : ModelOwnerTypeTypeEnum.ORGANIZATION,
     baseName: '',
     appKey: '',
@@ -249,23 +249,24 @@
 
   const form = ref<ModelFormConfigParams>(cloneDeep(initForm));
 
-  const modelTypeOptions = [
-    {
-      label: t('system.config.modelConfig.largeLanguageModel'),
-      value: 'LLM',
-    },
-  ];
-
   const baseModelTypeOptions = ref<SelectOptionData[]>([]);
   const isBatchFormChange = ref(false);
   function handleBatchFormChange() {
     isBatchFormChange.value = true;
   }
+
   function handleSearchParams(val: string) {
     baseModelTypeOptions.value = baseModelTypeOptions.value?.map((e) => {
       e.isShow = (e.label || '').toLowerCase().includes(val.toLowerCase());
       return e;
     });
+  }
+
+  function initBaseModelName() {
+    baseModelTypeOptions.value = baseModelTypeMap[props.supplierModelItem.value].map((e) => ({
+      ...e,
+      isShow: true,
+    }));
   }
 
   function selectAutoComplete(val: string) {
@@ -275,52 +276,48 @@
 
   function clearBaseName() {
     form.value.advSettingDTOList = [];
+    initBaseModelName();
   }
 
   const formRef = ref<FormInstance | null>(null);
   function handleDrawerCancel() {
-    form.value = cloneDeep(initForm);
+    innerVisible.value = false;
     formRef.value?.resetFields();
+    form.value = cloneDeep(initForm);
+    initBaseModelName();
     emit('close');
   }
 
   const loading = ref(false);
-  function validateAdvanceConfig(cb: (data: ModelFormConfigParams) => Promise<any>, isContinue = false) {
-    batchFormRef.value?.formValidate(async (list: any) => {
-      try {
-        loading.value = true;
-        form.value.advSettingDTOList = [...list];
-        await cb(form.value);
-
-        if (isContinue) {
-          form.value = cloneDeep(initForm);
-        } else {
-          handleDrawerCancel();
-        }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        loading.value = false;
+  async function handleSave(cb: (data: ModelFormConfigParams) => Promise<any>, isContinue = false) {
+    try {
+      loading.value = true;
+      await cb(form.value);
+      Message.success(form.value.id ? t('common.updateSuccess') : t('common.createSuccess'));
+      emit('refresh');
+      if (isContinue) {
+        form.value = cloneDeep(initForm);
+      } else {
+        handleDrawerCancel();
       }
-    });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   function handleDrawerConfirm(isContinue = false) {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
-        try {
-          if (form.value.id) {
-            validateAdvanceConfig(modelEditApiMap);
-            Message.success(t('common.updateSuccess'));
-          } else {
-            // TODO 添加接口未出
-            validateAdvanceConfig(modelEditApiMap, isContinue);
-            Message.success(t('common.createSuccess'));
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
+        if (form.value.advSettingDTOList.length) {
+          batchFormRef.value?.formValidate(async (list: any) => {
+            form.value.advSettingDTOList = [...list];
+            handleSave(modelEditApiMap, isContinue);
+          });
+        } else {
+          handleSave(modelEditApiMap, isContinue);
         }
       }
     });
@@ -343,8 +340,7 @@
       if (val) {
         getDetail();
         form.value.providerName = props.supplierModelItem.value;
-        baseModelTypeOptions.value = baseModelTypeMap[props.supplierModelItem.value];
-        form.value.advSettingDTOList = getModelDefaultConfig(props.supplierModelItem.value, form.value.baseName);
+        initBaseModelName();
       }
     }
   );

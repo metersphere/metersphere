@@ -40,7 +40,11 @@
   const tabList = ref([
     { key: 'baseConfig', title: t('system.config.baseConfig'), permission: ['SYSTEM_PARAMETER_SETTING_BASE:READ'] },
     { key: 'pageConfig', title: t('system.config.pageConfig'), permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'] },
-    { key: 'modelConfig', title: t('system.config.modelConfig.modelConfigSet') },
+    {
+      key: 'modelConfig',
+      title: t('system.config.modelConfig.modelConfigSet'),
+      permission: ['SYSTEM_PARAMETER_SETTING_AI_MODEL:READ'],
+    },
     {
       key: 'qrCodeConfig',
       title: t('system.config.qrCodeConfig'),
