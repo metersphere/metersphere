@@ -53,7 +53,10 @@ public class AiConversationService {
     }
 
     public AiConversation add(AIChatRequest request, String userId) {
-        String prompt = "请用简短的文字概况以下内容的主旨，字数不超过225：\n" + request.getPrompt();
+        String prompt = """
+                概况用户输入的主旨生成本轮对话的标题，不带标点符号，最好50字以内，不超过225。
+                用户输入:
+                """ + request.getPrompt();
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
                 .module(aiChatBaseService.getModule(request, userId))

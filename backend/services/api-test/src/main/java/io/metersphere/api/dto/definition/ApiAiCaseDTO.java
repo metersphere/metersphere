@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class ApiAIResponse implements Serializable {
+public class ApiAiCaseDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

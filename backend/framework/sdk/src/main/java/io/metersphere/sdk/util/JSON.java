@@ -1,6 +1,7 @@
 package io.metersphere.sdk.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,6 +51,21 @@ public class JSON {
     public static String toJSONString(Object value) {
         try {
             return objectMapper.writeValueAsString(value);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 序列号化为 JSON 字符串，忽略 null 值
+     * @param value
+     * @return
+     */
+    public static String toJSONStringWithoutNull(Object value) {
+        try {
+            ObjectMapper tempMapper = objectMapper.copy();
+            tempMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            return tempMapper.writeValueAsString(value);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
