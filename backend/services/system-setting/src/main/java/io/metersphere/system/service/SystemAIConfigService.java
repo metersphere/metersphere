@@ -53,10 +53,11 @@ public class SystemAIConfigService {
         //根据是否有id,判断新增还是编辑，并且检查模型源名称是否重复
         AiModelSourceExample aiModelSourceExample = new AiModelSourceExample();
         boolean add = true;
+        boolean changeKey = false;
         if (StringUtils.isNotBlank(aiModelSourceDTO.getId())) {
             id = aiModelSourceDTO.getId();
             add = false;
-            validateAppKey(aiModelSourceDTO, id);
+            changeKey = validateAppKey(aiModelSourceDTO, id);
             aiModelSourceExample.createCriteria().andNameEqualTo(aiModelSourceDTO.getName()).andIdNotEqualTo(id);
         } else {
             aiModelSourceExample.createCriteria().andNameEqualTo(aiModelSourceDTO.getName());
@@ -67,22 +68,31 @@ public class SystemAIConfigService {
         }
         AiModelSource aiModelSource = new AiModelSource();
         buildModelSource(aiModelSourceDTO, userId, aiModelSource, id);
-        //进入之前进行校验
-        validModel(aiModelSourceDTO);
         //保存
         if (add) {
+            //进入之前进行校验如果状态为开启，校验模型是否通过
+            if (aiModelSource.getStatus()) {
+                validModel(aiModelSourceDTO);
+            }
             aiModelSourceMapper.insert(aiModelSource);
         }else {
+            //进入之前进行校验如果状态为开启，而且模型Key更改过，需要校验模型是否通过
+            if (aiModelSource.getStatus() && changeKey) {
+                validModel(aiModelSourceDTO);
+            }
             aiModelSourceMapper.updateByPrimaryKey(aiModelSource);
         }
         return aiModelSource;
     }
 
-    private void validateAppKey(AiModelSourceDTO aiModelSourceDTO, String id) {
+    private boolean validateAppKey(AiModelSourceDTO aiModelSourceDTO, String id) {
         AiModelSource oldSource = aiModelSourceMapper.selectByPrimaryKey(id);
         String oldKey = maskSkString(oldSource.getAppKey());
         if (StringUtils.equalsIgnoreCase(oldKey, aiModelSourceDTO.getAppKey())) {
             aiModelSourceDTO.setAppKey(oldSource.getAppKey());
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -261,7 +271,10 @@ public class SystemAIConfigService {
         if (StringUtils.isBlank(input)) {
             return input;
         }
-
+        // 如果输入为空或长度小于等于6，直接返回原字符串
+        if (input.length() <= 6) {
+            return input;
+        }
         // 提取前缀和后缀
         String prefix = input.substring(0, 4); // sk-AB
         String suffix = input.substring(input.length() - 2); // 最后两个字符

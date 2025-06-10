@@ -118,8 +118,12 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         list.add(advSettingDTO);
         aiModelSourceDTO.setAdvSettingDTOList(list);
         aiModelSourceDTO.setName("测试模型1");
+        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().isOk());
+        aiModelSourceDTO.setStatus(true);
+        aiModelSourceDTO.setAppKey("sk-rfghll");
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
         aiModelSourceDTO.setId(null);
+        aiModelSourceDTO.setStatus(true);
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
         aiModelSourceDTO = new AiModelSourceDTO();
         aiModelSourceDTO.setName("智谱 THUDM/GLM-Z1-9B-0414");
@@ -131,7 +135,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
         aiModelSourceDTO.setAppKey("sk-eaglapmcezyovozbzaypm");
         aiModelSourceDTO.setAdvSettingDTOList(new ArrayList<>());
-        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().is5xxServerError());
+        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().isOk());
 
     }
 

@@ -303,6 +303,9 @@ public class PersonalControllerTests extends BaseTest {
         List<AdvSettingDTO> list = new ArrayList<>();
         list.add(advSettingDTO);
         aiModelSourceDTO.setAdvSettingDTOList(list);
+        this.requestPost(PersonalRequestUtils.URL_PERSONAL_MODEL_EDIT_MODEL, aiModelSourceDTO).andExpect(status().isOk());
+        aiModelSourceDTO.setStatus(true);
+        aiModelSourceDTO.setName("测试模型8");
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_MODEL_EDIT_MODEL, aiModelSourceDTO).andExpect(status().is5xxServerError());
 
     }
