@@ -327,6 +327,10 @@ public class SystemAIConfigService {
         if (aiModelSource == null)  {
             throw new MSException(Translator.get("system_model_not_exist"));
         }
+        //检查模型是否开启
+        if (!aiModelSource.getStatus()) {
+            throw new MSException(Translator.get("system_model_not_enable"));
+        }
         // 校验权限，全局的和自己的
         if (!StringUtils.equalsAny(aiModelSource.getOwner(), userId, DEFAULT_OWNER)) {
             throw new MSException(Translator.get("system_model_not_exist"));
