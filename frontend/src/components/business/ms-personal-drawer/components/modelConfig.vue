@@ -88,7 +88,7 @@
                           </div>
                         </div>
                         <div class="one-line-text flex flex-col gap-[8px]">
-                          <a-tooltip :content="item.type" :mouse-enter-delay="300">
+                          <a-tooltip :content="getTypeName(item)" :mouse-enter-delay="300">
                             <div class="one-line-text"> {{ getTypeName(item) }}</div>
                           </a-tooltip>
                           <a-tooltip :content="item.baseName" :mouse-enter-delay="300">

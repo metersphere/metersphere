@@ -17,9 +17,9 @@
           :rules="[{ required: true, message: t('caseManagement.featureCase.selectAttrsNotNull') }]"
         >
           <a-select v-model="form.selectedAttrsId" :placeholder="t('caseManagement.featureCase.PleaseSelect')">
-            <a-option v-for="item of totalAttrs" :key="item.fieldId" :value="item.fieldId">{{
-              item.fieldName
-            }}</a-option>
+            <a-option v-for="item of totalAttrs" :key="item.fieldId" :value="item.fieldId">
+              {{ item.fieldName }}
+            </a-option>
             <a-option key="systemTags" value="systemTags">{{ t('caseManagement.featureCase.tags') }}</a-option>
           </a-select>
         </a-form-item>
@@ -43,7 +43,7 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('common.inputPleaseEnterTags') }]"
         >
-          <MsTagsInput v-model:modelValue="form.tags" allow-clear empty-priority-highest></MsTagsInput>
+          <MsTagsInput v-model:model-value="form.tags" allow-clear empty-priority-highest></MsTagsInput>
           <div class="text-[12px] leading-[20px] text-[var(--color-text-4)]">{{ t('ms.tagsInput.tagLimitTip') }}</div>
         </a-form-item>
 
@@ -64,6 +64,7 @@
   import { FormInstance } from '@arco-design/web-vue';
 
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
+  import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
@@ -144,13 +145,14 @@
   const updateType = computed(() => {
     return totalAttrs.value.find((item: any) => item.fieldId === form.value.selectedAttrsId)?.type;
   });
+
   watch(
     () => updateType.value,
     (val) => {
       const currentAttrs = totalAttrs.value.filter((item: any) => item.fieldId === form.value.selectedAttrsId);
       formRules.value = [];
       formRules.value = currentAttrs.map((item: CustomAttributes) => {
-        let formValue: string | string[] = item.defaultValue;
+        let formValue: string | string[] = item.defaultValue ?? FieldTypeFormRules[item.type].value;
         // 如果包含成员将默认成员清空重新设置
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         if (val && formValue.includes('CREATE_USER') && memberType.includes(val)) {
