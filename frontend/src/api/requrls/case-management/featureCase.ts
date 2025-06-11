@@ -181,3 +181,4 @@ export const GetPlanExecuteCommentListUrl = '/functional/case/test/plan/comment'
 export const SaveAiConfigUrl = '/functional/case/ai/save/config';
 export const GetAiConfigUrl = '/functional/case/ai/get/config';
 export const CaseAiTransformUrl = '/functional/case/ai/transform'; // AI用例结构转换
+export const CaseAiChatUrl = '/functional/case/ai/chat'; // AI用例聊天

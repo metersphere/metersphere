@@ -9,6 +9,7 @@ import {
   AddModuleUrl,
   AddShareUrl,
   ApiAiChatUrl,
+  ApiAiTransformUrl,
   BatchCleanOutApiUrl,
   BatchDeleteCaseUrl,
   BatchDeleteDefinitionUrl,
@@ -764,7 +765,13 @@ export function saveAiConfig(data: ApiAiChatConfig) {
 export function getAiConfig() {
   return MSR.get<ApiAiChatConfig>({ url: GetAiConfigUrl });
 }
+
 // 接口用例AI聊天
 export function apiAiChat(data: ApiAiChatParams) {
   return MSR.post({ url: ApiAiChatUrl, data });
+}
+
+// 接口用例AI转换
+export function apiAiTransform(data: ApiAiChatParams) {
+  return MSR.post<ApiCaseDetail>({ url: ApiAiTransformUrl, data });
 }

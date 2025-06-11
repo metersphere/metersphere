@@ -393,7 +393,12 @@
     @save="saveThirdDemand"
   />
   <!-- AI 生成 -->
-  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="case" />
+  <MsAIDrawer
+    v-if="aiDrawerVisible"
+    v-model:visible="aiDrawerVisible"
+    type="case"
+    @sync-feature-case="handleSyncFeatureCase"
+  />
 </template>
 
 <script setup lang="ts">
@@ -473,6 +478,7 @@
   } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
+  import { AiCaseTransformResult } from '@/models/ai';
   import type {
     CaseManagementTable,
     CaseModuleQueryParams,
@@ -535,6 +541,15 @@
   const aiDrawerVisible = ref<boolean>(false);
   function openAI() {
     aiDrawerVisible.value = true;
+  }
+
+  function handleSyncFeatureCase(detail: AiCaseTransformResult) {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      state: {
+        detail: JSON.stringify(detail),
+      },
+    });
   }
 
   function handleShowTypeChange(val: string | number | boolean) {

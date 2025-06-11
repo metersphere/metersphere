@@ -17,6 +17,7 @@ import {
   CancelAssociationDemandUrl,
   cancelDisassociate,
   cancelPreAndPostCaseUrl,
+  CaseAiChatUrl,
   CaseAiTransformUrl,
   CheckCaseExportTaskUrl,
   checkFileIsUpdateUrl,
@@ -520,4 +521,9 @@ export function getAiConfig() {
 // AI用例结构转换
 export function caseAiTransform(data: AiChatPrams) {
   return MSR.post<AiCaseTransformResult>({ url: CaseAiTransformUrl, data });
+}
+
+// AI用例聊天
+export function caseAiChat(data: AiChatPrams) {
+  return MSR.post({ url: CaseAiChatUrl, data });
 }

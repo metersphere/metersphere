@@ -318,7 +318,13 @@
     @load-list="loadCaseListAndResetSelector"
   />
   <!-- AI 生成 -->
-  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="api" />
+  <MsAIDrawer
+    v-if="aiDrawerVisible"
+    v-model:visible="aiDrawerVisible"
+    type="api"
+    :api-definition-id="props.apiDetail?.id"
+    @sync-api-case="handleSyncApiCase"
+  />
 </template>
 
 <script setup lang="ts">
@@ -1086,6 +1092,10 @@
   const createAndEditCaseDrawerRef = ref<InstanceType<typeof createAndEditCaseDrawer>>();
   function createCase() {
     createAndEditCaseDrawerRef.value?.open(props.apiDetail?.id as string);
+  }
+
+  function handleSyncApiCase(detail: ApiCaseDetail) {
+    createAndEditCaseDrawerRef.value?.open(props.apiDetail?.id as string, detail);
   }
 
   function openCaseTab(record: ApiCaseDetail) {

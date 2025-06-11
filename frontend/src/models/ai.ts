@@ -96,5 +96,5 @@ export interface ApiAiChatParams {
   chatModelId: string;
   conversationId: string;
   organizationId: string;
-  apiDefinitionId: string; // 接口定义 id
+  apiDefinitionId: string | number; // 接口定义 id
 }

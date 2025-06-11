@@ -53,6 +53,7 @@
 
   import Message from '@arco-design/web-vue/es/message';
 
+  const caseDetail = window.history.state.detail ? JSON.parse(window.history.state.detail) : null; // 获取上个页面带过来的用例详情
   const { setIsSave } = useLeaveUnSaveTip();
   const { t } = useI18n();
   const route = useRoute();
@@ -66,7 +67,7 @@
   const { getIsVisited } = useVisit(visitedKey);
 
   const caseDetailInfo = ref({
-    request: {} as CreateOrUpdateCase,
+    request: caseDetail || ({} as CreateOrUpdateCase),
     fileList: [],
   });
 

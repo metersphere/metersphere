@@ -349,6 +349,7 @@ export interface ApiCaseDetail extends ExecuteRequestParams {
   deleteName: string;
   apiChange: boolean; // 接口定义参数变更标识
   inconsistentWithApi: boolean; // 与接口定义不一致
+  aiCreate: boolean; // 是否AI创建
 }
 // 批量操作参数
 export interface ApiCaseBatchParams extends BatchApiParams {

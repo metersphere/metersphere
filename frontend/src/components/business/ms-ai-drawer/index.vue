@@ -17,8 +17,11 @@
         <conversation
           v-model:value="activeConversation"
           :type="props.type"
+          :api-definition-id="props.apiDefinitionId"
           @open-new-conversation="openNewConversation"
           @add-success="handleAddConversationSuccess"
+          @sync-api-case="emit('syncApiCase', $event)"
+          @sync-feature-case="emit('syncFeatureCase', $event)"
         />
       </template>
     </MsSplitBox>
@@ -33,10 +36,16 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { AiChatListItem } from '@/models/ai';
+  import { AiCaseTransformResult, AiChatListItem } from '@/models/ai';
+  import { ApiCaseDetail } from '@/models/apiTest/management';
 
   const props = defineProps<{
     type: 'chat' | 'case' | 'api';
+    apiDefinitionId?: string | number;
+  }>();
+  const emit = defineEmits<{
+    (e: 'syncApiCase', detail: ApiCaseDetail): void;
+    (e: 'syncFeatureCase', detail: AiCaseTransformResult): void;
   }>();
 
   const { t } = useI18n();

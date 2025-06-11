@@ -38,4 +38,5 @@ export default {
   'ms.ai.failed': 'Generation failed, please try again later',
   'ms.ai.hasStopped': 'Generation has stopped',
   'ms.ai.titleNotNull': 'Conversation title cannot be empty',
+  'ms.ai.caseSyncSuccess': 'Case synchronized successfully',
 };

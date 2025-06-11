@@ -184,6 +184,9 @@
       .arco-list-content-wrapper {
         padding-right: 12px;
         .arco-list-content {
+          @apply flex flex-col;
+
+          gap: 4px;
           padding: 1px 0 0 1px;
         }
       }
@@ -207,6 +210,14 @@
     }
     :deep(.arco-list-item-main) {
       @apply overflow-hidden;
+    }
+    :deep(.ms-more-action-trigger-content) {
+      @apply invisible;
+    }
+    &:hover {
+      :deep(.ms-more-action-trigger-content) {
+        @apply visible;
+      }
     }
   }
 </style>

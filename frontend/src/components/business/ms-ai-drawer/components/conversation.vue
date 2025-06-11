@@ -20,41 +20,99 @@
       </div>
     </template>
     <div class="flex-1 overflow-hidden">
-      <BubbleList ref="bubbleListRef" :list="conversationItems" :btn-loading="answering" max-height="100%">
-        <!-- 自定义 loading -->
-        <template #loading>
-          <div class="loading-wrapper">
-            <a-spin dot />
-          </div>
-        </template>
-        <!-- 自定义头像 -->
-        <template #avatar="{ item }">
-          <div class="avatar-wrapper">
-            <svg-icon v-if="item.type === AiChatContentRoleTypeEnum.ASSISTANT" width="40px" height="40px" name="ai" />
-            <MsAvatar v-else is-user />
-          </div>
-        </template>
+      <a-checkbox-group v-model:model-value="checkedCases" class="flex max-h-full">
+        <BubbleList
+          ref="bubbleListRef"
+          :list="conversationItems"
+          :btn-loading="answering"
+          max-height="100%"
+          class="w-full"
+        >
+          <!-- 自定义 loading -->
+          <template #loading>
+            <div class="loading-wrapper">
+              <a-spin dot />
+            </div>
+          </template>
+          <!-- 自定义头像 -->
+          <template #avatar="{ item }">
+            <div class="avatar-wrapper">
+              <svg-icon v-if="item.type === AiChatContentRoleTypeEnum.ASSISTANT" width="40px" height="40px" name="ai" />
+              <MsAvatar v-else is-user />
+            </div>
+          </template>
 
-        <!-- 自定义气泡内容 -->
-        <template #content="{ item }">
-          <!-- <div v-if="item.isEdit" class="flex w-full flex-col gap-[8px]">
+          <!-- 自定义气泡内容 -->
+          <template #content="{ item }">
+            <!-- <div v-if="item.isEdit" class="flex w-full flex-col gap-[8px]">
             <a-textarea v-model:model-value="tempInput"></a-textarea>
             <div class="flex items-center justify-end gap-[8px]">
               <a-button type="secondary" @click="cancelInput(item)">{{ t('common.cancel') }}</a-button>
               <a-button type="primary" @click="sendInput(item)">{{ t('ms.ai.send') }}</a-button>
             </div>
           </div> -->
-          <a-trigger position="left" auto-fit-position :popup-translate="[-8, 0]">
-            <div class="content-wrapper">
-              <Bubble
-                class="content-text"
-                :content="item.content"
-                :class="item.type === AiChatContentRoleTypeEnum.ASSISTANT ? '!rounded-none !bg-transparent' : ''"
-                :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
-              />
-            </div>
-            <template v-if="item.type === AiChatContentRoleTypeEnum.USER" #content>
-              <div class="flex items-center gap-[8px]">
+            <a-trigger position="left" auto-fit-position :popup-translate="[-8, 0]">
+              <div class="content-wrapper">
+                <Bubble
+                  class="content-text"
+                  :class="item.type === AiChatContentRoleTypeEnum.ASSISTANT ? '!rounded-none !bg-transparent' : ''"
+                >
+                  <template #content>
+                    <div
+                      v-if="
+                        item.type === AiChatContentRoleTypeEnum.ASSISTANT &&
+                        (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
+                      "
+                      class="flex"
+                    >
+                      <a-checkbox
+                        v-if="
+                          (props.type === 'case' && item.content.includes('featureCaseStart')) ||
+                          (props.type === 'api' && item.content.includes('apiCaseStart'))
+                        "
+                        :value="item.content"
+                        class="items-start"
+                      />
+                      <Typewriter
+                        :content="item.content.replace(/featureCaseStart|featureCaseEnd|apiCaseStart|apiCaseEnd/g, '')"
+                        :is-markdown="true"
+                      />
+                    </div>
+                    <Typewriter
+                      v-else
+                      :content="item.content"
+                      :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
+                    />
+                  </template>
+                </Bubble>
+              </div>
+              <template v-if="item.type === AiChatContentRoleTypeEnum.USER" #content>
+                <div class="flex items-center gap-[8px]">
+                  <a-tooltip :mouse-enter-delay="300">
+                    <MsButton type="icon" status="default" class="!mr-0" @click="handleCopy(item)">
+                      <MsIcon type="icon-icon_copy_outlined" class="text-[var(--color-text-4)]" />
+                    </MsButton>
+                    <template #content>
+                      <span>{{ t('common.copy') }}</span>
+                    </template>
+                  </a-tooltip>
+                  <a-tooltip :mouse-enter-delay="300">
+                    <MsButton type="icon" status="default" class="!mr-0" @click="handleEdit(item)">
+                      <MsIcon type="icon-icon_edit_outlined" class="text-[var(--color-text-4)]" />
+                    </MsButton>
+                    <template #content>
+                      <span>{{ t('common.edit') }}</span>
+                    </template>
+                  </a-tooltip>
+                </div>
+              </template>
+            </a-trigger>
+          </template>
+
+          <!-- 自定义底部 -->
+          <template #footer="{ item }">
+            <div v-if="!answering && item.type === AiChatContentRoleTypeEnum.ASSISTANT" class="footer-wrapper">
+              <div class="footer-container">
                 <a-tooltip :mouse-enter-delay="300">
                   <MsButton type="icon" status="default" class="!mr-0" @click="handleCopy(item)">
                     <MsIcon type="icon-icon_copy_outlined" class="text-[var(--color-text-4)]" />
@@ -64,62 +122,40 @@
                   </template>
                 </a-tooltip>
                 <a-tooltip :mouse-enter-delay="300">
-                  <MsButton type="icon" status="default" class="!mr-0" @click="handleEdit(item)">
-                    <MsIcon type="icon-icon_edit_outlined" class="text-[var(--color-text-4)]" />
+                  <MsButton type="icon" status="default" class="!mr-0" @click="handleReset(item)">
+                    <MsIcon type="icon-icon_reset_outlined" class="text-[var(--color-text-4)]" />
                   </MsButton>
                   <template #content>
-                    <span>{{ t('common.edit') }}</span>
+                    <span>{{ t('ms.ai.regenerate') }}</span>
                   </template>
                 </a-tooltip>
               </div>
-            </template>
-          </a-trigger>
-        </template>
-
-        <!-- 自定义底部 -->
-        <template #footer="{ item }">
-          <div v-if="!answering && item.type === AiChatContentRoleTypeEnum.ASSISTANT" class="footer-wrapper">
-            <div class="footer-container">
-              <a-tooltip :mouse-enter-delay="300">
-                <MsButton type="icon" status="default" class="!mr-0" @click="handleCopy(item)">
-                  <MsIcon type="icon-icon_copy_outlined" class="text-[var(--color-text-4)]" />
-                </MsButton>
-                <template #content>
-                  <span>{{ t('common.copy') }}</span>
-                </template>
-              </a-tooltip>
-              <a-tooltip :mouse-enter-delay="300">
-                <MsButton type="icon" status="default" class="!mr-0" @click="handleReset(item)">
-                  <MsIcon type="icon-icon_reset_outlined" class="text-[var(--color-text-4)]" />
-                </MsButton>
-                <template #content>
-                  <span>{{ t('ms.ai.regenerate') }}</span>
-                </template>
-              </a-tooltip>
-              <a-tooltip
-                v-if="
-                  props.type !== 'chat' &&
-                  (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
-                "
-                :mouse-enter-delay="300"
-              >
-                <MsButton type="icon" status="default" class="!mr-0" @click="handleSync(item)">
-                  <MsIcon type="icon-icon_synchronous" class="text-[var(--color-text-4)]" />
-                </MsButton>
-                <template #content>
-                  <span>{{ t('ms.ai.caseSync') }}</span>
-                </template>
-              </a-tooltip>
             </div>
-          </div>
-        </template>
-      </BubbleList>
+          </template>
+        </BubbleList>
+      </a-checkbox-group>
     </div>
     <div class="flex items-center gap-[12px] py-[16px]">
       <template v-if="props.type === 'chat'">
-        <MsAiButton :text="t('ms.ai.generateFeatureCase')" no-icon @click="jump('case')" />
-        <MsAiButton :text="t('ms.ai.generateApiCase')" no-icon @click="jump('api')" />
+        <MsAiButton
+          v-permission="['FUNCTIONAL_CASE:READ+ADD']"
+          :text="t('ms.ai.generateFeatureCase')"
+          no-icon
+          @click="jump('case')"
+        />
+        <MsAiButton
+          v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+          :text="t('ms.ai.generateApiCase')"
+          no-icon
+          @click="jump('api')"
+        />
       </template>
+      <a-button v-if="checkedCases.length > 0" type="outline" @click="handleSync()">
+        <template #icon>
+          <MsIcon type="icon-icon_synchronous" />
+        </template>
+        {{ t('ms.ai.caseSync') }}
+      </a-button>
       <MsAiButton :text="t('ms.ai.openNewConversation')" @click="handleOpenNewConversation" />
     </div>
     <Sender
@@ -171,10 +207,9 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
   import { useClipboard } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
-  import { Bubble, BubbleList, Sender } from 'vue-element-plus-x';
+  import { Bubble, BubbleList, Sender, Typewriter } from 'vue-element-plus-x';
 
   import MsAiButton from '@/components/pure/ms-ai-button/index.vue';
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
@@ -184,14 +219,16 @@
 
   import { AxiosCanceler } from '@/api/http/axiosCancel';
   import { addAiChat, aiChat, getAiChatDetail, updateAiChatTitle } from '@/api/modules/ai';
-  import { apiAiChat } from '@/api/modules/api-test/management';
+  import { apiAiChat, apiAiTransform } from '@/api/modules/api-test/management';
+  import { caseAiChat, caseAiTransform } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
   import useAIStore from '@/store/modules/setting/ai';
   import { getGenerateId } from '@/utils';
 
-  import { AiChatContentItem, AiChatListItem } from '@/models/ai';
+  import { AiCaseTransformResult, AiChatContentItem, AiChatListItem } from '@/models/ai';
+  import { ApiCaseDetail } from '@/models/apiTest/management';
   import { AiChatContentRoleTypeEnum } from '@/enums/aiEnums';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -202,6 +239,7 @@
   const props = withDefaults(
     defineProps<{
       type: 'case' | 'api' | 'chat';
+      apiDefinitionId?: string | number;
     }>(),
     {
       type: 'chat',
@@ -210,9 +248,10 @@
   const emit = defineEmits<{
     (e: 'openNewConversation'): void;
     (e: 'addSuccess'): void;
+    (e: 'syncApiCase', detail: ApiCaseDetail): void;
+    (e: 'syncFeatureCase', detail: AiCaseTransformResult): void;
   }>();
 
-  const route = useRoute();
   const { t } = useI18n();
   const { openNewPage } = useOpenNewPage();
   const { copy, isSupported } = useClipboard({ legacy: true });
@@ -270,6 +309,7 @@
   const configModalVisible = ref(false);
   const bubbleListRef = ref<any>();
   const conversationItems = ref<AiChatContentItem[]>([]);
+  const checkedCases = ref<string[]>([]);
 
   function handleCopy(item: AiChatContentItem) {
     if (isSupported) {
@@ -302,6 +342,23 @@
     senderRef.value?.focus();
   }
 
+  async function addChat(prompt: string, newId: string) {
+    const addRes = await addAiChat({
+      prompt,
+      chatModelId: model.value,
+      conversationId: activeConversation.value?.id || newId,
+      organizationId: appStore.currentOrgId || '',
+    });
+    activeConversation.value = {
+      id: addRes.id,
+      title: addRes.title,
+      isNew: false,
+      createTime: addRes.createTime,
+      createUser: addRes.createUser,
+    };
+    emit('addSuccess');
+  }
+
   async function handleSubmit() {
     if (!senderValue.value || answering.value) return;
     conversationItems.value.push({
@@ -322,6 +379,7 @@
       content: t('ms.ai.thinking'),
       loading: true,
       placement: 'start',
+      checkedCases: [],
     });
     const prompt = senderValue.value.trim();
     senderValue.value = '';
@@ -333,23 +391,10 @@
       let res = '';
       const newId = getGenerateId();
       if (!activeConversation.value || activeConversation.value?.isNew) {
-        const addRes = await addAiChat({
-          prompt,
-          chatModelId: model.value,
-          conversationId: activeConversation.value?.id || newId,
-          organizationId: appStore.currentOrgId || '',
-        });
-        activeConversation.value = {
-          id: addRes.id,
-          title: addRes.title,
-          isNew: false,
-          createTime: addRes.createTime,
-          createUser: addRes.createUser,
-        };
-        emit('addSuccess');
+        addChat(prompt, newId);
       }
       if (props.type === 'case') {
-        res = await aiChat({
+        res = await caseAiChat({
           prompt,
           chatModelId: model.value,
           conversationId: activeConversation.value?.id || newId,
@@ -361,7 +406,7 @@
           chatModelId: model.value,
           conversationId: activeConversation.value?.id || newId,
           organizationId: appStore.currentOrgId || '',
-          apiDefinitionId: route.query.id?.toString() || '',
+          apiDefinitionId: props.apiDefinitionId || '',
         });
       } else {
         res = await aiChat({
@@ -376,7 +421,6 @@
         ...conversationItems.value[conversationItems.value.length - 1],
         content: res,
         loading: false,
-        isMarkdown: true,
       };
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -386,14 +430,12 @@
           ...conversationItems.value[conversationItems.value.length - 1],
           content: t('ms.ai.hasStopped'),
           loading: false,
-          isMarkdown: false,
         };
       } else {
         conversationItems.value[conversationItems.value.length - 1] = {
           ...conversationItems.value[conversationItems.value.length - 1],
           content: t('ms.ai.failed'),
           loading: false,
-          isMarkdown: false,
         };
       }
     } finally {
@@ -409,8 +451,54 @@
       handleSubmit();
     }
   }
-  function handleSync(item: AiChatContentItem) {
-    console.log('同步', item);
+
+  async function syncSingleApiCase() {
+    try {
+      loading.value = true;
+      const res = await apiAiTransform({
+        prompt: checkedCases.value[0],
+        chatModelId: model.value,
+        conversationId: activeConversation.value?.id || '',
+        organizationId: appStore.currentOrgId || '',
+        apiDefinitionId: props.apiDefinitionId || '',
+      });
+      emit('syncApiCase', res);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error syncing single API case:', error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function syncSingleFeatureCase() {
+    try {
+      loading.value = true;
+      const res = await caseAiTransform({
+        prompt: checkedCases.value[0],
+        chatModelId: model.value,
+        conversationId: activeConversation.value?.id || '',
+        organizationId: appStore.currentOrgId || '',
+      });
+      emit('syncFeatureCase', res);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error syncing single feature case:', error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function handleSync() {
+    if (checkedCases.value.length === 1) {
+      if (props.type === 'api') {
+        syncSingleApiCase();
+      } else if (props.type === 'case') {
+        syncSingleFeatureCase();
+      }
+    } else {
+      console.log('同步', checkedCases.value);
+    }
   }
 
   function handleSendClick() {
@@ -428,6 +516,7 @@
   async function initDetail() {
     if (!activeConversation.value || activeConversation.value?.isNew) {
       conversationItems.value = [];
+      checkedCases.value = [];
       return;
     }
     if (activeConversation.value) {
@@ -436,9 +525,10 @@
         const res = await getAiChatDetail(activeConversation.value.id);
         conversationItems.value = res.map((e) => ({
           ...e,
-          isMarkdown: true,
+          checkedCases: [],
           placement: e.type === AiChatContentRoleTypeEnum.ASSISTANT ? 'start' : 'end',
         }));
+        checkedCases.value = [];
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log('Error initializing conversation detail:', error);
