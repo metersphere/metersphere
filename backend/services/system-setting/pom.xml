@@ -177,6 +177,12 @@
             <artifactId>monitoring-engine</artifactId>
             <version>${monitoring-engine.revision}</version>
         </dependency>
+        <!-- velocity 模板引擎 -->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>${velocity.revision}</version>
+        </dependency>
     </dependencies>
 
     <build>

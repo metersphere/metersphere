@@ -54,7 +54,7 @@ public class AiConversationService {
 
     public AiConversation add(AIChatRequest request, String userId) {
         String prompt = """
-                概况用户输入的主旨生成本轮对话的标题，不带标点符号，最好50字以内，不超过225。
+                概况用户输入的主旨生成本轮对话的标题，只返回标题，不带标点符号，最好50字以内，不超过255。
                 用户输入:
                 """ + request.getPrompt();
         AIChatOption aiChatOption = AIChatOption.builder()
@@ -64,6 +64,9 @@ public class AiConversationService {
                 .build();
         String conversationTitle = aiChatBaseService.chat(aiChatOption)
                 .content();
+        if (conversationTitle.length() > 255) {
+            conversationTitle = conversationTitle.substring(0, 255);
+        }
         AiConversation aiConversation = new AiConversation();
         aiConversation.setId(request.getConversationId());
         aiConversation.setTitle(conversationTitle);

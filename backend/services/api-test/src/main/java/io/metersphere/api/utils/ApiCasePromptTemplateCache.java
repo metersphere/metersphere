@@ -12,13 +12,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ApiCasePromptTemplateCache extends PromptTemplateCache {
-
-    public static final String API_CASE_AI_TEMPLATE_CACHE_KEY = "API_CASE_AI_TEMPLATE_CACHE_KEY";
-    public static final String TEMPLATE_FILENAME = "apiCaseAiTemplate.md";
+    public static final String TEMPLATE_FILENAME = "apiCaseAiTemplate.vm";
 
     @Override
     public String getCacheKey() {
-        return API_CASE_AI_TEMPLATE_CACHE_KEY;
+        return null;
     }
 
     @Override

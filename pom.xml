@@ -86,6 +86,7 @@
         <revision>3.x</revision>
         <monitoring-engine.revision>3.3</monitoring-engine.revision>
         <swagger-core-jakarta.revision>2.2.20</swagger-core-jakarta.revision>
+        <velocity.revision>2.3</velocity.revision>
 
         <spring-ai.version>1.0.0</spring-ai.version>
         <ansj_seg.version>5.1.6</ansj_seg.version>
