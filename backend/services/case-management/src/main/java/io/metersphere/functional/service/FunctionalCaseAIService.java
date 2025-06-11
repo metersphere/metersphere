@@ -9,7 +9,6 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAIChatRequest;
-import io.metersphere.functional.request.FunctionalCaseAIRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ExecStatus;
@@ -179,15 +178,15 @@ public class FunctionalCaseAIService {
      * @param userId 用户ID
      * @return 返回对话内容
      */
-    public String chat(FunctionalCaseAIRequest request, String userId) {
+    public String chat(AIChatRequest request, String userId) {
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
         aiChatBaseService.saveUserConversationContent(request.getConversationId(), request.getPrompt());
 
-        String prompt = "判断我下面这段话中是否需要生成用例，是的话返回 true，不是的话返回 false？文本如下：\n" + request.getPrompt();
+        String prompt = "你是一个测试用例生成助手，请判断用户是否希望生成测试用例   用户输入是：\n" + request.getPrompt() + "\n 如果是，请返回true，否则返回false";
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
                 .module(module)
-                .system("你只负责判断是否包含“生成测试用例”的请求意图，不能生成用例本身。\n")
+                .system("你是一个语义识别引擎，负责判断是否要生成测试用例")
                 .prompt(prompt)
                 .build();
         Boolean isGenerateCase = aiChatBaseService.chat(aiChatOption)
@@ -199,7 +198,7 @@ public class FunctionalCaseAIService {
             aiChatOption.setSystem(systemMessage.toString());
             aiChatOption.setPrompt(buildUserPromptTpl(userId, request.getPrompt()));
         } else {
-            aiChatOption.setSystem(null);
+            aiChatOption.setSystem("接下来不是测试生成任务，请作为AI助手来回答以下问题");
             aiChatOption.setPrompt(request.getPrompt());
         }
         String content = aiChatBaseService.chatWithMemory(aiChatOption).content();
@@ -218,30 +217,39 @@ public class FunctionalCaseAIService {
         FunctionalCaseAITemplateConfigDTO templateConfig = userPrompt.getTemplateConfig();
         List<String> modules = new ArrayList<>();
         if (templateConfig != null) {
-            for (Field field : FunctionalCaseAITemplateConfigDTO.class.getFields()) {
-                Schema annotation = field.getAnnotation(Schema.class);
-                try {
-                    Object value = field.get(templateConfig);
-                    if (value instanceof String) {
-                        modules.add(StringUtils.equals("STEP", value.toString()) ? "步骤描述" : "文本描述");
+            for (Field field : FunctionalCaseAITemplateConfigDTO.class.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Schema.class) && !StringUtils.equalsAny(field.getName(), "caseName", "caseSteps", "expectedResult")) {
+                    field.setAccessible(true);
+                    Schema annotation = field.getAnnotation(Schema.class);
+                    try {
+                        Object value = field.get(templateConfig);
+                        if (value instanceof String) {
+                            if (StringUtils.equals("STEP", value.toString())) {
+                                modules.add("步骤描述");
+                            } else if (StringUtils.equals("TEXT", value.toString())) {
+                                modules.add("文本描述");
+                                modules.add("预期结果");
+                            }
+                        }
+                        if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
+                            modules.add(annotation.description());
+                        }
+                    } catch (IllegalAccessException e) {
+                        LogUtils.error(e.getMessage());
                     }
-                    if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
-                        modules.add(annotation.description());
-                    }
-                } catch (IllegalAccessException e) {
-                    LogUtils.error(e.getMessage());
                 }
             }
         } else {
-            modules.addAll(Arrays.asList("用例名称", "前置条件", "文本描述", "备注"));
+            modules.addAll(Arrays.asList("用例名称", "前置条件", "文本描述", "预期结果", "备注"));
         }
 
 
         FunctionalCaseAIDesignConfigDTO designConfig = userPrompt.getDesignConfig();
         List<String> designs = new ArrayList<>();
         if (designConfig != null) {
-            for (Field field : FunctionalCaseAIDesignConfigDTO.class.getFields()) {
+            for (Field field : FunctionalCaseAIDesignConfigDTO.class.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Schema.class) && !StringUtils.equalsAny(field.getName(), "normal", "abnormal")) {
+                    field.setAccessible(true);
                     Schema annotation = field.getAnnotation(Schema.class);
                     try {
                         Object value = field.get(designConfig);
@@ -256,8 +264,7 @@ public class FunctionalCaseAIService {
         } else {
             designs.addAll(Arrays.asList("等价类划分", "边界值分析", "决策表测试", "因果图法", "正交实验法", "场景法", "场景法描述"));
         }
-        return String.format("%s，合理运用测试方法: %s，只需包含以下模块: %s",
-                input, String.join(", ", designs), String.join(", ", modules));
+        return String.format("%s，合理运用设计方法: %s，只需包含以下模块: %s", input, String.join(", ", designs), String.join(", ", modules));
     }
 
 

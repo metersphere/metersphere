@@ -3,7 +3,6 @@ package io.metersphere.functional.controller;
 import io.metersphere.functional.dto.FunctionalCaseAIConfigDTO;
 import io.metersphere.functional.dto.FunctionalCaseAiDTO;
 import io.metersphere.functional.request.FunctionalCaseAIChatRequest;
-import io.metersphere.functional.request.FunctionalCaseAIRequest;
 import io.metersphere.functional.service.FunctionalCaseAIService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
@@ -51,7 +50,7 @@ public class FunctionalCaseAIController {
     @PostMapping(value = "/chat")
     @Operation(summary = "用例管理-功能用例-AI对话")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public String chat(@RequestBody FunctionalCaseAIRequest request) {
+    public String chat(@RequestBody AIChatRequest request) {
         return functionalCaseAIService.chat(request, SessionUtils.getUserId());
     }
 
