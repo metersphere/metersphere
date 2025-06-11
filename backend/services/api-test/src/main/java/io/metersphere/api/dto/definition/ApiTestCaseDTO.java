@@ -114,5 +114,5 @@ public class ApiTestCaseDTO {
     private Boolean ignoreApiChange;
 
     @Schema(description = "是否是ai生成的用例")
-    private Boolean aiCreat = false;
+    private Boolean aiCreate = false;
 }
