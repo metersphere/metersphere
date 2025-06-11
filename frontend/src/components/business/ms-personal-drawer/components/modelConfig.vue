@@ -21,8 +21,12 @@
       </template>
       <template #second>
         <div class="p-[16px]">
-          <div class="mb-[16px] flex items-center justify-between">
-            <a-button v-permission="['SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE']" type="primary" @click="addModel">
+          <div
+            :class="`mb-[16px] flex items-center ${
+              hasAnyPermission(modelConfigPermissionMap) ? 'justify-between' : 'justify-end'
+            }`"
+          >
+            <a-button v-permission="modelConfigPermissionMap" type="primary" @click="addModel">
               {{ t('system.config.modelConfig.addModel') }}
             </a-button>
             <a-input-search
@@ -108,6 +112,7 @@
                             {{ t('common.edit') }}
                           </a-button>
                           <a-button
+                            v-permission="modelConfigPermissionMap"
                             type="outline"
                             class="arco-btn-outline--secondary"
                             size="small"
@@ -120,6 +125,7 @@
                         <a-switch
                           v-model="item.status"
                           size="small"
+                          :disabled="!hasAnyPermission(modelConfigPermissionMap)"
                           :before-change="(val) => changeStatus(val, item)"
                         />
                       </div>
@@ -165,6 +171,7 @@
   import useModal from '@/hooks/useModal';
   import { useUserStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ModelConfigItem, SupplierModelItem } from '@/models/setting/modelConfig';
   import { ModelBaseTypeEnum } from '@/enums/modelEnum';
