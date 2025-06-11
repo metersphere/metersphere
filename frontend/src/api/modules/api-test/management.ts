@@ -8,6 +8,7 @@ import {
   AddMockUrl,
   AddModuleUrl,
   AddShareUrl,
+  ApiAiCaseBatchSaveUrl,
   ApiAiChatUrl,
   ApiAiTransformUrl,
   BatchCleanOutApiUrl,
@@ -774,4 +775,9 @@ export function apiAiChat(data: ApiAiChatParams) {
 // 接口用例AI转换
 export function apiAiTransform(data: ApiAiChatParams) {
   return MSR.post<ApiCaseDetail>({ url: ApiAiTransformUrl, data });
+}
+
+// 接口用例AI批量保存
+export function apiAiCaseBatchSave(data: ApiAiChatParams) {
+  return MSR.post({ url: ApiAiCaseBatchSaveUrl, data });
 }

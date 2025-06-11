@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row items-center justify-between">
+  <div class="flex flex-row flex-wrap items-center justify-between gap-[16px]">
     <slot name="left">
       <div class="flex">
         <a-popover v-if="props.name" title="" position="bottom">
@@ -22,7 +22,7 @@
     <div class="flex flex-row gap-[8px]">
       <a-input-search
         v-if="!props.notShowInputSearch && !isAdvancedSearchMode"
-        v-model:modelValue="keyword"
+        v-model:model-value="keyword"
         size="small"
         :placeholder="props.searchPlaceholder"
         class="w-[187px]"

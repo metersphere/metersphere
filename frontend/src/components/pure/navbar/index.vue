@@ -188,7 +188,7 @@
       </li>
     </ul>
   </div>
-  <MsAIDrawer v-if="aiDrawerVisible" v-model:visible="aiDrawerVisible" type="chat" />
+  <MsAIDrawer v-if="isInitAiDrawer" v-model:visible="aiDrawerVisible" type="chat" />
   <TaskCenterDrawer v-if="taskCenterVisible" v-model:visible="taskCenterVisible" />
   <MessageCenterDrawer v-if="messageCenterVisible" v-model:visible="messageCenterVisible" />
   <AddProjectModal :visible="projectVisible" @cancel="projectVisible = false" />
@@ -337,8 +337,10 @@
     messageCenterVisible.value = true;
   }
 
+  const isInitAiDrawer = ref<boolean>(false);
   const aiDrawerVisible = ref<boolean>(false);
   function openAI() {
+    isInitAiDrawer.value = true;
     aiDrawerVisible.value = true;
   }
 

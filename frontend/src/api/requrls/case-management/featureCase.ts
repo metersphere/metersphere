@@ -20,8 +20,6 @@ export const BatchCopyCaseUrl = '/functional/case/batch/copy';
 export const FollowerCaseUrl = '/functional/case/edit/follower';
 // 获取用例关注人
 export const GetCaseFollowerUrl = '/functional/case/follower';
-// 获取用例模板自定义字段
-export const GetCaseCustomFieldsUrl = '/functional/case/default/template/field';
 // 获取表头自定义字段（高级搜索中的自定义字段）
 export const GetSearchCustomFieldsUrl = '/functional/case/custom/field';
 // 关联文件列表
@@ -182,3 +180,4 @@ export const SaveAiConfigUrl = '/functional/case/ai/save/config';
 export const GetAiConfigUrl = '/functional/case/ai/get/config';
 export const CaseAiTransformUrl = '/functional/case/ai/transform'; // AI用例结构转换
 export const CaseAiChatUrl = '/functional/case/ai/chat'; // AI用例聊天
+export const CaseAiBatchSaveUrl = '/functional/case/ai/batch/save'; // AI用例批量保存

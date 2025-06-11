@@ -65,6 +65,12 @@ export interface CaseAiChatConfig {
   templateConfig: CaseTemplateConfig;
 }
 
+export interface CaseAiBatchSaveParams extends AiChatPrams {
+  projectId: string | number; // 项目 ID
+  moduleId: string | number; // 模块 ID
+  templateId: string | number; // 模板 ID
+}
+
 export interface AiCaseStepDescription {
   id: string;
   num: number;

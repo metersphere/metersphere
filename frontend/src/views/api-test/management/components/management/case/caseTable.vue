@@ -319,7 +319,7 @@
   />
   <!-- AI 生成 -->
   <MsAIDrawer
-    v-if="aiDrawerVisible"
+    v-if="isInitAiDrawer"
     v-model:visible="aiDrawerVisible"
     type="api"
     :api-definition-id="props.apiDetail?.id"
@@ -432,8 +432,10 @@
 
   const keyword = ref('');
 
+  const isInitAiDrawer = ref<boolean>(false);
   const aiDrawerVisible = ref<boolean>(false);
   function openAI() {
+    isInitAiDrawer.value = true;
     aiDrawerVisible.value = true;
   }
 

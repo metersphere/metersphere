@@ -18,6 +18,7 @@
           v-model:value="activeConversation"
           :type="props.type"
           :api-definition-id="props.apiDefinitionId"
+          :module-id="props.moduleId"
           @open-new-conversation="openNewConversation"
           @add-success="handleAddConversationSuccess"
           @sync-api-case="emit('syncApiCase', $event)"
@@ -42,6 +43,8 @@
   const props = defineProps<{
     type: 'chat' | 'case' | 'api';
     apiDefinitionId?: string | number;
+    moduleId?: string | number;
+    templateId?: string | number; // 功能用例保存时需要的模板 id
   }>();
   const emit = defineEmits<{
     (e: 'syncApiCase', detail: ApiCaseDetail): void;

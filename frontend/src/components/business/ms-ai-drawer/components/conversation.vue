@@ -219,8 +219,8 @@
 
   import { AxiosCanceler } from '@/api/http/axiosCancel';
   import { addAiChat, aiChat, getAiChatDetail, updateAiChatTitle } from '@/api/modules/ai';
-  import { apiAiChat, apiAiTransform } from '@/api/modules/api-test/management';
-  import { caseAiChat, caseAiTransform } from '@/api/modules/case-management/featureCase';
+  import { apiAiCaseBatchSave, apiAiChat, apiAiTransform } from '@/api/modules/api-test/management';
+  import { caseAiBatchSave, caseAiChat, caseAiTransform } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -240,6 +240,8 @@
     defineProps<{
       type: 'case' | 'api' | 'chat';
       apiDefinitionId?: string | number;
+      moduleId?: string | number; // 用例保存时的模块
+      templateId?: string | number; // 功能用例保存时需要的模板 id
     }>(),
     {
       type: 'chat',
@@ -489,6 +491,38 @@
     }
   }
 
+  async function batchSaveAiCase() {
+    try {
+      loading.value = true;
+      if (props.type === 'api') {
+        await apiAiCaseBatchSave({
+          prompt: checkedCases.value.join(''),
+          chatModelId: model.value,
+          conversationId: activeConversation.value?.id || '',
+          organizationId: appStore.currentOrgId || '',
+          apiDefinitionId: props.apiDefinitionId || '',
+        });
+      } else if (props.type === 'case') {
+        await caseAiBatchSave({
+          prompt: checkedCases.value.join(''),
+          chatModelId: model.value,
+          conversationId: activeConversation.value?.id || '',
+          organizationId: appStore.currentOrgId || '',
+          projectId: appStore.currentProjectId || '',
+          moduleId: props.moduleId || '',
+          templateId: props.templateId || '',
+        });
+      }
+      Message.success(t('ms.ai.caseSyncSuccess'));
+      checkedCases.value = [];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error batch saving AI case:', error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   function handleSync() {
     if (checkedCases.value.length === 1) {
       if (props.type === 'api') {
@@ -497,7 +531,7 @@
         syncSingleFeatureCase();
       }
     } else {
-      console.log('同步', checkedCases.value);
+      batchSaveAiCase();
     }
   }
 
@@ -529,6 +563,9 @@
           placement: e.type === AiChatContentRoleTypeEnum.ASSISTANT ? 'start' : 'end',
         }));
         checkedCases.value = [];
+        nextTick(() => {
+          bubbleListRef.value?.scrollToBottom();
+        });
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log('Error initializing conversation detail:', error);

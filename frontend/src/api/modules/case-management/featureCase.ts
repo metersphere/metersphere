@@ -17,6 +17,7 @@ import {
   CancelAssociationDemandUrl,
   cancelDisassociate,
   cancelPreAndPostCaseUrl,
+  CaseAiBatchSaveUrl,
   CaseAiChatUrl,
   CaseAiTransformUrl,
   CheckCaseExportTaskUrl,
@@ -92,7 +93,7 @@ import {
   UploadOrAssociationFileUrl,
 } from '@/api/requrls/case-management/featureCase';
 
-import type { AiCaseTransformResult, AiChatPrams, CaseAiChatConfig } from '@/models/ai';
+import type { AiCaseTransformResult, AiChatPrams, CaseAiBatchSaveParams, CaseAiChatConfig } from '@/models/ai';
 import type { BugListItem } from '@/models/bug-management';
 import type {
   AssociatedList,
@@ -526,4 +527,9 @@ export function caseAiTransform(data: AiChatPrams) {
 // AI用例聊天
 export function caseAiChat(data: AiChatPrams) {
   return MSR.post({ url: CaseAiChatUrl, data });
+}
+
+// AI用例批量保存
+export function caseAiBatchSave(data: CaseAiBatchSaveParams) {
+  return MSR.post({ url: CaseAiBatchSaveUrl, data });
 }

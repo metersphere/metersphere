@@ -394,9 +394,11 @@
   />
   <!-- AI 生成 -->
   <MsAIDrawer
-    v-if="aiDrawerVisible"
+    v-if="isInitAiDrawer"
     v-model:visible="aiDrawerVisible"
     type="case"
+    :module-id="props.activeFolder"
+    :template-id="templateId"
     @sync-feature-case="handleSyncFeatureCase"
   />
 </template>
@@ -538,8 +540,10 @@
     return featureCaseStore.modulesCount;
   });
 
+  const isInitAiDrawer = ref<boolean>(false);
   const aiDrawerVisible = ref<boolean>(false);
   function openAI() {
+    isInitAiDrawer.value = true;
     aiDrawerVisible.value = true;
   }
 
@@ -1597,6 +1601,7 @@
     });
   }
 
+  const templateId = ref<string>(''); // 模板ID
   // 处理自定义字段列
   let customFieldsColumns: Record<string, any>[] = [];
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
@@ -1606,6 +1611,7 @@
   async function getDefaultFields() {
     customFieldsColumns = [];
     const result = await getCaseDefaultFields(currentProjectId.value);
+    templateId.value = result.id;
     initDefaultFields.value = result.customFields;
     customFieldsColumns = initDefaultFields.value
       .filter((item: any) => !item.internal)
