@@ -35,6 +35,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
@@ -75,7 +76,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
     private TestPlanCaseExecuteHistoryMapper testPlanCaseExecuteHistoryMapper;
-    @Resource
+    @MockitoBean
     BaseAssociateBugProvider baseAssociateBugProvider;
     @Resource
     BugRelationCaseMapper bugRelationCaseMapper;

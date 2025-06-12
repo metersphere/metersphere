@@ -4,18 +4,18 @@ import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.provider.BaseAssociateScenarioProvider;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @TestConfiguration
 public class CaseTestConfiguration {
 
-    @MockBean
+    @MockitoBean
     BaseAssociateApiProvider provider;
 
-    @MockBean
+    @MockitoBean
     BaseAssociateScenarioProvider scenarioProvider;
 
-    @MockBean
+    @MockitoBean
     BaseAssociateBugProvider baseAssociateBugProvider;
 
 }

@@ -3,18 +3,18 @@ package io.metersphere.bug.config;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.system.service.LicenseService;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration; 
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @TestConfiguration
 public class BugProviderConfiguration {
 
-    @MockBean
+    @MockitoBean
     BaseAssociateCaseProvider baseAssociateCaseProvider;
 
-    @MockBean
+    @MockitoBean
     LicenseService licenseService;
 
-    @MockBean
+    @MockitoBean
     Platform platform;
 }

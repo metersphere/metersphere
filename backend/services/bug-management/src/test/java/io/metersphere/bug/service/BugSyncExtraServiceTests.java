@@ -15,7 +15,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
@@ -34,9 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BugSyncExtraServiceTests extends BaseTest {
 
-    @Resource
+    @MockitoBean
     Platform platform;
-    @MockBean
+    @MockitoBean
     MinioRepository minioMock;
     @Resource
     private BugAttachmentService bugAttachmentService;

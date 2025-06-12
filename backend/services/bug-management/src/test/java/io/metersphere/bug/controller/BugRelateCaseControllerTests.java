@@ -20,6 +20,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BugRelateCaseControllerTests extends BaseTest {
 
-    @Resource
+    @MockitoBean
     BaseAssociateCaseProvider functionalCaseProvider;
 
     @Resource

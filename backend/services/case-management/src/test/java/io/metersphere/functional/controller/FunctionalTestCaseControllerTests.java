@@ -41,6 +41,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
@@ -82,10 +83,10 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     private static final String URL_TEST_PLAN_EXECUTE_HISTORY = "/functional/case/test/plan/comment/";
 
 
-    @Resource
+    @MockitoBean
     BaseAssociateApiProvider provider;
 
-    @Resource
+    @MockitoBean
     BaseAssociateScenarioProvider scenarioProvider;
 
     @Resource
@@ -100,7 +101,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     @Resource
     private ApiScenarioModuleMapper apiScenarioModuleMapper;
 
-    @Resource
+    @MockitoBean
     BaseAssociateBugProvider baseAssociateBugProvider;
 
     @Resource
