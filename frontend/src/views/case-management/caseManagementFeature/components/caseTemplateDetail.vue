@@ -254,6 +254,7 @@
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
@@ -308,17 +309,11 @@
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
 
-  const props = withDefaults(
-    defineProps<{
-      formModeValue: Record<string, any>; // 表单值
-      caseId: string; // 用例id
-      isCoverTemplateSystemField?: boolean;
-      defaultCaseInfo?: Record<string, any>; // 默认用例信息
-    }>(),
-    {
-      isCoverTemplateSystemField: true,
-    }
-  );
+  const props = defineProps<{
+    formModeValue: Record<string, any>; // 表单值
+    caseId: string; // 用例id
+    defaultCaseInfo?: Record<string, any>; // 默认用例信息
+  }>();
 
   const emit = defineEmits(['update:formModeValue', 'changeFile']);
   const acceptType = ref('none'); // 模块-上传文件类型
@@ -360,7 +355,7 @@
     reviewStatus: 'UN_REVIEWED',
   };
 
-  const form = ref<DetailCase | CreateOrUpdateCase>({ ...Object.assign(initForm, props.defaultCaseInfo) });
+  const form = ref<DetailCase | CreateOrUpdateCase>({ ...cloneDeep(initForm), ...cloneDeep(props.defaultCaseInfo) });
 
   watch(
     () => stepData.value,
@@ -425,7 +420,7 @@
       isLoading.value = true;
       const res = await getCaseDefaultFields(currentProjectId.value);
       const { customFields, id, systemFields } = res;
-
+      form.value.templateId = id;
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         let initValue = item.defaultValue;
@@ -448,8 +443,7 @@
         };
       });
       formRules.value = result;
-      form.value = { ...initForm, ...props.formModeValue.request, templateId: id };
-      if (props.isCoverTemplateSystemField && systemFields?.length) {
+      if (systemFields?.length) {
         setSystemDefault(systemFields);
       }
     } catch (error) {
