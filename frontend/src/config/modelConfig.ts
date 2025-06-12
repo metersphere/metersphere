@@ -132,7 +132,7 @@ export const DEEP_SEEK_REASONER: ModelAdvancedSetType[] = [
   },
   {
     name: 'topP',
-    label: 'system.config.modelConfig.temperature',
+    label: 'system.config.modelConfig.topP',
     value: 1.0,
     enable: true,
     minValue: 0,
@@ -167,7 +167,7 @@ export const DEEP_SEEK_CHAT: ModelAdvancedSetType[] = [
   },
   {
     name: 'topP',
-    label: 'system.config.modelConfig.temperature',
+    label: 'system.config.modelConfig.topP',
     value: 1,
     enable: true,
     minValue: 0,
@@ -201,7 +201,7 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
     },
     {
       name: 'topP',
-      label: 'system.config.modelConfig.temperature',
+      label: 'system.config.modelConfig.topP',
       value: 0.1,
       enable: true,
       minValue: 0.1,
@@ -247,7 +247,8 @@ export function getModelDefaultConfig(supplierType: ModelBaseTypeEnum, baseModel
   const defaultAdvancedSetValue = defaultAdvancedSetValueMap;
   let lastDefaultValue: ModelAdvancedSetType[] = [];
   switch (supplierType) {
-    case ModelBaseTypeEnum.OpenAI || ModelBaseTypeEnum.ZhiPuAI:
+    case ModelBaseTypeEnum.OpenAI:
+    case ModelBaseTypeEnum.ZhiPuAI:
       const includesBaseModelValues = baseModelTypeMap[supplierType].map((e) => e.value);
       lastDefaultValue = includesBaseModelValues.includes(baseModelType) ? defaultAdvancedSetValue[supplierType] : [];
       break;
