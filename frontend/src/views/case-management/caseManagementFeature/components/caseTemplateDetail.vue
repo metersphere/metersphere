@@ -24,7 +24,7 @@
             :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           />
         </a-form-item>
-        <StepDescription v-model:caseEditType="form.caseEditType" />
+        <StepDescription v-model:case-edit-type="form.caseEditType" />
         <div v-if="form.caseEditType === 'STEP'" class="mb-[20px] w-full">
           <AddStep v-model:step-list="stepData" :is-disabled="false" />
         </div>
@@ -308,10 +308,16 @@
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
 
-  const props = defineProps<{
-    formModeValue: Record<string, any>; // 表单值
-    caseId: string; // 用例id
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      formModeValue: Record<string, any>; // 表单值
+      caseId: string; // 用例id
+      isCoverTemplateSystemField?: boolean;
+    }>(),
+    {
+      isCoverTemplateSystemField: true,
+    }
+  );
 
   const emit = defineEmits(['update:formModeValue', 'changeFile']);
   const acceptType = ref('none'); // 模块-上传文件类型
@@ -412,7 +418,7 @@
       isLoading.value = true;
       const res = await getCaseDefaultFields(currentProjectId.value);
       const { customFields, id, systemFields } = res;
-      form.value.templateId = id;
+
       const result = customFields.map((item: any) => {
         const memberType = ['MEMBER', 'MULTIPLE_MEMBER'];
         let initValue = item.defaultValue;
@@ -435,11 +441,15 @@
         };
       });
       formRules.value = result;
-      setSystemDefault(systemFields || []);
-      isLoading.value = false;
+      form.value = { ...initForm, ...props.formModeValue.request, templateId: id };
+      if (props.isCoverTemplateSystemField && systemFields?.length) {
+        setSystemDefault(systemFields);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      isLoading.value = false;
     }
   }
 

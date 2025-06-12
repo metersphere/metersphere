@@ -13,12 +13,13 @@
       ref="caseModuleDetailRef"
       v-model:form-mode-value="caseDetailInfo"
       :case-id="(route.query.id as string || '')"
+      :is-cover-template-system-field="!caseDetail"
     />
     <template #footerRight>
       <div class="flex justify-end gap-[16px]">
-        <a-button :disabled="loading" type="secondary" @click="cancelHandler">{{
-          t('mscard.defaultCancelText')
-        }}</a-button>
+        <a-button :disabled="loading" type="secondary" @click="cancelHandler">
+          {{ t('mscard.defaultCancelText') }}
+        </a-button>
         <a-button v-if="!isEdit" :loading="loading" type="secondary" @click="saveHandler(true)">
           {{ t('mscard.defaultSaveAndContinueText') }}
         </a-button>
