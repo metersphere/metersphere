@@ -11,6 +11,8 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+
 /**
  * 该类实现了 AIChatModel 接口，用于集成 OpenAI 的聊天 API。
  * 提供了使用 OpenAI 的 API 和选项创建 ChatClient 和 ChatModel 的方法。
@@ -54,9 +56,11 @@ public class AIOpenAIChatClient extends AIChatClient {
                 .build();
 
         // 创建 OpenAiChatModel 实例并配置
+        HashMap<String, String> headerMap = new HashMap<>();
+        headerMap.put("Accept-Encoding", "gzip, deflate");
         return OpenAiChatModel.builder()
                 .openAiApi(openAiApi)
-                .defaultOptions(OpenAiChatOptions.builder()
+                .defaultOptions(OpenAiChatOptions.builder().httpHeaders(headerMap)
                         .model(options.getModelType())
                         .build())
                 .build();
