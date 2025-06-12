@@ -208,6 +208,15 @@
     </Sender>
   </a-spin>
   <caseConfigModal v-if="props.type === 'case'" v-model:visible="configModalVisible" />
+  <caseModuleSelectModal
+    v-if="props.type === 'case'"
+    v-model:visible="caseModuleSelectModalVisible"
+    :prompt="checkedCases.join('')"
+    :conversation-id="activeConversation?.id || ''"
+    :model="model"
+    :template-id="props.templateId || ''"
+    @sync-success="emit('syncSuccess')"
+  />
   <apiConfigModal v-if="props.type === 'api'" v-model:visible="configModalVisible" />
   <apiSelectModal v-if="props.type === 'chat'" v-model:visible="apiSelectModalVisible" />
 </template>
@@ -226,7 +235,7 @@
   import { AxiosCanceler } from '@/api/http/axiosCancel';
   import { addAiChat, aiChat, getAiChatDetail, updateAiChatTitle } from '@/api/modules/ai';
   import { apiAiCaseBatchSave, apiAiChat, apiAiTransform } from '@/api/modules/api-test/management';
-  import { caseAiBatchSave, caseAiChat, caseAiTransform } from '@/api/modules/case-management/featureCase';
+  import { caseAiChat, caseAiTransform } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useOpenNewPage from '@/hooks/useOpenNewPage';
   import useAppStore from '@/store/modules/app';
@@ -241,6 +250,7 @@
   const apiConfigModal = defineAsyncComponent(() => import('./apiConfigModal.vue'));
   const apiSelectModal = defineAsyncComponent(() => import('./apiSelectModal.vue'));
   const caseConfigModal = defineAsyncComponent(() => import('./caseConfigModal.vue'));
+  const caseModuleSelectModal = defineAsyncComponent(() => import('./caseModuleSelect.vue'));
 
   const props = withDefaults(
     defineProps<{
@@ -256,6 +266,7 @@
   const emit = defineEmits<{
     (e: 'openNewConversation'): void;
     (e: 'addSuccess'): void;
+    (e: 'syncSuccess'): void;
     (e: 'syncApiCase', detail: ApiCaseDetail): void;
     (e: 'syncFeatureCase', detail: AiCaseTransformResult): void;
   }>();
@@ -341,6 +352,7 @@
   }
 
   const apiSelectModalVisible = ref(false);
+  const caseModuleSelectModalVisible = ref(false);
   function jump(type: 'case' | 'api') {
     if (type === 'api') {
       apiSelectModalVisible.value = true;
@@ -521,19 +533,11 @@
           apiDefinitionId: props.apiDefinitionId || '',
           projectId: appStore.currentProjectId || '',
         });
+        Message.success(t('ms.ai.caseSyncSuccess'));
+        checkedCases.value = [];
       } else if (props.type === 'case') {
-        await caseAiBatchSave({
-          prompt: checkedCases.value.join(''),
-          chatModelId: model.value,
-          conversationId: activeConversation.value?.id || '',
-          organizationId: appStore.currentOrgId || '',
-          projectId: appStore.currentProjectId || '',
-          moduleId: props.moduleId || '',
-          templateId: props.templateId || '',
-        });
+        caseModuleSelectModalVisible.value = true;
       }
-      Message.success(t('ms.ai.caseSyncSuccess'));
-      checkedCases.value = [];
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('Error batch saving AI case:', error);

@@ -20,10 +20,12 @@
           :type="props.type"
           :api-definition-id="props.apiDefinitionId"
           :module-id="props.moduleId"
+          :template-id="props.templateId"
           @open-new-conversation="openNewConversation"
           @add-success="handleAddConversationSuccess"
           @sync-api-case="emit('syncApiCase', $event)"
           @sync-feature-case="emit('syncFeatureCase', $event)"
+          @sync-success="emit('syncSuccess')"
         />
       </template>
     </MsSplitBox>
@@ -50,6 +52,7 @@
   const emit = defineEmits<{
     (e: 'syncApiCase', detail: ApiCaseDetail): void;
     (e: 'syncFeatureCase', detail: AiCaseTransformResult): void;
+    (e: 'syncSuccess'): void;
   }>();
 
   const { t } = useI18n();

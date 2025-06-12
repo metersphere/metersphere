@@ -400,6 +400,7 @@
     :module-id="props.activeFolder"
     :template-id="templateId"
     @sync-feature-case="handleSyncFeatureCase"
+    @sync-success="initData()"
   />
 </template>
 

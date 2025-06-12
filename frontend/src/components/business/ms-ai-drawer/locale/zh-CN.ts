@@ -41,4 +41,5 @@ export default {
   'ms.ai.hasStopped': '已停止生成',
   'ms.ai.titleNotNull': '对话标题不能为空',
   'ms.ai.caseSyncSuccess': '用例同步成功',
+  'ms.ai.choseModule': '选择模块',
 };

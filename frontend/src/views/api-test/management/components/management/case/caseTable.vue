@@ -324,6 +324,7 @@
     type="api"
     :api-definition-id="props.apiDetail?.id"
     @sync-api-case="handleSyncApiCase"
+    @sync-success="loadCaseList()"
   />
 </template>
 

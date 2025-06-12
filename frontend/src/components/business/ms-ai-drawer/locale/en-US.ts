@@ -41,4 +41,5 @@ export default {
   'ms.ai.hasStopped': 'Generation has stopped',
   'ms.ai.titleNotNull': 'Conversation title cannot be empty',
   'ms.ai.caseSyncSuccess': 'Case synchronized successfully',
+  'ms.ai.choseModule': 'Select module',
 };
