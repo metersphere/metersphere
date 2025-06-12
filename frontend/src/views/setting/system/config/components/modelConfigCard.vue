@@ -1,7 +1,7 @@
 <template>
   <div>
     <MsCard simple :special-height="119" no-content-padding>
-      <modelConfig model-key="system" :card-min-width="420" />
+      <modelConfig model-key="system" :card-min-width="320" />
     </MsCard>
   </div>
 </template>
