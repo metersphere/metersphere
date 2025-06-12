@@ -184,16 +184,14 @@ public class FunctionalCaseAIService {
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
         aiChatBaseService.saveUserConversationContent(request.getConversationId(), request.getPrompt());
 
-        String prompt = "你是一个测试用例生成助手，请判断用户是否希望生成测试用例   用户输入是：\n" + request.getPrompt() + "\n 如果是，请返回true，否则返回false";
+        String prompt = "你是一个测试用例生成助手，请判断用户是否希望生成测试用例   用户输入是：\n" + request.getPrompt() + "\n 如果是，请返回布尔值true，否则返回false。 禁止返回对象、禁止解释说明。";
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
                 .module(module)
                 .system("你是一个语义识别引擎，负责判断是否要生成测试用例")
                 .prompt(prompt)
                 .build();
-        Boolean isGenerateCase = aiChatBaseService.chat(aiChatOption)
-                .entity(Boolean.class);
-
+        Boolean isGenerateCase = Boolean.parseBoolean(aiChatBaseService.chat(aiChatOption).content());
         if (Boolean.TRUE.equals(isGenerateCase)) {
             SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(generatePrompt);
             Message systemMessage = systemPromptTemplate.createMessage();
