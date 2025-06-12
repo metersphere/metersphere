@@ -104,3 +104,7 @@ export interface ApiAiChatParams {
   organizationId: string;
   apiDefinitionId: string | number; // 接口定义 id
 }
+
+export interface ApiCaseAiBatchSaveParams extends ApiAiChatParams {
+  projectId: string | number; // 项目 ID
+}

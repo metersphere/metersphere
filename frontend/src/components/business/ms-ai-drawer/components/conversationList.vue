@@ -24,6 +24,7 @@
           v-if="item.isEditing"
           :id="`ai-title-${item.id}`"
           v-model:model-value="tempInputVal"
+          :max-length="255"
           @blur="handleEditConfirm(item)"
           @keydown.enter="handleEditConfirm(item)"
           @keydown.esc="handleEditCancel(item)"
@@ -90,26 +91,21 @@
   }
 
   function openNewConversation() {
-    conversationList.value.push({
+    conversationList.value.unshift({
       id: getGenerateId(),
       title: t('ms.ai.newConversation'),
       isNew: true,
       createTime: new Date().getTime(),
       createUser: '',
     });
-    activeConversation.value = conversationList.value[conversationList.value.length - 1];
-    nextTick(() => {
-      const itemElement = document.querySelector(`#ai-item-${activeConversation.value?.id}`) as HTMLInputElement;
-      if (itemElement) {
-        itemElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
+    [activeConversation.value] = conversationList.value;
   }
 
   const tempInputVal = ref<string>('');
 
   async function handleEditConfirm(item: AiChatListItem) {
     if (!tempInputVal.value.trim()) {
+      item.isEditing = false;
       return;
     }
     try {

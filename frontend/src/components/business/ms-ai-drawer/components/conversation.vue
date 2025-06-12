@@ -58,31 +58,36 @@
                   :class="item.type === AiChatContentRoleTypeEnum.ASSISTANT ? '!rounded-none !bg-transparent' : ''"
                 >
                   <template #content>
-                    <div
-                      v-if="
-                        item.type === AiChatContentRoleTypeEnum.ASSISTANT &&
-                        (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
-                      "
-                      class="flex"
+                    <template
+                      v-for="(caseItem, idx) in item.content.split(/featureCaseEnd|apiCaseEnd/).filter((e) => e.trim())"
+                      :key="caseItem + idx"
                     >
-                      <a-checkbox
+                      <div
                         v-if="
-                          (props.type === 'case' && item.content.includes('featureCaseStart')) ||
-                          (props.type === 'api' && item.content.includes('apiCaseStart'))
+                          item.type === AiChatContentRoleTypeEnum.ASSISTANT &&
+                          (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
                         "
-                        :value="item.content"
-                        class="items-start"
-                      />
+                        class="flex"
+                      >
+                        <a-checkbox
+                          v-if="
+                            (props.type === 'case' && item.content.includes('featureCaseStart')) ||
+                            (props.type === 'api' && item.content.includes('apiCaseStart'))
+                          "
+                          :value="caseItem"
+                          class="items-start"
+                        />
+                        <Typewriter
+                          :content="caseItem.replace(/featureCaseStart|featureCaseEnd|apiCaseStart|apiCaseEnd/g, '')"
+                          :is-markdown="true"
+                        />
+                      </div>
                       <Typewriter
-                        :content="item.content.replace(/featureCaseStart|featureCaseEnd|apiCaseStart|apiCaseEnd/g, '')"
-                        :is-markdown="true"
+                        v-else
+                        :content="item.content"
+                        :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
                       />
-                    </div>
-                    <Typewriter
-                      v-else
-                      :content="item.content"
-                      :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
-                    />
+                    </template>
                   </template>
                 </Bubble>
               </div>
@@ -165,7 +170,7 @@
       :auto-size="{ minRows: 2, maxRows: 5 }"
       clearable
       allow-speech
-      :placeholder="t('ms.ai.casePlaceholder')"
+      :placeholder="sendPlaceholder"
       @submit="handleSubmit"
     >
       <template #action-list>
@@ -188,15 +193,16 @@
           >
             <MsIcon type="icon-icon_stop_outlined" :size="22" />
           </MsButton>
-          <MsButton
-            v-else
-            type="text"
-            class="hover:text-[rgb(var(--primary-4))] active:text-[rgb(var(--primary-7))]"
-            :disabled="!senderValue"
-            @click="handleSendClick"
-          >
-            <MsIcon type="icon-icon_release" :size="22" />
-          </MsButton>
+          <a-tooltip v-else :content="t('ms.ai.sendTip')" :disabled="!!senderValue">
+            <MsButton
+              type="text"
+              class="hover:text-[rgb(var(--primary-4))] active:text-[rgb(var(--primary-7))]"
+              :disabled="!senderValue"
+              @click="handleSendClick"
+            >
+              <MsIcon type="icon-icon_release" :size="22" />
+            </MsButton>
+          </a-tooltip>
         </div>
       </template>
     </Sender>
@@ -284,7 +290,7 @@
   async function handleSaveTitle() {
     try {
       if (!tempTitle.value.trim()) {
-        Message.error(t('ms.ai.titleNotNull'));
+        editTitle.value = false;
         return;
       }
       await updateAiChatTitle({
@@ -315,6 +321,15 @@
   const bubbleListRef = ref<any>();
   const conversationItems = ref<AiChatContentItem[]>([]);
   const checkedCases = ref<string[]>([]);
+  const sendPlaceholder = computed(() => {
+    if (props.type === 'case') {
+      return t('ms.ai.casePlaceholder');
+    }
+    if (props.type === 'api') {
+      return t('ms.ai.apiCasePlaceholder');
+    }
+    return t('ms.ai.sendTip');
+  });
 
   function handleCopy(item: AiChatContentItem) {
     if (isSupported) {
@@ -504,6 +519,7 @@
           conversationId: activeConversation.value?.id || '',
           organizationId: appStore.currentOrgId || '',
           apiDefinitionId: props.apiDefinitionId || '',
+          projectId: appStore.currentProjectId || '',
         });
       } else if (props.type === 'case') {
         await caseAiBatchSave({
