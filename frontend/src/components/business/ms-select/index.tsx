@@ -552,7 +552,11 @@ export default defineComponent(
               prefix: renderPrefix(),
               label: ({ data }: { data: SelectOptionData }) => (
                 // 在不限制标签数量时展示 tooltip
-                <a-tooltip content={data.label} disabled={maxTagCount.value !== Infinity && maxTagCount.value !== 0}>
+                <a-tooltip
+                  content={data.label}
+                  position={props.fullTooltipPosition}
+                  disabled={maxTagCount.value !== Infinity && maxTagCount.value !== 0}
+                >
                   <div
                     class="one-line-text"
                     style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}

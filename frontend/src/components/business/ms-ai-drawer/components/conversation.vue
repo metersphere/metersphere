@@ -175,7 +175,14 @@
     >
       <template #action-list>
         <div class="flex items-center gap-[16px]">
-          <MsSelect v-model:model-value="model" :options="models" size="mini" class="!w-[100px]"></MsSelect>
+          <MsSelect
+            v-model:model-value="model"
+            :options="models"
+            option-tooltip-position="left"
+            full-tooltip-position="left"
+            size="mini"
+            class="!w-[100px]"
+          ></MsSelect>
           <MsButton
             v-if="props.type !== 'chat'"
             type="text"
