@@ -1,5 +1,6 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.ai.engine.utils.TextCleaner;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.domain.FunctionalCase;
@@ -50,8 +51,9 @@ public class FunctionalCaseAIService {
     private AiUserPromptConfigMapper aiUserPromptConfigMapper;
     @Resource
     private AiChatBaseService aiChatBaseService;
+
     @Value("classpath:/prompts/generate.st")
-    private org.springframework.core.io.Resource promptResource;
+    private org.springframework.core.io.Resource generatePrompt;
 
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
@@ -193,7 +195,7 @@ public class FunctionalCaseAIService {
                 .entity(Boolean.class);
 
         if (Boolean.TRUE.equals(isGenerateCase)) {
-            SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(promptResource);
+            SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(generatePrompt);
             Message systemMessage = systemPromptTemplate.createMessage();
             aiChatOption.setSystem(systemMessage.toString());
             aiChatOption.setPrompt(buildUserPromptTpl(userId, request.getPrompt()));
@@ -201,7 +203,7 @@ public class FunctionalCaseAIService {
             aiChatOption.setSystem("接下来不是测试生成任务，请作为AI助手来回答以下问题");
             aiChatOption.setPrompt(request.getPrompt());
         }
-        String content = aiChatBaseService.chatWithMemory(aiChatOption).content();
+        String content = TextCleaner.cleanMdTitle(aiChatBaseService.chatWithMemory(aiChatOption).content());
         aiChatBaseService.saveAssistantConversationContent(request.getConversationId(), content);
         return content;
     }
@@ -264,7 +266,7 @@ public class FunctionalCaseAIService {
         } else {
             designs.addAll(Arrays.asList("等价类划分", "边界值分析", "决策表测试", "因果图法", "正交实验法", "场景法", "场景法描述"));
         }
-        return String.format("%s，合理运用设计方法: %s，只需包含以下模块: %s", input, String.join(", ", designs), String.join(", ", modules));
+        return String.format("%s，合理运用设计方法: %s，必须包含以下模块: %s", input, String.join(", ", designs), String.join(", ", modules));
     }
 
 

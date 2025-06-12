@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,11 @@ public class TextCleaner {
 
     // 连续空白字符
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s{2,}");
+
+    /**
+     * MD标题标记 (##标题)
+     */
+    private static final Pattern HEADER_PATTERN = Pattern.compile("^(#{2,6})([^\\\\s#])", Pattern.MULTILINE);
 
     /**
      * 基础符号清理
@@ -174,19 +180,25 @@ public class TextCleaner {
                 .collect(Collectors.joining("\n"));
     }
 
-/*    public static void main(String[] args) {
-        String testText = "<div>用户@张三说❗：订单号#AB-123_已创建！(状态=完成)😊";
+    /**
+     * 清洗 MD内容标题
+     * @param content 内容
+     * @return 清洗后的文本
+     */
+    public static String cleanMdTitle(String content) {
+        StringBuilder result = new StringBuilder();
+        if (content == null) {
+			return "";
+		}
+        String[] lines = content.split("\\n");
+        for (String line : lines) {
+            Matcher matcher = HEADER_PATTERN.matcher(line);
+            if (matcher.find()) {
+                line = matcher.replaceAll("$1 $2");
+            }
+            result.append(line).append("\n");
+        }
 
-        // 完整处理流程
-        System.out.println(fullClean(testText));
-        // 输出：用户@张三说 订单号#AB-123_已创建 状态=完成
-
-        // 单独使用方法
-        String emojiText = "Hello😊World🌍";
-        System.out.println(removeEmojis(emojiText)); // 输出：HelloWorld
-
-        // 测试文本去重
-        String duplicateText = "这是一段测试文本。这是一段重复的文本。这是一段测试文本。";
-        System.out.println(deduplicateText(duplicateText));
-    }*/
+        return result.toString();
+    }
 }
