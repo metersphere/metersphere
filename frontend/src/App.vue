@@ -16,6 +16,7 @@
   import { WHITE_LIST } from '@/router/constants';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
+  import useAIStore from '@/store/modules/setting/ai';
   import useLicenseStore from '@/store/modules/setting/license';
   import { getQueryVariable, getUrlParameterWidthRegExp } from '@/utils';
   import { setLoginExpires, setLongType, setToken } from '@/utils/auth';
@@ -27,6 +28,7 @@
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 
+  const aiStore = useAIStore();
   const appStore = useAppStore();
   const userStore = useUserStore();
   const licenseStore = useLicenseStore();
@@ -132,6 +134,7 @@
     appStore.innerHeight = height.value;
     if (userStore.id) {
       userStore.initLocalConfig(); // 获取本地执行配置
+      aiStore.getAISourceNameList();
     }
 
     // @desc: TODO待优化主要是为了拿到初始化配置的项目模块方便接下来过滤菜单权限 解决刷新菜单空白问题

@@ -21,13 +21,10 @@
   import usePermission from '@/hooks/usePermission';
   import appClientMenus from '@/router/app-menus';
   import { useAppStore } from '@/store';
-  import useAIStore from '@/store/modules/setting/ai';
   import useLicenseStore from '@/store/modules/setting/license';
   import { listenerRouteChange } from '@/utils/route-listener';
 
   import { RouteEnum } from '@/enums/routeEnum';
-
-  const aiStore = useAIStore();
 
   const licenseStore = useLicenseStore();
   const copyRouters = cloneDeep(appClientMenus) as RouteRecordRaw[];
@@ -123,7 +120,6 @@
   watch(
     () => appStore.currentOrgId,
     async () => {
-      aiStore.getAISourceNameList();
       await appStore.initSystemPackage();
       if (appStore.getPackageType === 'enterprise') {
         licenseStore.getValidateLicense();

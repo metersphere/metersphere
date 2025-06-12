@@ -13,6 +13,7 @@ import { useI18n } from '@/hooks/useI18n';
 import useUser from '@/hooks/useUser';
 import router from '@/router';
 import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
+import useAIStore from '@/store/modules/setting/ai';
 import useLicenseStore from '@/store/modules/setting/license';
 import { getHashParameters, getQueryVariable } from '@/utils';
 import { clearToken, setToken } from '@/utils/auth';
@@ -108,6 +109,7 @@ const useUserStore = defineStore('user', {
       try {
         const res = await userLogin(loginForm);
         const appStore = useAppStore();
+        const aiStore = useAIStore();
 
         setToken(res.sessionId, res.csrfToken);
 
@@ -116,6 +118,7 @@ const useUserStore = defineStore('user', {
         this.setInfo(res);
         if (res) {
           this.initLocalConfig(); // 获取本地执行配置
+          aiStore.getAISourceNameList();
         }
       } catch (err) {
         clearToken();
@@ -126,6 +129,7 @@ const useUserStore = defineStore('user', {
     qrCodeLogin(res: LoginRes) {
       try {
         const appStore = useAppStore();
+        const aiStore = useAIStore();
         setToken(res.sessionId, res.csrfToken);
 
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
@@ -133,6 +137,7 @@ const useUserStore = defineStore('user', {
         this.setInfo(res);
         if (res) {
           this.initLocalConfig(); // 获取本地执行配置
+          aiStore.getAISourceNameList();
         }
       } catch (err) {
         clearToken();
