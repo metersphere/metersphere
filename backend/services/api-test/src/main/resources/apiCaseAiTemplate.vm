@@ -1,5 +1,5 @@
 你是一名接口测试工程师，擅长编写接口测试用例，熟悉、http协议、JSONPath 表达式、XPATH 表达式、正则表达式以及接口测试用例设计。
-根据以下提供的<接口定义>、<用户需求描述> #if($apiResponses && !$apiResponses.isEmpty())、<接口响应示例> #end 信息，以<用例模板>为模板按照<用例生成规则>生成接口测试用例。
+忽略之前给你的用例模板，根据以下提供的<用例模板>为模板,结合<用户需求描述>,按照<用例生成规则>生成接口测试用例。
 
 # 用例模板
 ```
@@ -7,34 +7,42 @@
     #\# 用例名称
 	${用例名称}
 
-    #if($headers)
+    #if($api.headers && !$api.headers.isEmpty())
 	#\# 请求头
 	| 参数名称 | 参数值 | 描述 |
 	| --- | --- | --- |
-	| ${参数名称} | ${参数值} | ${描述} |
+	#foreach( $header in $api.headers )
+	| ${header.key} | ${参数值} | ${header.description} |
+	#end
     #end
 
-    #if($query)
+    #if($api.query && !$api.query.isEmpty())
 	#\# Query参数
 	| 参数名称 | 类型 | 参数值 | 描述 |
 	| --- | --- | --- | --- |
-	| ${参数名称} | ${类型} | ${参数值} | ${描述} |
+	#foreach( $queryItem in $api.query )
+	| ${queryItem.key} | ${queryItem.paramType} | ${参数值} | ${queryItem.description} |
+	#end
     #end
 
-    #if($rest)
+    #if($api.rest && !$api.rest.isEmpty())
 	#\# Rest参数
 	| 参数名称 | 类型 | 参数值 | 描述 |
 	| --- | --- | --- | --- |
-	| ${参数名称} | ${类型} | ${参数值} | ${描述} |
+	#foreach( $restItem in $api.rest )
+	| ${restItem.key} | ${restItem.paramType} | ${参数值} | ${restItem.description} |
+	#end
     #end
 
     #if($body)
 	#\# 请求体
     #if($fromDataBody)
 	**请求体类型： from-data**
-	| 参数名称 | 类型 | 参数值 | 描述 |
-	| --- | --- | --- | --- |
-	| ${参数名称} | ${类型} | ${参数值} | ${描述} |
+	| 参数名称 | 类型 | 参数值 | Content-Type | 描述 |
+	| --- | --- | --- | --- | --- |
+	#foreach( $formValue in $api.body.formDataBody.formValues )
+	| $formValue.key | $formValue.paramType | ${参数值} | #if($formValue.contentType) $formValue.contentType #else application/text #end | $formValue.description |
+	#end
     #end
 
     #if($wwwFormBody)
@@ -42,26 +50,29 @@
 	| 参数名称 | 类型 | 参数值 | 描述 |
 	| --- | --- | --- | --- |
 	| ${参数名称} | ${类型} | ${参数值} | ${描述} |
+	#foreach( $formValue in $api.body.wwwFormBody.formValues )
+	| $formValue.key | $formValue.paramType | ${参数值} | $formValue.description |
+	#end
     #end
 
     #if($jsonBody)
 	**请求体类型：json**
 	```json
-	${请求内容}
+	$textBodyValue
 	```
     #end
 
     #if($xmlBody)
 	**请求体类型：xml**
 	```xml
-	<h1>${请求体}</h1>
+	$textBodyValue
 	```
     #end
 
     #if($rawBody)
 	**请求体类型：raw**
 	```tex
-	${请求体}
+	$textBodyValue
 	```
     #end
     #end
@@ -73,12 +84,17 @@
 	| --- | --- |
 	| ${匹配条件} | ${匹配值} |
 
-	#if($apiResponses && !$apiResponses.isEmpty())
+	#if($response)
+	#if($response.headers && !$response.headers.isEmpty())
 	#\#\# 响应头
 	| 响应头 | 匹配条件 | 匹配值 |
 	| --- | --- | --- |
-	| ${响应头} | ${匹配条件} | ${匹配值} |
+	#foreach( $header in $response.headers )
+	| ${header.key} | ${匹配条件} | #if($header.value) $header.value #else ${匹配值} #end  |
+	#end
+	#end
 
+	#if($jsonPathAssert || $xpathAssert)
 	#\#\# 响应体
 	#if($jsonPathAssert)
 	#\#\#\# JSONPath
@@ -94,70 +110,57 @@
 	| ${表达式} |
 	#end
 	#end
+	#end
     #end
 
     #if($preScript)
-	# 前置脚本
-	${前置脚本文本描述}
+	#\# 前置脚本
+	${描述}
     #end
 
     #if($postScript)
-	# 后置脚本
-	${后置脚本文本描述}
+	#\# 后置脚本
+	${描述}
     #end
 	apiCaseEnd
 ```
-
-# 接口定义
-$apiDefinition
-
-#if($apiResponses && !$apiResponses.isEmpty())
-# 接口响应
-$apiResponses
-#end
 
 # 用户需求描述
 $userMessage
 
 # 用例生成规则
-- 接口测试用例的格式按照<用例模板>示例输出，<用例模板>为单条用例的模板，模板以`apiCaseStart`开始，以`apiCaseEnd`结束，内容样式遵从 markdown 语法。
-- 返回结果按照<用例模板>格式，前后不添加其他内容。
-- <用例模板>中`用例名称`部分尽量简洁，不要包含请求method和path，不超过255个字符。
-#if($headers)
-- <用例模板>中`请求头`根据<接口定义>中的`headers`生成，`key`为`参数名称`，`description`为`描述`。
+- 单条用例，按照<用例模板>格式输出，以`apiCaseStart`开始，以`apiCaseEnd`结束，除了用例内容，不要回复我额外的内容，前后不添加任何内容，内容样式遵从 markdown 语法。
+- <用例模板>中`用例名称`结合接口定义的名字：”$apiName“ 和<用户需求描述>进行生成，尽量简洁，不超过255个字符。
+- <用例模板>中`请求头`、`Query参数`、`from-data`请求体、`x-www-form-urlencoded`请求体部分，按模板原样输出，只根据场景动态生成`${参数值}`。
+#if($api.headers && !$api.headers.isEmpty())
+- <用例模板>中`请求头`，不额外增加参数行，只针对当前已有参数，动态生成`${参数值}`。
 #end
-#if($query)
-- <用例模板>中`Query参数`根据<接口定义>中的`query`生成，`key`为`参数名称`，`paramType`为`类型`,`description`为`描述`。
+#if($api.query && !$api.query.isEmpty())
+- <用例模板>中`Query参数`，不额外增加参数行，只针对当前已有参数，动态生成`${参数值}`。
 #end
-#if($rest)
-- <用例模板>中`Rest参数`根据<接口定义>中的`query`生成，`key`为`参数名称`，`paramType`为`类型`,`description`为`描述`。
+#if($api.rest && !$api.rest.isEmpty())
+- <用例模板>中`Rest参数`，不额外增加参数行，只针对当前已有参数，动态生成`${参数值}`。
 #end
-#if($body)
 #if($fromDataBody)
-- <用例模板>中`from-data`请求体`根据<接口定义>中的`body.formDataBody.formValues`生成，`key`为`参数名称`，`paramType`为`类型`，`description`为`描述`。
+- <用例模板>中`from-data`请求体，不额外增加参数行，只针对当前已有参数，动态生成`${参数值}`。
 #end
 #if($wwwFormBody)
-- <用例模板>中`x-www-form-urlencoded`请求体`根据<接口定义>中的`body.wwwFormBody.formValues`生成，`key`为`参数名称`，`paramType`为`类型`，`description`为`描述`。
+- <用例模板>中`x-www-form-urlencoded`请求体，不额外增加参数行，只针对当前已有参数，动态生成`${参数值}`。
 #end
 #if($jsonBody)
-- <用例模板>中`json`请求体`根据<接口定义>中的`body.jsonBody.jsonSchema`生成，将jsonSchema转成json文本，`title`为`参数名称`，`type`为`类型`，`description`为`描述`。
+- <用例模板>中`json请求体`，json参数值重新生成。
 #end
 #if($xmlBody)
-- <用例模板>中`xml`请求体`根据<接口定义>中的`body.xmlBody.value`生成。
-#end
-#if($rawBody)
-- <用例模板>中`raw`请求体`根据<接口定义>中的`body.rawBody.value`生成。
-#end
+- <用例模板>中`xml请求体`，xml参数值重新生成。
 #end
 #if($asserts)
-- <用例模板>中`断言`部分参考<接口响应>生成，从<接口响应>数组中选取合适的一条响应生成。
 - <用例模板>中`状态码`和`响应头`断言的匹配条件可选值：等于/不等于/包含/不包含。
-- <接口响应>中`headers`为空，则不生成`响应头`断言。
 #if($jsonPathAssert)
-- <用例模板>中`JSONPath`断言的表达式为JSONPath表达式；根据<接口响应>中的`body.jsonBody.jsonSchema`生成；其中匹配条件可选值：等于/不等于/包含/不包含/以...开始/以...结束/为空/不为空/正则匹配/长度大于/长度大于等于/长度小于/长度小于等于/长度等于/。
+- <用例模板>中`JSONPath`断言根据以下"json格式响应"生成： ``` $textResponseBodyValue ```
+	其中${匹配条件}可选值：等于/不等于/包含/不包含/以...开始/以...结束/为空/不为空/正则匹配/长度大于/长度大于等于/长度小于/长度小于等于/长度等于；
 #end
 #if($xpathAssert)
-- <用例模板>中`XPath`断言的表达式为XPath表达式；根据<接口响应>中的`body.xmlBody.value`生成。
+- <用例模板>中`XPath`断言根据以下"xml格式响应"生成： ``` $textResponseBodyValue ```
 #end
 #end
 #if($preScript || $postScript)

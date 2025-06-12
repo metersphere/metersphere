@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.domain.AiConversation;
 import io.metersphere.system.domain.AiConversationContent;
@@ -62,8 +63,15 @@ public class AiConversationService {
                 .module(aiChatBaseService.getModule(request, userId))
                 .prompt(prompt)
                 .build();
-        String conversationTitle = aiChatBaseService.chat(aiChatOption)
-                .content();
+
+        String conversationTitle = request.getPrompt();
+        try {
+            conversationTitle = aiChatBaseService.chat(aiChatOption)
+                    .content();
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+
         if (conversationTitle.length() > 255) {
             conversationTitle = conversationTitle.substring(0, 255);
         }

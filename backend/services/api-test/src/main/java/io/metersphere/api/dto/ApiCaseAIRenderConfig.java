@@ -1,14 +1,12 @@
 package io.metersphere.api.dto;
 
+import io.metersphere.api.dto.definition.ApiAiCaseDTO;
+import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.system.dto.AIRenderConfig;
 import lombok.Data;
 
 @Data
 public class ApiCaseAIRenderConfig extends AIRenderConfig {
-    private Boolean headers = true;
-    private Boolean query = true;
-    private Boolean rest = true;
-
     private Boolean body = true;
     private Boolean wwwFormBody = false;
     private Boolean fromDataBody = false;
@@ -23,7 +21,11 @@ public class ApiCaseAIRenderConfig extends AIRenderConfig {
     private Boolean preScript = true;
     private Boolean postScript = true;
 
-    private String apiDefinition;
-    private String apiResponses;
     private String userMessage;
+
+    private ApiAiCaseDTO api;
+    private HttpResponse response;
+    private String textBodyValue;
+    private String textResponseBodyValue;
+    private String apiName;
 }

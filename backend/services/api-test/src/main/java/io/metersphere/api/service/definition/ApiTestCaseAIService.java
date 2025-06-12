@@ -12,6 +12,7 @@ import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.FormDataBody;
 import io.metersphere.api.dto.request.http.body.WWWFormBody;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
+import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.utils.ApiCasePromptTemplateCache;
@@ -54,6 +55,8 @@ public class ApiTestCaseAIService {
     @Resource
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
     @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
     AiChatBaseService aiChatBaseService;
     @Resource
     ApiCasePromptTemplateCache apiCasePromptTemplateCache;
@@ -65,6 +68,8 @@ public class ApiTestCaseAIService {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
 
     public String generateApiTestCase(ApiTestCaseAIRequest request, AiModelSourceDTO module, String userId) {
         ApiDefinitionBlob blob = apiDefinitionBlobMapper.selectByPrimaryKey(request.getApiDefinitionId());
@@ -72,28 +77,24 @@ public class ApiTestCaseAIService {
         if (!(msTestElement instanceof MsHTTPElement)) {
             throw new MSException("仅支持HTTP协议的用例生成");
         }
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getApiDefinitionId());
 
-        ApiCaseAIRenderConfig renderConfig = new ApiCaseAIRenderConfig();
-        ApiCaseAIConfigDTO apiAIConfig = getApiAIConfig(userId);
-        renderConfig.setPreScript(apiAIConfig.getPreScript());
-        renderConfig.setPostScript(apiAIConfig.getPostScript());
-        renderConfig.setAsserts(apiAIConfig.getAssertion());
+        // 模板变量
+        ApiCaseAIRenderConfig renderConfig = getApiCaseAIRenderConfig(userId);
+        renderConfig.setApiName(apiDefinition.getName());
 
-        MsHTTPElement httpElement = (MsHTTPElement) msTestElement;
-        httpElement = pruneHTTPElement(httpElement, renderConfig);
-
-        renderConfig.setApiDefinition(JSON.toJSONStringWithoutNull(BeanUtils.copyBean(new ApiAiCaseDTO(), httpElement)));
+        setHTTPElementRenderConfig((MsHTTPElement) msTestElement, renderConfig);
 
         if (blob.getResponse() != null) {
             List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class);
             if (CollectionUtils.isNotEmpty(httpResponses)) {
-                httpResponses = pruneHttpResponses(httpResponses, renderConfig);
-                renderConfig.setApiResponses(JSON.toJSONStringWithoutNull(httpResponses));
+                // 精简 httpResponses 对象
+                setHttpResponsesRenderConfig(httpResponses, renderConfig);
             }
         }
 
         renderConfig.setUserMessage(request.getPrompt());
-        String prompt = apiCasePromptTemplateCache.getTemplate(renderConfig);
+        String prompt = apiCasePromptTemplateCache.getTemplate(renderConfig).replace("\\#", "#");
 
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
@@ -105,120 +106,138 @@ public class ApiTestCaseAIService {
                 .content();
     }
 
-    private List<HttpResponse> pruneHttpResponses(List<HttpResponse> httpResponses, ApiCaseAIRenderConfig renderConfig) {
+    private ApiCaseAIRenderConfig getApiCaseAIRenderConfig(String userId) {
+        ApiCaseAIRenderConfig renderConfig = new ApiCaseAIRenderConfig();
+        ApiCaseAIConfigDTO apiAIConfig = getApiAIConfig(userId);
+        renderConfig.setPreScript(apiAIConfig.getPreScript());
+        renderConfig.setPostScript(apiAIConfig.getPostScript());
+        renderConfig.setAsserts(apiAIConfig.getAssertion());
+        return renderConfig;
+    }
+
+    private HttpResponse setHttpResponsesRenderConfig(List<HttpResponse> httpResponses, ApiCaseAIRenderConfig renderConfig) {
         httpResponses = httpResponses.stream()
                 .filter(httpResponse -> httpResponse.getBody() != null && StringUtils.isNotBlank(httpResponse.getBody().getBodyType()))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(httpResponses)) {
             return null;
         }
-        for (HttpResponse httpResponse : httpResponses) {
-            // 处理响应体
-            httpResponse.setBody(pruneResponseBody(httpResponse.getBody(), renderConfig));
-            // 处理响应头
-            httpResponse.setHeaders(filterEnableAndValidKVs(httpResponse.getHeaders()));
-        }
-        return httpResponses;
+        HttpResponse httpResponse = httpResponses.getFirst();
+        // 处理响应体
+        setResponseBodyRenderConfig(httpResponse.getBody(), renderConfig);
+        // 处理响应头
+        httpResponse.setHeaders(filterEnableAndValidKVs(httpResponse.getHeaders()));
+        renderConfig.setResponse(httpResponse);
+        return httpResponse;
     }
 
     /**
-     * 精简 MsHTTPElement 对象，去除无效或不必要的字段
-     * 减少token消耗同时减少不必要信息对AI模型的干扰
+     * 设置请求的渲染配置
      *
      * @param httpElement
      * @return
      */
-    private MsHTTPElement pruneHTTPElement(MsHTTPElement httpElement, ApiCaseAIRenderConfig renderConfig) {
+    private MsHTTPElement setHTTPElementRenderConfig(MsHTTPElement httpElement, ApiCaseAIRenderConfig renderConfig) {
         // 处理请求体
-        httpElement.setBody(pruneBody(httpElement.getBody(), renderConfig));
+        setBodyRenderConfig(httpElement.getBody(), renderConfig);
 
         // 处理请求头、rest参数和query参数
         httpElement.setHeaders(filterEnableAndValidKVs(httpElement.getHeaders()));
         httpElement.setRest(filterEnableAndValidKVs(httpElement.getRest()));
         httpElement.setQuery(filterEnableAndValidKVs(httpElement.getQuery()));
 
-        renderConfig.setHeaders(CollectionUtils.isEmpty(httpElement.getHeaders()) ? false : true);
-        renderConfig.setRest(CollectionUtils.isEmpty(httpElement.getRest()) ? false : true);
-        renderConfig.setQuery(CollectionUtils.isEmpty(httpElement.getQuery()) ? false : true);
+        ApiAiCaseDTO apiDefinition = BeanUtils.copyBean(new ApiAiCaseDTO(), httpElement);
+        renderConfig.setApi(apiDefinition);
         return httpElement;
     }
 
-    private Body pruneBody(Body body, ApiCaseAIRenderConfig renderConfig) {
+    private void setBodyRenderConfig(Body body, ApiCaseAIRenderConfig renderConfig) {
         if (body == null || StringUtils.isBlank(body.getBodyType())) {
             renderConfig.setBody(false);
-            return null;
         } else {
             Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, body.getBodyType());
-            Body tidyBody = new Body();
-            tidyBody.setBodyType(bodyType.name());
             switch (bodyType) {
                 case WWW_FORM -> {
                     WWWFormBody wwwFormBody = body.getWwwFormBody();
-                    if (wwwFormBody != null) {
+                    if (wwwFormBody != null && CollectionUtils.isNotEmpty(wwwFormBody.getFormValues())) {
                         wwwFormBody.setFormValues(filterEnableAndValidKVs(wwwFormBody.getFormValues()));
+                        if (CollectionUtils.isNotEmpty(wwwFormBody.getFormValues())) {
+                            renderConfig.setWwwFormBody(true);
+                        } else {
+                            renderConfig.setBody(false);
+                        }
+                    } else {
+                        renderConfig.setBody(false);
                     }
-                    tidyBody.setWwwFormBody(wwwFormBody);
-                    renderConfig.setWwwFormBody(true);
                 }
                 case FORM_DATA -> {
                     FormDataBody formDataBody = body.getFormDataBody();
-                    if (formDataBody != null) {
+                    if (formDataBody != null && CollectionUtils.isNotEmpty(formDataBody.getFormValues())) {
                         formDataBody.setFormValues(filterEnableAndValidKVs(formDataBody.getFormValues()));
-                        if (formDataBody.getFormValues() != null) {
-                            formDataBody.getFormValues().forEach(kv -> kv.setFiles(null));
+                        if (CollectionUtils.isNotEmpty(formDataBody.getFormValues())) {
+                            renderConfig.setFromDataBody(true);
+                        } else {
+                            renderConfig.setBody(false);
                         }
+                    } else {
+                        renderConfig.setBody(false);
                     }
-                    tidyBody.setFormDataBody(formDataBody);
-                    renderConfig.setFromDataBody(true);
                 }
                 case XML ->{
-                    tidyBody.setXmlBody(body.getXmlBody());
-                    renderConfig.setXmlBody(true);
+                    if (body.getXmlBody() != null && StringUtils.isNotBlank(body.getXmlBody().getValue())) {
+                        renderConfig.setTextBodyValue(body.getXmlBody().getValue());
+                        renderConfig.setXmlBody(true);
+                    } else {
+                        renderConfig.setBody(false);
+                    }
                 }
                 case JSON -> {
-                    tidyBody.setJsonBody(body.getJsonBody());
-                    tidyBody.getJsonBody().setJsonValue(null);
-                    tidyBody.getJsonBody().setEnableJsonSchema(null);
-                    renderConfig.setJsonBody(true);
+                    if (body.getJsonBody() != null && body.getJsonBody().getJsonSchema() != null) {
+                        String jsonValue = apiDefinitionService.jsonSchemaAutoGenerate(body.getJsonBody().getJsonSchema());
+                        renderConfig.setTextBodyValue(jsonValue);
+                        renderConfig.setJsonBody(true);
+                    } else {
+                        renderConfig.setBody(false);
+                    }
                 }
                 case RAW -> {
-                    tidyBody.setRawBody(body.getRawBody());
                     renderConfig.setRawBody(true);
+                    if (body.getRawBody() != null && StringUtils.isNotBlank(body.getRawBody().getValue())) {
+                        renderConfig.setTextBodyValue(body.getRawBody().getValue());
+                    } else {
+                        renderConfig.setTextBodyValue("${参数值}");
+                    }
                 }
-                case NONE -> {
-                    tidyBody.setNoneBody(body.getNoneBody());
-                    renderConfig.setBody(false);
-                }
-                default -> {
-                    return null;
-                }
+                default -> renderConfig.setBody(false);
             }
-            return tidyBody;
         }
     }
 
-    private ResponseBody pruneResponseBody(ResponseBody body, ApiCaseAIRenderConfig renderConfig) {
+    private void setResponseBodyRenderConfig(ResponseBody body, ApiCaseAIRenderConfig renderConfig) {
         Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, body.getBodyType());
-        ResponseBody tidyBody = new ResponseBody();
-        tidyBody.setBodyType(bodyType.name());
-        tidyBody.setBinaryBody(null);
         switch (bodyType) {
             case XML -> {
-                renderConfig.setXpathAssert(true);
-                tidyBody.setXmlBody(body.getXmlBody());
+                if (body.getXmlBody() != null && StringUtils.isNotBlank(body.getXmlBody().getValue())) {
+                    renderConfig.setTextResponseBodyValue(body.getXmlBody().getValue());
+                    renderConfig.setXmlBody(true);
+                    renderConfig.setXpathAssert(true);
+                } else {
+                    renderConfig.setXpathAssert(false);
+                }
             }
             case JSON -> {
-                tidyBody.setJsonBody(body.getJsonBody());
-                tidyBody.getJsonBody().setJsonValue(null);
-                tidyBody.getJsonBody().setEnableJsonSchema(null);
-                renderConfig.setJsonPathAssert(true);
+                if (body.getJsonBody() != null && body.getJsonBody().getJsonSchema() != null) {
+                    String jsonValue = apiDefinitionService.jsonSchemaAutoGenerate(body.getJsonBody().getJsonSchema());
+                    if (!StringUtils.equalsAny(jsonValue, "{}", "{ }")) {
+                        renderConfig.setJsonPathAssert(true);
+                        renderConfig.setTextResponseBodyValue(jsonValue);
+                    }
+                } else {
+                    renderConfig.setJsonPathAssert(false);
+                }
             }
-            case RAW -> tidyBody.setRawBody(body.getRawBody());
-            default -> {
-                return null;
-            }
+            default -> {}
         }
-        return tidyBody;
     }
 
     private <T extends KeyValueEnableParam> List<T> filterEnableAndValidKVs(List<T> kvs) {
