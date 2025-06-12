@@ -25,7 +25,7 @@
           @add-success="handleAddConversationSuccess"
           @sync-api-case="emit('syncApiCase', $event)"
           @sync-feature-case="emit('syncFeatureCase', $event)"
-          @sync-success="emit('syncSuccess')"
+          @sync-success="handleSyncSuccess"
         />
       </template>
     </MsSplitBox>
@@ -71,6 +71,11 @@
 
   function handleAddConversationSuccess() {
     conversationListRef.value?.initList(false);
+  }
+
+  function handleSyncSuccess() {
+    visible.value = false;
+    emit('syncSuccess');
   }
 
   watch(

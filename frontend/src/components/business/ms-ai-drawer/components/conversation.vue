@@ -51,7 +51,7 @@
               <a-button type="primary" @click="sendInput(item)">{{ t('ms.ai.send') }}</a-button>
             </div>
           </div> -->
-            <a-trigger position="left" auto-fit-position :popup-translate="[-8, 0]">
+            <a-trigger position="left" auto-fit-position :popup-translate="[-8, 0]" popup-container=".content-wrapper">
               <div class="content-wrapper">
                 <Bubble
                   class="content-text"
@@ -328,13 +328,22 @@
   const senderRef = ref<InstanceType<typeof Sender>>();
   const senderValue = ref('');
   const answering = ref(false);
-  const model = ref(aiStore.aiSourceNameList[0]?.id || ''); // 默认选择第一个模型
+  const model = ref(
+    aiStore.aiSourceNameList.find((item) => item.id === localStorage.getItem('aiChatModel'))?.id ||
+      aiStore.aiSourceNameList[0]?.id ||
+      ''
+  ); // 默认选择第一个模型
   const models = computed(() =>
     aiStore.aiSourceNameList.map((item) => ({
       label: item.name,
       value: item.id,
     }))
   );
+
+  watch(model, (newModel) => {
+    localStorage.setItem('aiChatModel', newModel);
+  });
+
   const configModalVisible = ref(false);
   const bubbleListRef = ref<any>();
   const conversationItems = ref<AiChatContentItem[]>([]);
