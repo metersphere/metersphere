@@ -130,7 +130,7 @@ public class FunctionalCaseAIService {
     public FunctionalCaseAiDTO transformToDTO(AIChatRequest request, String userId) {
         String caseEditType = getCaseEditType(userId);
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
-        String prompt = "请解析以下格式并转为java对象:\n" + request.getPrompt();
+        String prompt = "请解析以下格式并转为一条java对象数据:\n" + request.getPrompt();
         AIChatOption aiChatOption = AIChatOption.builder()
                 .module(module)
                 .prompt(prompt)
@@ -271,7 +271,7 @@ public class FunctionalCaseAIService {
     public void batchSave(FunctionalCaseAIChatRequest request, String userId) {
         String caseEditType = getCaseEditType(userId);
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
-        String prompt = "请解析以下格式并转为java对象:\n" + request.getPrompt();
+        String prompt = "请解析以下格式并转为java数组对象:\n" + request.getPrompt();
         AIChatOption aiChatOption = AIChatOption.builder()
                 .module(module)
                 .prompt(prompt)

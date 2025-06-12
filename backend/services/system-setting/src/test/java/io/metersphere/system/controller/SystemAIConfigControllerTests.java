@@ -136,6 +136,11 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSourceDTO.setAppKey("sk-eaglapmcezyovozbzaypm");
         aiModelSourceDTO.setAdvSettingDTOList(new ArrayList<>());
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().isOk());
+        aiModelSourceDTO.setAppKey("rrr");
+        aiModelSourceDTO.setName("智谱");
+        aiModelSourceDTO.setId(s);
+        this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().isOk());
+        this.requestGetWithOk(DETAIL+s);
 
     }
 

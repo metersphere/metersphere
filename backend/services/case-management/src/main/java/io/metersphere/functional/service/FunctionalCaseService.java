@@ -308,6 +308,7 @@ public class FunctionalCaseService {
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCase.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
         functionalCase.setTags(request.getTags());
+        functionalCase.setAiCreate(request.getAiCreate());
         functionalCaseMapper.insertSelective(functionalCase);
         //附属表
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();

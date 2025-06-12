@@ -101,48 +101,64 @@ public class FunctionalCaseAIControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void transform() throws Exception {
-        //String id = saveModel("DeepSeek-R1-Distill-Qwen-7B");
+        String id = saveModel("DeepSeek-R1-Distill-Qwen-7B");
         AIChatRequest aiChatRequest = new AIChatRequest();
-        aiChatRequest.setPrompt("# 登录中国平安网页 - 测试用例：登录成功验证\n" +
+        aiChatRequest.setPrompt("\n" +
+                "featureCaseStart\n" +
                 "\n" +
-                "## \uD83C\uDFAF 用例目标\n" +
-                "验证用户使用正确的用户名和密码能够成功登录中国平安官网。\n" +
+                "## 用例名称\n" +
+                "成功获取验证码修改密码\n" +
                 "\n" +
-                "---\n" +
+                "### 前置条件\n" +
+                "用户已登录个人中心，邮箱地址有效（例如：test@example.com），系统邮箱服务正常。\n" +
                 "\n" +
-                "## 前置条件\n" +
+                "### 文本描述\n" +
+                "用户进入个人中心页面，点击“通过邮箱修改登录密码”按钮，输入有效邮箱地址，点击“获取验证码”按钮，等待系统发送验证码到邮箱，然后输入收到的验证码，提交修改密码请求。\n" +
                 "\n" +
-                "- 用户已注册中国平安账户，拥有有效的用户名和密码  \n" +
-                "- 浏览器正常联网，且支持 JavaScript  \n" +
-                "- 用户账户未被锁定，处于启用状态  \n" +
+                "### 预期结果\n" +
+                "验证码成功发送到邮箱，密码修改成功，系统显示修改成功消息。\n" +
                 "\n" +
-                "---\n" +
+                "### 备注\n" +
+                "确保测试数据中邮箱格式正确，测试环境网络稳定。\n" +
                 "\n" +
-                "## 用例信息\n" +
+                "featureCaseEnd\n" +
                 "\n" +
-                "| 用例编号 | 用例名称             |\n" +
-                "|----------|----------------------|\n" +
-                "| TC001    | 输入正确的用户名和密码进行登录 |\n" +
+                "featureCaseStart\n" +
                 "\n" +
-                "---\n" +
+                "## 用例名称\n" +
+                "邮箱格式错误获取验证码失败\n" +
                 "\n" +
-                "## 测试步骤与预期结果\n" +
+                "### 前置条件\n" +
+                "用户已登录个人中心，但输入无效邮箱格式。\n" +
                 "\n" +
-                "| 步骤编号 | 操作步骤                                | 预期结果                            |\n" +
-                "|----------|------------------------------------------|-------------------------------------|\n" +
-                "| Step 1   | 打开中国平安官网                         | 网站首页正常加载                    |\n" +
-                "| Step 2   | 点击右上角“登录”按钮                     | 页面跳转至登录页面                  |\n" +
-                "| Step 3   | 在用户名输入框中输入正确用户名           | 系统正常接收输入                    |\n" +
-                "| Step 4   | 在密码框中输入正确密码                   | 系统正常接收输入                    |\n" +
-                "| Step 5   | 点击“登录”按钮                           | 登录请求发送，页面跳转至个人中心页面 |\n" +
+                "### 文本描述\n" +
+                "用户点击“获取验证码”按钮，输入无效邮箱格式（如“abc@com”），然后提交请求。\n" +
                 "\n" +
-                "---\n" +
+                "### 预期结果\n" +
+                "系统显示错误消息“邮箱格式无效”，验证码未发送。\n" +
                 "\n" +
-                "## 备注\n" +
+                "### 备注\n" +
+                "测试不同无效邮箱格式，如缺少域名或顶级域名。\n" +
                 "\n" +
-                "- 本用例验证登录主流程的正确性  \n" +
-                "- 建议与异常场景（如密码错误、验证码错误、账户锁定等）联合测试\n");
-        aiChatRequest.setChatModelId("DeepSeek");
+                "featureCaseEnd\n" +
+                "\n" +
+                "featureCaseStart\n" +
+                "\n" +
+                "## 用例名称\n" +
+                "网络错误导致验证码获取失败\n" +
+                "\n" +
+                "### 前置条件\n" +
+                "用户已登录个人中心，但网络连接不稳定或中断。\n" +
+                "\n" +
+                "### 文本描述\n" +
+                "用户尝试获取验证码，但由于网络问题，请求失败。\n" +
+                "\n" +
+                "### 预期结果\n" +
+                "系统显示网络错误消息（如“网络连接失败”），验证码未发送。\n" +
+                "\n" +
+                "### 备注\n" +
+                "模拟网络故障场景，确保系统有适当的错误处理。");
+        aiChatRequest.setChatModelId(id);
         aiChatRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
         aiChatRequest.setConversationId(UUID.randomUUID().toString());
 
