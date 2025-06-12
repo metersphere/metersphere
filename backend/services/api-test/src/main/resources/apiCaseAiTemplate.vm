@@ -49,7 +49,6 @@
 	**请求体类型： x-www-form-urlencoded**
 	| 参数名称 | 类型 | 参数值 | 描述 |
 	| --- | --- | --- | --- |
-	| ${参数名称} | ${类型} | ${参数值} | ${描述} |
 	#foreach( $formValue in $api.body.wwwFormBody.formValues )
 	| $formValue.key | $formValue.paramType | ${参数值} | $formValue.description |
 	#end

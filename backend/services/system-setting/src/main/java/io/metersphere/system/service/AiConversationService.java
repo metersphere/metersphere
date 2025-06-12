@@ -68,6 +68,7 @@ public class AiConversationService {
         try {
             conversationTitle = aiChatBaseService.chat(aiChatOption)
                     .content();
+            conversationTitle = conversationTitle.replace("\"", "");
         } catch (Exception e) {
             LogUtils.error(e);
         }
@@ -106,7 +107,7 @@ public class AiConversationService {
     public List<AiConversation> list(String userId) {
         AiConversationExample example = new AiConversationExample();
         example.createCriteria().andCreateUserEqualTo(userId);
-        return aiConversationMapper.selectByExample(example);
+        return aiConversationMapper.selectByExample(example).reversed();
     }
 
     public List<AiConversationContent> chatList(String conversationId, String userId) {
