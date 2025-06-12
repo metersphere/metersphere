@@ -24,7 +24,7 @@
             :preview-url="`${PreviewEditorImageUrl}/${currentProjectId}`"
           />
         </a-form-item>
-        <StepDescription v-model:caseEditType="form.caseEditType" />
+        <StepDescription v-model:case-edit-type="form.caseEditType" />
         <div v-if="form.caseEditType === 'STEP'" class="mb-[20px] w-full">
           <AddStep v-model:step-list="stepData" :is-disabled="false" />
         </div>
@@ -435,7 +435,14 @@
         };
       });
       formRules.value = result;
-      setSystemDefault(systemFields || []);
+      // 模板的系统字段存在回显模板
+      if (systemFields?.length) {
+        setSystemDefault(systemFields || []);
+        // 否则其他
+      } else {
+        form.value = { ...initForm, ...props.formModeValue.request };
+      }
+
       isLoading.value = false;
     } catch (error) {
       // eslint-disable-next-line no-console
