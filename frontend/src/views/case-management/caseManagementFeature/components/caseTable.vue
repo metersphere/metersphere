@@ -548,8 +548,12 @@
   }
 
   function handleSyncFeatureCase(detail: AiCaseTransformResult) {
+    aiDrawerVisible.value = false;
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      query: {
+        aiCreate: 'Y',
+      },
       state: {
         detail: JSON.stringify(detail),
       },

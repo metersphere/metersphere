@@ -213,7 +213,7 @@
     });
   }
 
-  async function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean) {
+  async function open(apiId: string, record?: ApiCaseDetail | RequestParam, isCopy?: boolean, aiCreate?: boolean) {
     appStore.showLoading();
     apiDefinitionId.value = apiId;
     // 从api下的用例里打开抽屉有api信息，从case下直接复制没有api信息
@@ -256,6 +256,7 @@
           }
         : apiDetailInfo.value),
       children: apiDetailInfo.value.children ?? apiRequestInfo.children,
+      aiCreate,
     };
     // 复制
     if (isCopy) {

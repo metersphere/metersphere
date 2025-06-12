@@ -271,6 +271,9 @@
   const tempTitle = ref('');
 
   function handleEditTitle() {
+    if (activeConversation.value?.isNew) {
+      return;
+    }
     tempTitle.value = title.value;
     editTitle.value = true;
     nextTick(() => {

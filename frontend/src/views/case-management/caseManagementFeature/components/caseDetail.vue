@@ -14,6 +14,7 @@
       v-model:form-mode-value="caseDetailInfo"
       :case-id="(route.query.id as string || '')"
       :is-cover-template-system-field="!caseDetail"
+      :default-case-info="caseDetail"
     />
     <template #footerRight>
       <div class="flex justify-end gap-[16px]">
@@ -68,7 +69,7 @@
   const { getIsVisited } = useVisit(visitedKey);
 
   const caseDetailInfo = ref({
-    request: caseDetail || ({} as CreateOrUpdateCase),
+    request: {} as CreateOrUpdateCase,
     fileList: [],
   });
 
@@ -100,6 +101,7 @@
         if (isReview) {
           caseDetailInfo.value.request.reviewId = route.query.reviewId;
         }
+        caseDetailInfo.value.request.aiCreate = route.query.aiCreate === 'Y';
         const res = await createCaseRequest(caseDetailInfo.value);
         if (isContinue) {
           Message.success(t('caseManagement.featureCase.addSuccess'));

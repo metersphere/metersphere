@@ -313,6 +313,7 @@
       formModeValue: Record<string, any>; // 表单值
       caseId: string; // 用例id
       isCoverTemplateSystemField?: boolean;
+      defaultCaseInfo?: Record<string, any>; // 默认用例信息
     }>(),
     {
       isCoverTemplateSystemField: true,
@@ -359,7 +360,7 @@
     reviewStatus: 'UN_REVIEWED',
   };
 
-  const form = ref<DetailCase | CreateOrUpdateCase>({ ...initForm });
+  const form = ref<DetailCase | CreateOrUpdateCase>({ ...Object.assign(initForm, props.defaultCaseInfo) });
 
   watch(
     () => stepData.value,
@@ -402,7 +403,13 @@
   // 回显模板默认表单值
   function setSystemDefault(systemFields: CustomField[]) {
     systemFields.forEach((item: CustomField) => {
-      form.value[item.fieldId] = item.defaultValue;
+      if (
+        form.value[item.fieldId] === '' ||
+        form.value[item.fieldId] === undefined ||
+        form.value[item.fieldId] === null
+      ) {
+        form.value[item.fieldId] = item.defaultValue;
+      }
     });
     const { steps } = form.value;
 

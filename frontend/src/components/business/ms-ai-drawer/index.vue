@@ -10,11 +10,12 @@
     <MsSplitBox v-model:size="splitSize">
       <template #first>
         <div class="flex h-full flex-col overflow-hidden py-[24px] pl-[16px] pr-[8px]">
-          <conversationList ref="conversationListRef" v-model:value="activeConversation" />
+          <conversationList v-if="visible" ref="conversationListRef" v-model:value="activeConversation" />
         </div>
       </template>
       <template #second>
         <conversation
+          v-if="visible"
           v-model:value="activeConversation"
           :type="props.type"
           :api-definition-id="props.apiDefinitionId"
@@ -68,6 +69,13 @@
   function handleAddConversationSuccess() {
     conversationListRef.value?.initList(false);
   }
+
+  watch(
+    () => activeConversation.value,
+    (newVal) => {
+      localStorage.setItem('activeAiConversation', JSON.stringify(newVal));
+    }
+  );
 </script>
 
 <style lang="less" scoped></style>

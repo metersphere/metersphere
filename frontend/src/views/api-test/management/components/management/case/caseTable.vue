@@ -1097,7 +1097,8 @@
   }
 
   function handleSyncApiCase(detail: ApiCaseDetail) {
-    createAndEditCaseDrawerRef.value?.open(props.apiDetail?.id as string, detail);
+    aiDrawerVisible.value = false;
+    createAndEditCaseDrawerRef.value?.open(props.apiDetail?.id as string, detail, false, true);
   }
 
   function openCaseTab(record: ApiCaseDetail) {

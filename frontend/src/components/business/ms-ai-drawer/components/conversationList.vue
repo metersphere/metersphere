@@ -14,6 +14,7 @@
       <template #empty><div /></template>
       <a-list-item
         v-for="item of conversationList"
+        :id="`ai-item-${item.id}`"
         :key="item.id"
         class="ms-ai-drawer-conversation-item"
         :class="activeConversation?.id === item.id ? 'ms-ai-drawer-conversation-item--active' : ''"
@@ -34,7 +35,11 @@
               <div>{{ item.title }}</div>
             </template>
           </a-tooltip>
-          <MsTableMoreAction :list="itemMoreActions" trigger="click" @select="handleMoreActionSelect($event, item)" />
+          <MsTableMoreAction
+            :list="getItemMoreAction(item)"
+            trigger="click"
+            @select="handleMoreActionSelect($event, item)"
+          />
         </div>
       </a-list-item>
     </a-list>
@@ -77,6 +82,13 @@
     },
   ];
 
+  function getItemMoreAction(item: AiChatListItem) {
+    if (item.isNew) {
+      return itemMoreActions.filter((action) => action.eventTag !== 'rename');
+    }
+    return itemMoreActions;
+  }
+
   function openNewConversation() {
     conversationList.value.push({
       id: getGenerateId(),
@@ -86,11 +98,17 @@
       createUser: '',
     });
     activeConversation.value = conversationList.value[conversationList.value.length - 1];
+    nextTick(() => {
+      const itemElement = document.querySelector(`#ai-item-${activeConversation.value?.id}`) as HTMLInputElement;
+      if (itemElement) {
+        itemElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
   }
 
   const tempInputVal = ref<string>('');
 
-  async function handleEditConfirm(item: Record<string, any>) {
+  async function handleEditConfirm(item: AiChatListItem) {
     if (!tempInputVal.value.trim()) {
       return;
     }
@@ -108,12 +126,12 @@
     }
   }
 
-  function handleEditCancel(item: Record<string, any>) {
+  function handleEditCancel(item: AiChatListItem) {
     item.isEditing = false;
     tempInputVal.value = '';
   }
 
-  const handleMoreActionSelect = (event: ActionsItem, item: Record<string, any>) => {
+  const handleMoreActionSelect = (event: ActionsItem, item: AiChatListItem) => {
     if (event.eventTag === 'rename') {
       tempInputVal.value = item.title;
       item.isEditing = true;
@@ -136,7 +154,7 @@
         onBeforeOk: async () => {
           try {
             await deleteAiChat(item.id);
-            conversationList.value = conversationList.value.filter((i: Record<string, any>) => i.id !== item.id);
+            conversationList.value = conversationList.value.filter((i: AiChatListItem) => i.id !== item.id);
             if (activeConversation.value?.id === item.id) {
               [activeConversation.value] = conversationList.value;
             }
@@ -155,7 +173,15 @@
     try {
       loading.value = true;
       conversationList.value = await getAiChatList();
-      if (conversationList.value.length > 0 && setDefaultActive) {
+      const localConversation = JSON.parse(localStorage.getItem('activeAiConversation') || '""');
+      if (typeof localConversation === 'object' && localConversation?.id) {
+        const found = conversationList.value.find((item: AiChatListItem) => item.id === localConversation.id);
+        if (found) {
+          activeConversation.value = found;
+        } else {
+          activeConversation.value = undefined;
+        }
+      } else if (conversationList.value.length > 0 && setDefaultActive) {
         [activeConversation.value] = conversationList.value;
       }
     } catch (error) {
