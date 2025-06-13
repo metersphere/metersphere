@@ -287,6 +287,9 @@
   const activeConversation = defineModel<AiChatListItem | undefined>('value', {
     required: true,
   });
+  const answering = defineModel<boolean>('answering', {
+    default: false,
+  });
 
   const loading = ref(false);
   const title = computed(() => activeConversation.value?.title || '');
@@ -327,7 +330,6 @@
 
   const senderRef = ref<InstanceType<typeof Sender>>();
   const senderValue = ref('');
-  const answering = ref(false);
   const model = ref(
     aiStore.aiSourceNameList.find((item) => item.id === localStorage.getItem('aiChatModel'))?.id ||
       aiStore.aiSourceNameList[0]?.id ||
@@ -625,6 +627,16 @@
       immediate: true,
     }
   );
+
+  function stopAnswer() {
+    answering.value = false;
+    const axiosCanceler = new AxiosCanceler();
+    axiosCanceler.removeAllPending();
+  }
+
+  defineExpose({
+    stopAnswer,
+  });
 </script>
 
 <style lang="less" scoped>
@@ -682,7 +694,7 @@
     }
   }
   .content-wrapper {
-    @apply flex;
+    @apply relative flex;
 
     max-width: 80%;
     .content-text {

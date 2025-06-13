@@ -42,4 +42,10 @@ export default {
   'ms.ai.titleNotNull': 'Conversation title cannot be empty',
   'ms.ai.caseSyncSuccess': 'Case synchronized successfully',
   'ms.ai.choseModule': 'Select module',
+  'ms.ai.answeringNotAllowedChange':
+    'Currently answering, switching conversations is not allowed. Please wait for the answer to complete before switching',
+  'ms.ai.answeringCloseTip':
+    'Currently answering, closing the conversation will stop the answer. Are you sure you want to close and terminate the answer?',
+  'ms.ai.answeringNotAllowedDelete':
+    'Currently answering, deletion of the conversation is not allowed. Please wait for the answer to complete before deleting',
 };

@@ -18,7 +18,7 @@
         :key="item.id"
         class="ms-ai-drawer-conversation-item"
         :class="activeConversation?.id === item.id ? 'ms-ai-drawer-conversation-item--active' : ''"
-        @click="activeConversation = item"
+        @click="handleClick"
       >
         <a-input
           v-if="item.isEditing"
@@ -61,6 +61,13 @@
 
   import { AiChatListItem } from '@/models/ai';
 
+  const props = defineProps<{
+    answering?: boolean;
+  }>();
+  const emit = defineEmits<{
+    (e: 'stopAnswer'): void;
+  }>();
+
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -90,15 +97,36 @@
     return itemMoreActions;
   }
 
+  function handleClick(item: AiChatListItem) {
+    if (!props.answering) {
+      // 如果正在回答，则不允许切换对话
+      activeConversation.value = item;
+    } else {
+      Message.warning(t('ms.ai.answeringNotAllowedChange'));
+    }
+  }
+
   function openNewConversation() {
-    conversationList.value.unshift({
-      id: getGenerateId(),
-      title: t('ms.ai.newConversation'),
-      isNew: true,
-      createTime: new Date().getTime(),
-      createUser: '',
+    if (!conversationList.value.some((item: AiChatListItem) => item.isNew)) {
+      conversationList.value.unshift({
+        id: getGenerateId(),
+        title: t('ms.ai.newConversation'),
+        isNew: true,
+        createTime: new Date().getTime(),
+        createUser: '',
+      });
+      [activeConversation.value] = conversationList.value;
+    } else {
+      [activeConversation.value] = conversationList.value.filter((item: AiChatListItem) => item.isNew);
+    }
+    nextTick(() => {
+      const itemElement = document.querySelector(`#ai-item-${activeConversation.value?.id}`) as HTMLInputElement;
+      if (itemElement) {
+        itemElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
     });
-    [activeConversation.value] = conversationList.value;
   }
 
   const tempInputVal = ref<string>('');
@@ -138,6 +166,11 @@
         }
       });
     } else if (event.eventTag === 'delete') {
+      if (props.answering && activeConversation.value?.id === item.id) {
+        // 如果正在回答当前对话，则不允许删除
+        Message.warning(t('ms.ai.answeringNotAllowedDelete'));
+        return;
+      }
       openModal({
         type: 'error',
         title: t('common.deleteConfirmTitle', { name: characterLimit(item.title) }),
@@ -149,10 +182,14 @@
         },
         onBeforeOk: async () => {
           try {
-            await deleteAiChat(item.id);
+            if (!item.isNew) {
+              await deleteAiChat(item.id);
+            }
             conversationList.value = conversationList.value.filter((i: AiChatListItem) => i.id !== item.id);
             if (activeConversation.value?.id === item.id) {
               [activeConversation.value] = conversationList.value;
+              // 停止被删除的对话的回复
+              emit('stopAnswer');
             }
             Message.success(t('common.deleteSuccess'));
           } catch (error) {

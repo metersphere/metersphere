@@ -559,6 +559,7 @@ export default defineComponent(
                 >
                   <div
                     class="one-line-text"
+                    title=""
                     style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
                   >
                     {slots.label ? slots.label(data) : checkOptionExit(data.label)}

@@ -42,4 +42,7 @@ export default {
   'ms.ai.titleNotNull': '对话标题不能为空',
   'ms.ai.caseSyncSuccess': '用例同步成功',
   'ms.ai.choseModule': '选择模块',
+  'ms.ai.answeringNotAllowedChange': '当前正在回答中，无法切换对话，请等待回答完成后再切换',
+  'ms.ai.answeringCloseTip': '当前正在回答中，关闭对话将会停止回答，确认要关闭并终止回答吗？',
+  'ms.ai.answeringNotAllowedDelete': '当前正在回答中，无法删除对话，请等待回答完成后再删除',
 };
