@@ -321,7 +321,7 @@
         const requestParams = await requestCompositionRef.value?.makeRequestParams();
         if (!requestParams) return;
         const { linkFileIds, uploadFileIds, request, unLinkFileIds, deleteFileIds } = requestParams;
-        const { name, priority, status, tags, id } = detailForm.value;
+        const { name, priority, status, tags, id, aiCreate } = detailForm.value;
         const params: AddApiCaseParams = {
           projectId: appStore.currentProjectId,
           environmentId: environmentId.value as string,
@@ -336,7 +336,8 @@
           tags,
           unLinkFileIds,
           deleteFileIds,
-        };
+          aiCreate,
+        } as AddApiCaseParams;
         try {
           if (isEdit.value) {
             await updateCase(params);
@@ -356,6 +357,7 @@
         // 保存并继续创建都以当前页面内容为基础,不需要还原
         detailForm.value.id = `case-${Date.now()}`;
         detailForm.value.name = '';
+        detailForm.value.aiCreate = false;
         drawerLoading.value = false;
       }
     });
