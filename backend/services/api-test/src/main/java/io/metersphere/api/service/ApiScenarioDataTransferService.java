@@ -35,7 +35,7 @@ import io.metersphere.project.dto.filemanagement.FileAssociationSource;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ExtFileAssociationMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.dto.ExportMsgDTO;
@@ -856,7 +856,7 @@ public class ApiScenarioDataTransferService {
                 // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
                 if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
-                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD)) {
+                } else if (!permissionCheckService.userHasSourcePermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD, UserRoleType.PROJECT.name())) {
                     targetProjectId = projectId;
                 }
                 if (projectApiMap.containsKey(targetProjectId)) {
@@ -874,7 +874,7 @@ public class ApiScenarioDataTransferService {
                 // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
                 if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
-                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD)) {
+                } else if (!permissionCheckService.userHasSourcePermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD, UserRoleType.PROJECT.name())) {
                     targetProjectId = projectId;
                 }
 
@@ -892,7 +892,7 @@ public class ApiScenarioDataTransferService {
                 // 项目不存在或者项目和当前项目不在统一组织下，需要在当前项目进行校验。场景不能跨项目关联
                 if (targetProject == null || !StringUtils.equals(targetProject.getOrganizationId(), project.getOrganizationId())) {
                     targetProjectId = projectId;
-                } else if (!permissionCheckService.userHasProjectPermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD)) {
+                } else if (!permissionCheckService.userHasSourcePermission(operator, targetProjectId, PermissionConstants.PROJECT_API_DEFINITION_ADD, UserRoleType.PROJECT.name())) {
                     targetProjectId = projectId;
                 }
                 if (projectScenarioMap.containsKey(targetProjectId)) {

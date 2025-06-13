@@ -13,4 +13,6 @@ public interface ExtAiModelSourceMapper {
 
     List<OptionDTO> enableSourceNameList(@Param("userId") String userId);
 
+    List<OptionDTO> enablePersonalSourceNameList(@Param("userId") String userId);
+
 }

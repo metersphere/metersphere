@@ -1,4 +1,4 @@
-package io.metersphere.project.service;
+package io.metersphere.system.service;
 
 
 import io.metersphere.project.domain.Project;
@@ -10,7 +10,6 @@ import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserRoleResourceDTO;
-import io.metersphere.system.service.UserLoginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,20 +33,37 @@ public class PermissionCheckService {
     public static final String FUNCTIONAL_CASE_MODULE = "caseManagement";
     public static final String BUG_MODULE = "bugManagement";
 
-    public boolean userHasProjectPermission(String userId, String projectId, String permission) {
+    /**
+     * 检查用户是否有系统或某个组织或者某个项目的某个权限
+     *
+     * @param userId 用户ID
+     * @param sourceId 系统或组织或项目ID
+     * @param permission 权限ID
+     * @param permissionType 权限类型
+     * @return 是否有权限
+     */
+    public boolean userHasSourcePermission(String userId, String sourceId, String permission, String permissionType) {
         UserDTO user = getUserDTO(userId);
         if (user == null) return false;
         // 判断是否是超级管理员
         if (checkAdmin(user)) return true;
-        return checkHasPermission(projectId, permission, user);
+        return checkHasPermission(sourceId, permission, user, permissionType);
     }
 
+    /**
+     * 检查用户是否有者某个项目的模块权限
+     * @param projectId 项目ID
+     * @param module 模块名称
+     * @param userId 用户ID
+     * @param permission 权限ID
+     * @return 是否有权限
+     */
     public Boolean checkModule(String projectId, String module, String userId, String permission) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project == null) {
             return false;
         }
-        boolean hasPermission = userHasProjectPermission(userId, projectId, permission);
+        boolean hasPermission = userHasSourcePermission(userId, projectId, permission, UserRoleType.PROJECT.name());
         if (! hasPermission) {
             return false;
         } else {
@@ -56,13 +72,21 @@ public class PermissionCheckService {
         }
     }
 
-    private static boolean checkHasPermission(String projectId, String permission, UserDTO user) {
+    /**
+     * 检查用户是否有系统或某个组织或者某个项目的某个权限
+     * @param sourceId 组织或项目ID
+     * @param permission 权限ID
+     * @param user 用户信息
+     * @param permissionType 权限类型
+     * @return 是否有权限
+     */
+    private static boolean checkHasPermission(String sourceId, String permission, UserDTO user, String permissionType) {
         Map<String, List<UserRolePermission>> userRolePermissions = new HashMap<>();
         Map<String, UserRole> role = new HashMap<>();
         getUserAllPermissions(user, userRolePermissions, role);
         Set<String> currentProjectPermissions = user.getUserRoleRelations().stream()
-                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), UserRoleType.PROJECT.name()))
-                .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), projectId))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equalsIgnoreCase(role.get(ug.getId()).getType(), permissionType))
+                .filter(ug -> StringUtils.equalsIgnoreCase(ug.getSourceId(), sourceId))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());

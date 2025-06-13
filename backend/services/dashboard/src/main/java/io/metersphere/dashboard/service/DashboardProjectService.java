@@ -1,7 +1,7 @@
 package io.metersphere.dashboard.service;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.user.UserDTO;
 import jakarta.annotation.Resource;

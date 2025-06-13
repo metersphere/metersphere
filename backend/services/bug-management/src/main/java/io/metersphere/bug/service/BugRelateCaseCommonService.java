@@ -16,14 +16,15 @@ import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.ModuleTreeService;
-import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateCaseModuleRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.sdk.constants.CaseType;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -172,7 +173,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
     public BugCaseCheckResult checkPermission(String projectId, String currentUser, String caseType) {
         // 校验用例类型是否合法
         this.checkCaseTypeParamIllegal(caseType);
-        boolean hasPermission = permissionCheckService.userHasProjectPermission(currentUser, projectId, Objects.requireNonNull(CaseType.getType(caseType)).getUsePermission());
+        boolean hasPermission = permissionCheckService.userHasSourcePermission(currentUser, projectId, Objects.requireNonNull(CaseType.getType(caseType)).getUsePermission(), UserRoleType.PROJECT.name());
         if (!hasPermission) {
             // 没有该用例的访问权限
             return BugCaseCheckResult.builder().pass(false).msg(Translator.get("bug_relate_case_permission_error")).build();

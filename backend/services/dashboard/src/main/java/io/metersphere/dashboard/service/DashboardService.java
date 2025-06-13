@@ -46,7 +46,7 @@ import io.metersphere.project.dto.ProjectUserStatusCountDTO;
 import io.metersphere.project.mapper.ExtProjectMapper;
 import io.metersphere.project.mapper.ExtProjectMemberMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.*;

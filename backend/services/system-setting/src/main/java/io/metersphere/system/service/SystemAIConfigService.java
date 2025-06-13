@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.ai.engine.common.AIModelParamType;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -8,11 +10,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.constants.AIConfigConstants;
 import io.metersphere.system.domain.AiModelSource;
 import io.metersphere.system.domain.AiModelSourceExample;
-import io.metersphere.system.dto.request.ai.AIChatOption;
-import io.metersphere.system.dto.request.ai.AdvSettingDTO;
-import io.metersphere.system.dto.request.ai.AiModelSourceCreateNameDTO;
-import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
-import io.metersphere.system.dto.request.ai.AiModelSourceRequest;
+import io.metersphere.system.dto.request.ai.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.AiModelSourceMapper;
 import io.metersphere.system.mapper.ExtAiModelSourceMapper;
@@ -39,6 +37,8 @@ public class SystemAIConfigService {
     private ExtAiModelSourceMapper extAiModelSourceMapper;
     @Resource
     private AiChatBaseService aiChatBaseService;
+    @Resource
+    private PermissionCheckService permissionCheckService;
 
     private static final String DEFAULT_OWNER = "system";
 
@@ -340,7 +340,13 @@ public class SystemAIConfigService {
     }
 
     public List<OptionDTO> getModelSourceNameList(String userId) {
-        return extAiModelSourceMapper.enableSourceNameList(userId);
+        boolean userHasSystemPermission = permissionCheckService.userHasSourcePermission(userId, DEFAULT_OWNER, PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_READ, UserRoleType.SYSTEM.name());
+        // 如果用户有系统级权限，则获取所有模型名称列表
+        if (userHasSystemPermission) {
+            return extAiModelSourceMapper.enableSourceNameList(userId);
+        } else {
+            return extAiModelSourceMapper.enablePersonalSourceNameList(userId);
+        }
     }
 
     /**

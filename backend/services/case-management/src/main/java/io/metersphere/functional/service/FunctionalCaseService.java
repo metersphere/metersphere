@@ -877,6 +877,7 @@ public class FunctionalCaseService {
                     functional.setUpdateUser(userId);
                     functional.setCreateTime(System.currentTimeMillis());
                     functional.setUpdateTime(System.currentTimeMillis());
+                    functional.setAiCreate(false);
                     addList.add(functional);
 
                     functionalCaseBlob.setId(id);

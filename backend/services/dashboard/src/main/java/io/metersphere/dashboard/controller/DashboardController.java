@@ -14,7 +14,7 @@ import io.metersphere.dashboard.response.StatisticsDTO;
 import io.metersphere.dashboard.service.DashboardService;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.plugin.platform.dto.SelectOption;
-import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;

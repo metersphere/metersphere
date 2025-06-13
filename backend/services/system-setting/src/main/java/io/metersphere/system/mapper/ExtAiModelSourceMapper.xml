@@ -25,5 +25,9 @@
                                 or owner = #{userId})
 
     </select>
+    <select id="enablePersonalSourceNameList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        SELECT id, name
+        FROM ai_model_source where status = true and owner = #{userId})
+    </select>
 
 </mapper>

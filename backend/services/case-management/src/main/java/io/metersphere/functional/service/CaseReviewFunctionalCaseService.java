@@ -16,12 +16,8 @@ import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
-import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.provider.BaseCaseProvider;
-import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.UserRoleScope;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
@@ -34,6 +30,7 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -414,7 +411,7 @@ public class CaseReviewFunctionalCaseService {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
         request.setReviewPassRule(caseReview.getReviewPassRule());
         //检查权限
-        if (!permissionCheckService.userHasProjectPermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+        if (!permissionCheckService.userHasSourcePermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE, UserRoleType.PROJECT.name()) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
             throw new MSException(Translator.get("http_result_forbidden"));
         }
         List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = doCaseReviewFunctionalCases(request);
@@ -512,7 +509,7 @@ public class CaseReviewFunctionalCaseService {
         String caseId = request.getCaseId();
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
         //检查权限
-        if (!permissionCheckService.userHasProjectPermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+        if (!permissionCheckService.userHasSourcePermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE, UserRoleType.PROJECT.name()) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
             throw new MSException(Translator.get("http_result_forbidden"));
         }
 

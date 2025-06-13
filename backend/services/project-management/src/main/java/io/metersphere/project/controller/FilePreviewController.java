@@ -2,9 +2,10 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.system.service.PermissionCheckService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -34,7 +35,7 @@ public class FilePreviewController {
             throw new MSException("file.not.exist");
         }
         //检查权限
-        if (!permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)) {
+        if (!permissionCheckService.userHasSourcePermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD, UserRoleType.PROJECT.name())) {
             throw  new MSException("http_result_forbidden");
         }
         return fileMetadataService.downloadById(fileId);
@@ -47,7 +48,7 @@ public class FilePreviewController {
             throw new MSException("file.not.exist");
         }
         //检查权限
-        if (!permissionCheckService.userHasProjectPermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)) {
+        if (!permissionCheckService.userHasSourcePermission(userId, fileInformationResponse.getProjectId(), PermissionConstants.PROJECT_FILE_MANAGEMENT_READ, UserRoleType.PROJECT.name())) {
             throw  new MSException("http_result_forbidden");
         }
         return fileMetadataService.downloadPreviewImgById(fileId);

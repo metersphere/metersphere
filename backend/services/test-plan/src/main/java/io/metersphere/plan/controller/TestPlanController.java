@@ -8,7 +8,7 @@ import io.metersphere.plan.dto.TestPlanExecuteHisDTO;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.*;
 import io.metersphere.plan.service.*;
-import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.system.service.PermissionCheckService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.LogInsertModule;
