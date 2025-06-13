@@ -192,15 +192,16 @@
           >
             <MsIcon type="icon-icon-setting" :size="20" />
           </MsButton>
-          <MsButton
-            v-if="answering"
-            type="text"
-            class="hover:text-[rgb(var(--primary-4))] active:text-[rgb(var(--primary-7))]"
-            @click="handleSendClick"
-          >
-            <MsIcon type="icon-icon_stop_outlined" :size="22" />
-          </MsButton>
-          <a-tooltip v-else :content="t('ms.ai.sendTip')" :disabled="!!senderValue">
+          <a-tooltip v-if="answering" :content="t('ms.ai.stop')" position="tr" :disabled="!!senderValue">
+            <MsButton
+              type="text"
+              class="hover:text-[rgb(var(--primary-4))] active:text-[rgb(var(--primary-7))]"
+              @click="handleSendClick"
+            >
+              <MsIcon type="icon-icon_stop_outlined" :size="22" />
+            </MsButton>
+          </a-tooltip>
+          <a-tooltip v-else :content="sendPlaceholder" position="tr" :disabled="!!senderValue">
             <MsButton
               type="text"
               class="hover:text-[rgb(var(--primary-4))] active:text-[rgb(var(--primary-7))]"
