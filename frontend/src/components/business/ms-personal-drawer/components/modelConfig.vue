@@ -149,7 +149,7 @@
           :supplier-model-item="supplierModelItem"
           :model-key="props.modelKey"
           @close="handleCancel"
-          @refresh="() => searchData()"
+          @refresh="refreshHandler"
         />
       </template>
     </MsSplitBox>
@@ -170,11 +170,14 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useUserStore } from '@/store';
+  import useAIStore from '@/store/modules/setting/ai';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { ModelConfigItem, SupplierModelItem } from '@/models/setting/modelConfig';
   import { ModelBaseTypeEnum } from '@/enums/modelEnum';
+
+  const aiStore = useAIStore();
 
   const { openModal } = useModal();
 
@@ -269,6 +272,7 @@
       });
       Message.success(t('common.enableSuccess'));
       searchData();
+      aiStore.getAISourceNameList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -295,6 +299,7 @@
           });
           Message.success(t('common.closeSuccess'));
           searchData();
+          aiStore.getAISourceNameList();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -344,6 +349,7 @@
           await modelConfigDeleteApiMap(item.id);
           Message.success(t('common.deleteSuccess'));
           searchData();
+          aiStore.getAISourceNameList();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -351,6 +357,11 @@
       },
       hideCancel: false,
     });
+  }
+
+  function refreshHandler() {
+    searchData();
+    aiStore.getAISourceNameList();
   }
 </script>
 
