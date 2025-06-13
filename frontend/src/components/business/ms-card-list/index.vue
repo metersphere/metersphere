@@ -187,7 +187,8 @@
     const maxCols = Math.floor((clientWidth + props.gap) / (props.cardMinWidth + props.gap));
     // 最大行数 =（容器高度 + gap） / （最小卡片宽度 + gap）。因为卡片宽高是 1:1，所以行数和列数相同。这里+2是为了在视图区域外多加载两行，以避免滚动条不出现
     const maxRows = Math.round((clientHeight + props.gap) / (props.cardMinWidth + props.gap)) + 2;
-    listSize.value = maxCols * maxRows;
+    // 确保最小为5
+    listSize.value = Math.max(5, maxCols * maxRows);
     setTimeout(() => {
       // 设置 400ms 后初始化完成，避免 useResizeObserver 一开始就触发，因为useResizeObserver使用了debounce-300ms，所以会有延迟
       isInit.value = true;

@@ -44,7 +44,7 @@
               props.modelKey === 'personal' ? 'h-[calc(100vh-138px)]' : 'h-[calc(100vh-274px)]'
             }`"
           >
-            <a-spin class="block h-full min-h-[300px] w-full" :loading="loading">
+            <a-spin class="block h-full w-full" :loading="loading">
               <div class="model-config-card-list relative">
                 <MsCardList
                   ref="modelCardListRef"

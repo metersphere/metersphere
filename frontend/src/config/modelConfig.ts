@@ -202,7 +202,7 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
     {
       name: 'topP',
       label: 'system.config.modelConfig.topP',
-      value: 0.1,
+      value: 1,
       enable: true,
       minValue: 0.1,
       maxValue: 1,
@@ -220,9 +220,9 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
     {
       name: 'topP',
       label: 'system.config.modelConfig.topP',
-      value: 0.9,
+      value: 1,
       enable: true,
-      minValue: 0,
+      minValue: 0.1,
       maxValue: 1,
     },
     {
