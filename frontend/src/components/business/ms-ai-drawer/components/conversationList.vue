@@ -18,7 +18,7 @@
         :key="item.id"
         class="ms-ai-drawer-conversation-item"
         :class="activeConversation?.id === item.id ? 'ms-ai-drawer-conversation-item--active' : ''"
-        @click="handleClick"
+        @click="handleClick(item)"
       >
         <a-input
           v-if="item.isEditing"
