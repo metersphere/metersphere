@@ -78,38 +78,8 @@
 
     #if($assertion)
 	#\# 断言
-	#\#\# 状态码
-	| 匹配条件 | 匹配值 |
-	| --- | --- |
-	| ${匹配条件} | ${匹配值} |
-
-	#if($response)
-	#if($response.headers && !$response.headers.isEmpty())
-	#\#\# 响应头
-	| 响应头 | 匹配条件 | 匹配值 |
-	| --- | --- | --- |
-	#foreach( $header in $response.headers )
-	| ${header.key} | ${匹配条件} | #if($header.value) $header.value #else ${匹配值} #end  |
-	#end
-	#end
-
-	#if($jsonPathAssert || $xpathAssert)
-	#\#\# 响应体
-	#if($jsonPathAssert)
-	#\#\#\# JSONPath
-	| 表达式 | 匹配条件 | 匹配值 |
-	| --- | --- | --- |
-	| ${表达式} | ${匹配条件} | ${匹配值} |
-	#end
-
-	#if($xpathAssert)
-	#\#\#\# XPath
-	| 表达式 |
-	| --- |
-	| ${表达式} |
-	#end
-	#end
-	#end
+	- 断言1
+	- 断言2
     #end
 
     #if($preScript)
@@ -151,18 +121,11 @@ $userMessage
 #if($xmlBody)
 - <用例模板>中`xml请求体`，xml参数值重新生成。
 #end
-#if($assertion)
-- <用例模板>中`状态码`和`响应头`断言的匹配条件可选值：等于/不等于/包含/不包含。
-#if($jsonPathAssert)
-- <用例模板>中`JSONPath`断言根据以下"json格式响应"生成： ``` $textResponseBodyValue ```
-	其中${匹配条件}可选值：等于/不等于/包含/不包含/以...开始/以...结束/为空/不为空/正则匹配/长度大于/长度大于等于/长度小于/长度小于等于/长度等于；
-#end
-#if($xpathAssert)
-- <用例模板>中`XPath`断言根据以下"xml格式响应"生成： ``` $textResponseBodyValue ```
-#end
-#end
 #if($abnormal && !$normal)
 - 如果<用户需求描述>中没有说明生成正常用例（成功用例）或者异常用例（失败用例），则生成正常用例。
+#end
+#if($assertion)
+- <用例模板>中`断言`，重新生成，不要参考`请求体`内容。
 #end
 #if(!$abnormal && $normal)
 - 如果<用户需求描述>中没有说明生成正常用例（成功用例）或者异常用例（失败用例），则生成异常用例。

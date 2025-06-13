@@ -86,14 +86,6 @@ public class ApiTestCaseAIService {
 
         setHTTPElementRenderConfig((MsHTTPElement) msTestElement, renderConfig);
 
-        if (blob.getResponse() != null) {
-            List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class);
-            if (CollectionUtils.isNotEmpty(httpResponses)) {
-                // 精简 httpResponses 对象
-                setHttpResponsesRenderConfig(httpResponses, renderConfig);
-            }
-        }
-
         renderConfig.setUserMessage(request.getPrompt());
         String prompt = apiCasePromptTemplateCache.getTemplate(renderConfig).replace("\\#", "#");
 
@@ -110,22 +102,6 @@ public class ApiTestCaseAIService {
         ApiCaseAIConfigDTO apiAIConfig = getApiAIConfig(userId);
         ApiCaseAIRenderConfig renderConfig = BeanUtils.copyBean(new ApiCaseAIRenderConfig(), apiAIConfig);
         return renderConfig;
-    }
-
-    private HttpResponse setHttpResponsesRenderConfig(List<HttpResponse> httpResponses, ApiCaseAIRenderConfig renderConfig) {
-        httpResponses = httpResponses.stream()
-                .filter(httpResponse -> httpResponse.getBody() != null && StringUtils.isNotBlank(httpResponse.getBody().getBodyType()))
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(httpResponses)) {
-            return null;
-        }
-        HttpResponse httpResponse = httpResponses.getFirst();
-        // 处理响应体
-        setResponseBodyRenderConfig(httpResponse.getBody(), renderConfig);
-        // 处理响应头
-        httpResponse.setHeaders(filterEnableAndValidKVs(httpResponse.getHeaders()));
-        renderConfig.setResponse(httpResponse);
-        return httpResponse;
     }
 
     /**
@@ -207,33 +183,6 @@ public class ApiTestCaseAIService {
                 }
                 default -> renderConfig.setBody(false);
             }
-        }
-    }
-
-    private void setResponseBodyRenderConfig(ResponseBody body, ApiCaseAIRenderConfig renderConfig) {
-        Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, body.getBodyType());
-        switch (bodyType) {
-            case XML -> {
-                if (body.getXmlBody() != null && StringUtils.isNotBlank(body.getXmlBody().getValue())) {
-                    renderConfig.setTextResponseBodyValue(body.getXmlBody().getValue());
-                    renderConfig.setXmlBody(true);
-                    renderConfig.setXpathAssert(true);
-                } else {
-                    renderConfig.setXpathAssert(false);
-                }
-            }
-            case JSON -> {
-                if (body.getJsonBody() != null && body.getJsonBody().getJsonSchema() != null) {
-                    String jsonValue = apiDefinitionService.jsonSchemaAutoGenerate(body.getJsonBody().getJsonSchema());
-                    if (!StringUtils.equalsAny(jsonValue, "{}", "{ }")) {
-                        renderConfig.setJsonPathAssert(true);
-                        renderConfig.setTextResponseBodyValue(jsonValue);
-                    }
-                } else {
-                    renderConfig.setJsonPathAssert(false);
-                }
-            }
-            default -> {}
         }
     }
 
