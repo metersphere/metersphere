@@ -91,6 +91,7 @@
                   :min="model.min || element[model?.minKey || 'min']"
                   :max="model.max || element[model?.maxKey || 'max'] || 9999999"
                   model-event="input"
+                  :precision="getNumberPrecision(model, element)"
                   allow-clear
                   :disabled="model.disabled"
                   @change="emit('change')"
@@ -382,6 +383,14 @@
 
   function goTry() {
     window.open('https://jinshuju.net/f/CzzAOe', '_blank');
+  }
+
+  function getNumberPrecision(model: FormItemModel, element: FormItemModel) {
+    if (model?.precision) return model.precision;
+    if (model?.getPrecisionFun && typeof model.getPrecisionFun === 'function') {
+      return model.getPrecisionFun(model, element);
+    }
+    return undefined;
   }
 
   defineExpose({

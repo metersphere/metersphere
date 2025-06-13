@@ -135,7 +135,7 @@ export const DEEP_SEEK_REASONER: ModelAdvancedSetType[] = [
     label: 'system.config.modelConfig.topP',
     value: 1.0,
     enable: true,
-    minValue: 0,
+    minValue: 0.1,
     maxValue: 1,
   },
 ];
@@ -170,7 +170,7 @@ export const DEEP_SEEK_CHAT: ModelAdvancedSetType[] = [
     label: 'system.config.modelConfig.topP',
     value: 1,
     enable: true,
-    minValue: 0,
+    minValue: 0.1,
     maxValue: 1,
   },
 ];

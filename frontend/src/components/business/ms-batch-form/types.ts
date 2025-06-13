@@ -29,5 +29,6 @@ export interface FormItemModel {
   disabled?: boolean;
   maxKey?: string;
   minKey?: string;
+  getPrecisionFun?: (model: FormItemModel, ele: FormItemModel) => number;
   [key: string]: any;
 }

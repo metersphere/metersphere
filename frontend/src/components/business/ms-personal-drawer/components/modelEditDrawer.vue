@@ -194,6 +194,8 @@
     system: editModelConfig,
   }[props.modelKey];
 
+  const getPrecisionFun = (_: FormItemModel, element: FormItemModel) => (element.name === 'maxTokens' ? 0 : 1);
+
   const visibility = ref(true);
   const baseModelForm = ref<'create' | 'edit'>('create');
   const batchFormRef = ref<InstanceType<typeof MsBatchForm>>();
@@ -222,6 +224,7 @@
       placeholder: 'common.pleaseInput',
       maxKey: 'maxValue',
       minKey: 'minValue',
+      getPrecisionFun,
     },
   ]);
 
