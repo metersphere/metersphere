@@ -25,7 +25,7 @@ public class ApiTestCaseAIController {
 
     @PostMapping(value = "/chat")
     @Operation(summary = "聊天")
-    @CheckOwner(resourceId = "#request.id", resourceType = "api_definition")
+    @CheckOwner(resourceId = "#request.apiDefinitionId", resourceType = "api_definition")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
     public String chat(@Validated @RequestBody ApiTestCaseAIRequest request) {
         return apiTestCaseAIService.chat(request, SessionUtils.getUserId());
