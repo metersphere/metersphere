@@ -14,7 +14,7 @@ public class ApiCaseAIRenderConfig extends AIRenderConfig {
     private Boolean xmlBody = false;
     private Boolean rawBody = false;
 
-    private Boolean asserts = true;
+    private Boolean assertion = true;
     private Boolean jsonPathAssert = false;
     private Boolean xpathAssert = false;
 
@@ -28,4 +28,7 @@ public class ApiCaseAIRenderConfig extends AIRenderConfig {
     private String textBodyValue;
     private String textResponseBodyValue;
     private String apiName;
+
+    private Boolean normal;
+    private Boolean abnormal;
 }

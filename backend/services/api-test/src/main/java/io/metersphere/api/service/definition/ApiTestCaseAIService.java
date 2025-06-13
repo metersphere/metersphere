@@ -1,5 +1,6 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.ai.engine.utils.TextCleaner;
 import io.metersphere.api.constants.ApiCaseAiPromptConstants;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.domain.*;
@@ -102,16 +103,12 @@ public class ApiTestCaseAIService {
                 .prompt(prompt)
                 .build();
 
-        return aiChatBaseService.chatWithMemory(aiChatOption)
-                .content();
+        return TextCleaner.cleanMdTitle(aiChatBaseService.chatWithMemory(aiChatOption).content());
     }
 
     private ApiCaseAIRenderConfig getApiCaseAIRenderConfig(String userId) {
-        ApiCaseAIRenderConfig renderConfig = new ApiCaseAIRenderConfig();
         ApiCaseAIConfigDTO apiAIConfig = getApiAIConfig(userId);
-        renderConfig.setPreScript(apiAIConfig.getPreScript());
-        renderConfig.setPostScript(apiAIConfig.getPostScript());
-        renderConfig.setAsserts(apiAIConfig.getAssertion());
+        ApiCaseAIRenderConfig renderConfig = BeanUtils.copyBean(new ApiCaseAIRenderConfig(), apiAIConfig);
         return renderConfig;
     }
 
@@ -332,7 +329,7 @@ public class ApiTestCaseAIService {
     private AiUserPromptConfig getAiUserPromptConfig(String userId) {
         AiUserPromptConfigExample example = new AiUserPromptConfigExample();
         example.createCriteria().andUserIdEqualTo(userId).andTypeEqualTo(AIConfigConstants.AiPromptType.API_CASE.toString());
-        List<AiUserPromptConfig> aiUserPromptConfigs = aiUserPromptConfigMapper.selectByExample(example);
+        List<AiUserPromptConfig> aiUserPromptConfigs = aiUserPromptConfigMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isEmpty(aiUserPromptConfigs)) {
             AiUserPromptConfig aiUserPromptConfig = new AiUserPromptConfig();
             aiUserPromptConfig.setUserId(userId);
