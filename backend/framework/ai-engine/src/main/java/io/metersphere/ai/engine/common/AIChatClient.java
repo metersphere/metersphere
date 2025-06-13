@@ -1,6 +1,7 @@
 package io.metersphere.ai.engine.common;
 
-import io.metersphere.ai.engine.advisor.LoggingAdvisor;
+import io.metersphere.ai.engine.advisor.LoggingCallAdvisor;
+import io.metersphere.ai.engine.advisor.LoggingStreamAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
@@ -25,7 +26,8 @@ public abstract class AIChatClient {
     public void addAdvisor(AIChatOptions options, ChatClient.Builder builder) {
         Optional.of(options)
                 .filter(opt -> !opt.isDisableLoggingAdvisor())
-                .ifPresent(opt -> builder.defaultAdvisors(new LoggingAdvisor()));
+                .ifPresent(opt ->
+                        builder.defaultAdvisors(new LoggingStreamAdvisor(), new LoggingCallAdvisor()));
     }
 
     /**

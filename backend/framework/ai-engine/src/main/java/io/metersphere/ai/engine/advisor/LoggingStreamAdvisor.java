@@ -10,9 +10,9 @@ import reactor.core.publisher.Flux;
 
 /**
  * 这是一个日志拦截器，用于拦截请求并记录日志。
- * 实现了StreamAroundAdvisor接口，可以在请求处理流程前后插入自定义逻辑。
+ * 实现了StreamAdvisor 接口，可以在请求处理流程前后插入自定义逻辑。
  */
-public class LoggingAdvisor implements StreamAdvisor {
+public class LoggingStreamAdvisor implements StreamAdvisor {
 
     /**
      * 处理流式请求并记录日志。
