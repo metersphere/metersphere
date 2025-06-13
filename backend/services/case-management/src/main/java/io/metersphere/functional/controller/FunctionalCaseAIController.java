@@ -44,7 +44,7 @@ public class FunctionalCaseAIController {
     @Operation(summary = "用例管理-功能用例-单条AI数据生成用例对象")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     public FunctionalCaseAiDTO transformToDTO(@Validated @RequestBody AIChatRequest request) {
-        return functionalCaseAIService.transformToDTO(request, SessionUtils.getUserId());
+        return functionalCaseAIService.transformToDTO(request);
     }
 
     @PostMapping(value = "/chat")

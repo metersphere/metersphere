@@ -54,5 +54,10 @@
             <version>${ansj_seg.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>${flex-mark.version}</version>
+        </dependency>
     </dependencies>
 </project>

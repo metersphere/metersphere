@@ -6,19 +6,22 @@ import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
-import io.metersphere.functional.dto.*;
+import io.metersphere.functional.dto.FunctionalCaseAIConfigDTO;
+import io.metersphere.functional.dto.FunctionalCaseAIDesignConfigDTO;
+import io.metersphere.functional.dto.FunctionalCaseAITemplateConfigDTO;
+import io.metersphere.functional.dto.FunctionalCaseAiDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAIChatRequest;
+import io.metersphere.functional.utils.MdUtil;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.ExecStatus;
 import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.constants.AIConfigConstants;
@@ -46,7 +49,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -64,12 +66,6 @@ public class FunctionalCaseAIService {
 
     @Value("classpath:/prompts/generate.st")
     private org.springframework.core.io.Resource generatePrompt;
-
-    @Resource
-    private FunctionalCaseMapper functionalCaseMapper;
-
-    @Resource
-    private FunctionalCaseBlobMapper functionalCaseBlobMapper;
 
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
@@ -145,48 +141,8 @@ public class FunctionalCaseAIService {
         }
     }
 
-    public FunctionalCaseAiDTO transformToDTO(AIChatRequest request, String userId) {
-        String caseEditType = getCaseEditType(userId);
-        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
-        String prompt = "请解析以下格式并转为一条java对象数据:\n" + request.getPrompt();
-        AIChatOption aiChatOption = AIChatOption.builder()
-                .module(module)
-                .prompt(prompt)
-                .build();
-        //根据用户配置的编辑类型，返回不同的实体类
-        FunctionalCaseAiDTO functionalCaseAiDTO = new FunctionalCaseAiDTO();
-        if (StringUtils.equalsIgnoreCase(caseEditType, FunctionalCaseTypeConstants.CaseEditType.STEP.name())) {
-            FunctionalCaseStepAiDTO entity = aiChatBaseService.chat(aiChatOption).entity(FunctionalCaseStepAiDTO.class);
-            BeanUtils.copyBean(functionalCaseAiDTO,entity);
-            functionalCaseAiDTO.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
-        } else {
-            FunctionalCaseTextAiDTO entity = aiChatBaseService.chat(aiChatOption).entity(FunctionalCaseTextAiDTO.class);
-            BeanUtils.copyBean(functionalCaseAiDTO,entity);
-            functionalCaseAiDTO.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.TEXT.name());
-        }
-        return functionalCaseAiDTO;
-    }
-
-    /**
-     * 获取用户配置的用例编辑类型
-     * @param userId 用户ID
-     * @return 用例编辑类型，默认返回文本类型步骤描述
-     */
-    @NotNull
-    private String getCaseEditType(String userId) {
-        AiUserPromptConfigExample example = new AiUserPromptConfigExample();
-        example.createCriteria().andUserIdEqualTo(userId).andTypeEqualTo(AIConfigConstants.AiPromptType.FUNCTIONAL_CASE.toString());
-        List<AiUserPromptConfig> aiUserPromptConfigs = aiUserPromptConfigMapper.selectByExampleWithBLOBs(example);
-        //如果用户没配置，默认返回文本类型步骤描述
-        if (CollectionUtils.isEmpty(aiUserPromptConfigs)) {
-            return FunctionalCaseTypeConstants.CaseEditType.TEXT.name();
-        }else {
-            AiUserPromptConfig first = aiUserPromptConfigs.getFirst();
-            String configStr = new String(first.getConfig(), StandardCharsets.UTF_8);
-            FunctionalCaseAIConfigDTO configDTO = JSON.parseObject(configStr, FunctionalCaseAIConfigDTO.class);
-            FunctionalCaseAITemplateConfigDTO templateConfig = configDTO.getTemplateConfig();
-            return templateConfig.getCaseEditType() != null ? templateConfig.getCaseEditType() : FunctionalCaseTypeConstants.CaseEditType.TEXT.name();
-        }
+    public FunctionalCaseAiDTO transformToDTO(AIChatRequest request) {
+        return MdUtil.transformToCaseDTO(request.getPrompt());
     }
 
     /**
@@ -285,30 +241,14 @@ public class FunctionalCaseAIService {
 
 
     public void batchSave(FunctionalCaseAIChatRequest request, String userId) {
-        String caseEditType = getCaseEditType(userId);
-        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
-        String prompt = "请解析以下格式并转为java数组对象:\n" + request.getPrompt();
-        AIChatOption aiChatOption = AIChatOption.builder()
-                .module(module)
-                .prompt(prompt)
-                .build();
-        if (StringUtils.equalsIgnoreCase(caseEditType, FunctionalCaseTypeConstants.CaseEditType.STEP.name())) {
-            List<FunctionalCaseStepAiDTO> caseStepAiDTOList  = aiChatBaseService.chat(aiChatOption).entity(new ParameterizedTypeReference<>() {});
-            if (CollectionUtils.isEmpty(caseStepAiDTOList)) {
-                return;
-            }
-            saveStepCaseList(request, userId, caseStepAiDTOList);
-        } else {
-            List<FunctionalCaseTextAiDTO> caseTextAiDTOList  = aiChatBaseService.chat(aiChatOption).entity(new ParameterizedTypeReference<>() {});
-            if (CollectionUtils.isEmpty(caseTextAiDTOList)) {
-                return;
-            }
-            saveTextCaseList(request, userId, caseTextAiDTOList);
+        List<FunctionalCaseAiDTO> caseList = MdUtil.batchTransformToCaseDTO(request.getPrompt());
+        if (CollectionUtils.isEmpty(caseList)) {
+            return;
         }
-
+        saveFunctionalCaseList(request, userId, caseList);
     }
 
-    private void saveTextCaseList(FunctionalCaseAIChatRequest request, String userId, List<FunctionalCaseTextAiDTO> caseTextAiDTOList) {
+    private void saveFunctionalCaseList(FunctionalCaseAIChatRequest request, String userId, List<FunctionalCaseAiDTO> cases) {
         String projectId = request.getProjectId();
         String moduleId = request.getModuleId();
         String templateId = request.getTemplateId();
@@ -318,8 +258,8 @@ public class FunctionalCaseAIService {
         FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
         Map<String, TemplateCustomFieldDTO> customFieldsMap = getStringTemplateCustomFieldDTOMap(templateId, projectId);
         Long nextPos = getNextOrder(projectId);
-        long pos = nextPos + ((long) ServiceUtils.POS_STEP * caseTextAiDTOList.size());
-        for (FunctionalCaseTextAiDTO functionalCaseTextAiDTO : caseTextAiDTOList) {
+        long pos = nextPos + ((long) ServiceUtils.POS_STEP * cases.size());
+        for (FunctionalCaseAiDTO aiCase : cases) {
             FunctionalCase functionalCase = new FunctionalCase();
             String id = IDGenerator.nextStr();
             functionalCase.setId(id);
@@ -327,7 +267,7 @@ public class FunctionalCaseAIService {
             functionalCase.setModuleId(moduleId);
             functionalCase.setProjectId(projectId);
             functionalCase.setTemplateId(templateId);
-            functionalCase.setName(functionalCaseTextAiDTO.getName());
+            functionalCase.setName(aiCase.getName());
             functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
             functionalCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
             functionalCase.setPos(pos);
@@ -348,67 +288,15 @@ public class FunctionalCaseAIService {
             //附属表
             FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
             functionalCaseBlob.setId(id);
-            functionalCaseBlob.setSteps(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setTextDescription(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getTextDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            if (StringUtils.equals(FunctionalCaseTypeConstants.CaseEditType.TEXT.name(), aiCase.getCaseEditType())) {
+                functionalCaseBlob.setTextDescription(StringUtils.defaultIfBlank(aiCase.getTextDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            } else {
+                functionalCaseBlob.setSteps(aiCase.getSteps().getBytes(StandardCharsets.UTF_8));
+            }
+            functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(aiCase.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(aiCase.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+            functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(aiCase.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             caseBlobMapper.insert(functionalCaseBlob);
-            saveCustomField(userId, customFieldsMap, id, customFieldMapper);
-            pos -= ServiceUtils.POS_STEP;
-        }
-        sqlSession.flushStatements();
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-
-    }
-
-    private void saveStepCaseList(FunctionalCaseAIChatRequest request, String userId, List<FunctionalCaseStepAiDTO> caseStepAiDTOList) {
-        String projectId = request.getProjectId();
-        String moduleId = request.getModuleId();
-        String templateId = request.getTemplateId();
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
-        FunctionalCaseBlobMapper caseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
-        FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
-        Map<String, TemplateCustomFieldDTO> customFieldsMap = getStringTemplateCustomFieldDTOMap(templateId, projectId);
-        Long nextPos = getNextOrder(projectId);
-        long pos = nextPos + ((long) ServiceUtils.POS_STEP * caseStepAiDTOList.size());
-        for (FunctionalCaseStepAiDTO functionalCaseStepAiDTO : caseStepAiDTOList) {
-            FunctionalCase functionalCase = new FunctionalCase();
-            String id = IDGenerator.nextStr();
-            functionalCase.setId(id);
-            functionalCase.setNum(getNextNum(projectId));
-            functionalCase.setModuleId(moduleId);
-            functionalCase.setProjectId(projectId);
-            functionalCase.setTemplateId(templateId);
-            functionalCase.setName(functionalCaseStepAiDTO.getName());
-            functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
-            functionalCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
-            functionalCase.setPos(pos);
-            functionalCase.setTags(null);
-            functionalCase.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(projectId));
-            functionalCase.setRefId(id);
-            functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
-            functionalCase.setDeleted(false);
-            functionalCase.setAiCreate(true);
-            functionalCase.setPublicCase(false);
-            functionalCase.setLatest(true);
-            functionalCase.setCreateUser(userId);
-            functionalCase.setUpdateUser(userId);
-            functionalCase.setCreateTime(System.currentTimeMillis());
-            functionalCase.setUpdateTime(System.currentTimeMillis());
-            caseMapper.insert(functionalCase);
-            //附属表
-            List<FunctionalCaseAIStep> stepDescription = functionalCaseStepAiDTO.getStepDescription();
-            FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
-            functionalCaseBlob.setId(id);
-            functionalCaseBlob.setSteps(JSON.toJSONString(stepDescription).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setTextDescription(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setExpectedResult(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(functionalCaseStepAiDTO.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(functionalCaseStepAiDTO.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            caseBlobMapper.insert(functionalCaseBlob);
-
             saveCustomField(userId, customFieldsMap, id, customFieldMapper);
             pos -= ServiceUtils.POS_STEP;
         }

@@ -3,8 +3,6 @@ package io.metersphere.functional.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class FunctionalCaseAiDTO {
 
@@ -22,7 +20,7 @@ public class FunctionalCaseAiDTO {
 
     //步骤描述
     @Schema(description = "步骤描述", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<FunctionalCaseAIStep> stepDescription;
+    private String steps;
 
     //步骤描述
     @Schema(description = "步骤描述")
