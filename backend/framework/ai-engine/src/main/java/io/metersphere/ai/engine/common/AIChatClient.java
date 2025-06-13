@@ -40,10 +40,12 @@ public abstract class AIChatClient {
 
         // 温度设置
         Optional.of(options.getTemperature())
+                .filter(temperature -> temperature >= 0 && temperature <= 2.0)
                 .ifPresent(optionsBuilder::temperature);
 
         // 频率惩罚设置
         Optional.of(options.getFrequencyPenalty())
+                .filter(frequencyPenalty -> frequencyPenalty >= -2.0 && frequencyPenalty <= 2.0)
                 .ifPresent(optionsBuilder::frequencyPenalty);
 
         // 最大 token 设置
@@ -52,6 +54,7 @@ public abstract class AIChatClient {
 
         // top_p 设置
         Optional.of(options.getTopP())
+                .filter(topP -> topP >= 0.1 && topP <= 1)
                 .ifPresent(optionsBuilder::topP);
 
         return optionsBuilder;
