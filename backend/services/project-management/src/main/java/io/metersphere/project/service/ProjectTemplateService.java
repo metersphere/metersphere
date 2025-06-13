@@ -163,8 +163,18 @@ public class ProjectTemplateService extends BaseTemplateService {
             }
         }
         TemplateDTO templateDTO = getTemplateDTO(template);
+        List<CustomFieldOption> memberCustomOption = getMemberOptions(projectId);
+        templateDTO.getCustomFields().forEach(item -> {
+            if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
+                item.setOptions(memberCustomOption);
+            }
+        });
+        return templateDTO;
+    }
+
+    public List<CustomFieldOption> getMemberOptions(String projectId) {
         List<UserExtendDTO> memberOption = projectService.getMemberOption(projectId, null);
-        List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
+        return memberOption.stream().map(option -> {
             CustomFieldOption customFieldOption = new CustomFieldOption();
             customFieldOption.setFieldId(option.getId());
             customFieldOption.setValue(option.getId());
@@ -172,12 +182,6 @@ public class ProjectTemplateService extends BaseTemplateService {
             customFieldOption.setText(option.getName());
             return customFieldOption;
         }).toList();
-        templateDTO.getCustomFields().forEach(item -> {
-            if (StringUtils.equalsAnyIgnoreCase(item.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
-                item.setOptions(memberCustomOption);
-            }
-        });
-        return templateDTO;
     }
 
 

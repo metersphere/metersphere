@@ -5,14 +5,19 @@ import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseBlob;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
+import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseAIChatRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.ExecStatus;
+import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -22,6 +27,8 @@ import io.metersphere.system.domain.AiUserPromptConfigExample;
 import io.metersphere.system.dto.request.ai.AIChatOption;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.mapper.AiUserPromptConfigMapper;
 import io.metersphere.system.service.AiChatBaseService;
 import io.metersphere.system.uid.IDGenerator;
@@ -31,7 +38,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +51,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FunctionalCaseAIService {
@@ -66,6 +76,12 @@ public class FunctionalCaseAIService {
 
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
+
+    @Resource
+    private ProjectTemplateService projectTemplateService;
+
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     /**
      * 获取用户的AI提示词
@@ -293,22 +309,30 @@ public class FunctionalCaseAIService {
     }
 
     private void saveTextCaseList(FunctionalCaseAIChatRequest request, String userId, List<FunctionalCaseTextAiDTO> caseTextAiDTOList) {
-        List<FunctionalCase> functionalCases = new ArrayList<>();
-        List<FunctionalCaseBlob> functionalCaseBlobs = new ArrayList<>();
+        String projectId = request.getProjectId();
+        String moduleId = request.getModuleId();
+        String templateId = request.getTemplateId();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        FunctionalCaseBlobMapper caseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
+        FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
+        Map<String, TemplateCustomFieldDTO> customFieldsMap = getStringTemplateCustomFieldDTOMap(templateId, projectId);
+        Long nextPos = getNextOrder(projectId);
+        long pos = nextPos + ((long) ServiceUtils.POS_STEP * caseTextAiDTOList.size());
         for (FunctionalCaseTextAiDTO functionalCaseTextAiDTO : caseTextAiDTOList) {
             FunctionalCase functionalCase = new FunctionalCase();
             String id = IDGenerator.nextStr();
             functionalCase.setId(id);
-            functionalCase.setNum(getNextNum(request.getProjectId()));
-            functionalCase.setModuleId(request.getModuleId());
-            functionalCase.setProjectId(request.getProjectId());
-            functionalCase.setTemplateId(request.getTemplateId());
+            functionalCase.setNum(getNextNum(projectId));
+            functionalCase.setModuleId(moduleId);
+            functionalCase.setProjectId(projectId);
+            functionalCase.setTemplateId(templateId);
             functionalCase.setName(functionalCaseTextAiDTO.getName());
             functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
             functionalCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
-            functionalCase.setPos(getNextOrder(request.getProjectId()));
+            functionalCase.setPos(pos);
             functionalCase.setTags(null);
-            functionalCase.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            functionalCase.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(projectId));
             functionalCase.setRefId(id);
             functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
             functionalCase.setDeleted(false);
@@ -319,7 +343,8 @@ public class FunctionalCaseAIService {
             functionalCase.setUpdateUser(userId);
             functionalCase.setCreateTime(System.currentTimeMillis());
             functionalCase.setUpdateTime(System.currentTimeMillis());
-            functionalCases.add(functionalCase);
+            caseMapper.insert(functionalCase);
+
             //附属表
             FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
             functionalCaseBlob.setId(id);
@@ -328,29 +353,40 @@ public class FunctionalCaseAIService {
             functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(functionalCaseTextAiDTO.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlobs.add(functionalCaseBlob);
+            caseBlobMapper.insert(functionalCaseBlob);
+            saveCustomField(userId, customFieldsMap, id, customFieldMapper);
+            pos -= ServiceUtils.POS_STEP;
         }
-        functionalCaseMapper.batchInsert(functionalCases);
-        functionalCaseBlobMapper.batchInsert(functionalCaseBlobs);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+
     }
 
     private void saveStepCaseList(FunctionalCaseAIChatRequest request, String userId, List<FunctionalCaseStepAiDTO> caseStepAiDTOList) {
-        List<FunctionalCase> functionalCases = new ArrayList<>();
-        List<FunctionalCaseBlob> functionalCaseBlobs = new ArrayList<>();
+        String projectId = request.getProjectId();
+        String moduleId = request.getModuleId();
+        String templateId = request.getTemplateId();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        FunctionalCaseBlobMapper caseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
+        FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
+        Map<String, TemplateCustomFieldDTO> customFieldsMap = getStringTemplateCustomFieldDTOMap(templateId, projectId);
+        Long nextPos = getNextOrder(projectId);
+        long pos = nextPos + ((long) ServiceUtils.POS_STEP * caseStepAiDTOList.size());
         for (FunctionalCaseStepAiDTO functionalCaseStepAiDTO : caseStepAiDTOList) {
             FunctionalCase functionalCase = new FunctionalCase();
             String id = IDGenerator.nextStr();
             functionalCase.setId(id);
-            functionalCase.setNum(getNextNum(request.getProjectId()));
-            functionalCase.setModuleId(request.getModuleId());
-            functionalCase.setProjectId(request.getProjectId());
-            functionalCase.setTemplateId(request.getTemplateId());
+            functionalCase.setNum(getNextNum(projectId));
+            functionalCase.setModuleId(moduleId);
+            functionalCase.setProjectId(projectId);
+            functionalCase.setTemplateId(templateId);
             functionalCase.setName(functionalCaseStepAiDTO.getName());
             functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
             functionalCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
-            functionalCase.setPos(getNextOrder(request.getProjectId()));
+            functionalCase.setPos(pos);
             functionalCase.setTags(null);
-            functionalCase.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            functionalCase.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(projectId));
             functionalCase.setRefId(id);
             functionalCase.setLastExecuteResult(ExecStatus.PENDING.name());
             functionalCase.setDeleted(false);
@@ -361,7 +397,7 @@ public class FunctionalCaseAIService {
             functionalCase.setUpdateUser(userId);
             functionalCase.setCreateTime(System.currentTimeMillis());
             functionalCase.setUpdateTime(System.currentTimeMillis());
-            functionalCases.add(functionalCase);
+            caseMapper.insert(functionalCase);
             //附属表
             List<FunctionalCaseAIStep> stepDescription = functionalCaseStepAiDTO.getStepDescription();
             FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
@@ -371,10 +407,42 @@ public class FunctionalCaseAIService {
             functionalCaseBlob.setExpectedResult(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
             functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(functionalCaseStepAiDTO.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(functionalCaseStepAiDTO.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
-            functionalCaseBlobs.add(functionalCaseBlob);
+            caseBlobMapper.insert(functionalCaseBlob);
+
+            saveCustomField(userId, customFieldsMap, id, customFieldMapper);
+            pos -= ServiceUtils.POS_STEP;
         }
-        functionalCaseMapper.batchInsert(functionalCases);
-        functionalCaseBlobMapper.batchInsert(functionalCaseBlobs);
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+
+    }
+
+    @NotNull
+    private Map<String, TemplateCustomFieldDTO> getStringTemplateCustomFieldDTOMap(String templateId, String projectId) {
+        TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(templateId, projectId, TemplateScene.FUNCTIONAL.name());
+        List<TemplateCustomFieldDTO> customFields = Optional.ofNullable(templateDTO.getCustomFields()).orElse(new ArrayList<>());
+        Map<String, TemplateCustomFieldDTO> customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
+        return customFieldsMap;
+    }
+
+    private static void saveCustomField(String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap, String id, FunctionalCaseCustomFieldMapper customFieldMapper) {
+        customFieldsMap.forEach((k, v) -> {
+            //用例等级如果没有默认值，则为P0
+            if (StringUtils.equalsIgnoreCase(v.getInternalFieldKey(), "functional_priority") && (v.getDefaultValue() == null || StringUtils.isBlank(v.getDefaultValue().toString()))) {
+                v.setDefaultValue("P0");
+            }
+            FunctionalCaseCustomField caseCustomField = new FunctionalCaseCustomField();
+            caseCustomField.setCaseId(id);
+            caseCustomField.setFieldId(v.getFieldId());
+
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
+                caseCustomField.setValue(userId);
+            }
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
+                caseCustomField.setValue(caseCustomField.getValue().replace("CREATE_USER", userId));
+            }
+            customFieldMapper.insertSelective(caseCustomField);
+        });
     }
 
     public Long getNextOrder(String projectId) {
