@@ -102,6 +102,9 @@ public class SystemAIConfigService {
 
     private boolean validateAppKey(AiModelSourceDTO aiModelSourceDTO, String id) {
         AiModelSource oldSource = aiModelSourceMapper.selectByPrimaryKey(id);
+        if (oldSource == null) {
+            return true; // 新增模型源时不需要验证AppKey
+        }
         String oldKey = maskSkString(oldSource.getAppKey());
         if (StringUtils.equalsIgnoreCase(oldKey, aiModelSourceDTO.getAppKey())) {
             aiModelSourceDTO.setAppKey(oldSource.getAppKey());
