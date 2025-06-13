@@ -78,6 +78,7 @@
       :offspring-ids="props.offspringIds"
       :selected-protocols="props.selectedProtocols"
       :definition-detail="activeApiTab"
+      :is-need-init="true"
       @debug="handleMockDebug"
       @handle-adv-search="(val) => emit('handleAdvSearch', val)"
     />

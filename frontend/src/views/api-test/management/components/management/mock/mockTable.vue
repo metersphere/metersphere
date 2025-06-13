@@ -244,6 +244,7 @@
     readOnly?: boolean; // 是否是只读模式
     selectedProtocols: string[]; // 查看的协议类型
     heightUsed?: number;
+    isNeedInit?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'change'): void;
@@ -425,12 +426,12 @@
 
   onBeforeMount(() => {
     cacheStore.clearCache();
-    if (!isActivated.value) {
+    if (isActivated.value) return;
+    if (props.isNeedInit) {
       loadMockList();
-      cacheStore.setCache(CacheTabTypeEnum.API_TEST_MOCK_TABLE);
     }
+    cacheStore.setCache(CacheTabTypeEnum.API_TEST_MOCK_TABLE);
   });
-
   onActivated(() => {
     if (isActivated.value) {
       loadMockList();
