@@ -7,10 +7,12 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.AiConversationContent;
 import io.metersphere.system.dto.request.ai.AIChatOption;
 import io.metersphere.system.dto.request.ai.AIChatRequest;
+import io.metersphere.system.dto.request.ai.AdvSettingDTO;
 import io.metersphere.system.dto.request.ai.AiModelSourceDTO;
 import io.metersphere.system.mapper.AiConversationContentMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -20,9 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @Author: jianxing
@@ -44,6 +48,7 @@ public class AiChatBaseService {
 
     /**
      * 聊天不记忆对话
+     *
      * @param aiChatOption
      * @return
      */
@@ -56,6 +61,7 @@ public class AiChatBaseService {
 
     /**
      * 聊天并记忆
+     *
      * @param aiChatOption
      * @return
      */
@@ -96,10 +102,16 @@ public class AiChatBaseService {
      */
     private AIChatOptions getAiChatOptions(AiModelSourceDTO model) {
         // 获取模块的高级设置参数
-        Map<String, Object> paramMap = new HashMap<>();
-        model.getAdvSettingDTOList().stream()
-                .filter(item -> StringUtils.isNotBlank(item.getName()))
-                .forEach(item -> paramMap.put(item.getName(), item.getValue()));
+        Map<String, Object> paramMap = Optional.ofNullable(model.getAdvSettingDTOList())
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(item -> StringUtils.isNotBlank(item.getName()) && BooleanUtils.isTrue(item.getEnable()))
+                .collect(Collectors.toMap(
+                        AdvSettingDTO::getName,
+                        AdvSettingDTO::getValue,
+                        (v1, v2) -> v2
+                ));
+
         AIChatOptions aiChatOptions = JSON.parseObject(JSON.toJSONString(paramMap), AIChatOptions.class);
 
         // 设置模型信息
