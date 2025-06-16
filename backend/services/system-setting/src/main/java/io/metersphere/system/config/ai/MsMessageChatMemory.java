@@ -1,6 +1,5 @@
 package io.metersphere.system.config.ai;
 
-import io.metersphere.ai.engine.utils.TextCleaner;
 import io.metersphere.system.domain.AiConversationContent;
 import io.metersphere.system.mapper.ExtAiConversationContentMapper;
 import jakarta.annotation.Resource;
@@ -48,8 +47,7 @@ public class MsMessageChatMemory implements ChatMemory {
                     MessageType type = MessageType.fromValue(conversationContent.getType());
                     String content = conversationContent.getContent();
                     Message message = switch (type) {
-                        // 过滤，简化提示词
-                        case USER -> new UserMessage(TextCleaner.fullClean(content));
+                        case USER -> new UserMessage(content);
                         case ASSISTANT -> new AssistantMessage(content);
                         case SYSTEM -> new SystemMessage(content);
                         // The content is always stored empty for ToolResponseMessages.
