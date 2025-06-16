@@ -1,13 +1,13 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.ai.engine.utils.TextCleaner;
-import io.metersphere.api.constants.ApiCaseAiPromptConstants;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
-import io.metersphere.api.dto.ApiCaseAiResponse;
 import io.metersphere.api.dto.ApiCaseAIRenderConfig;
+import io.metersphere.api.dto.ApiCaseAiResponse;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.FormDataBody;
@@ -16,11 +16,12 @@ import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.utils.ApiCasePromptTemplateCache;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.ApiTestCaseDTOParser;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
-import io.metersphere.project.dto.environment.auth.HTTPAuthConfig;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -40,13 +41,11 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,6 +70,8 @@ public class ApiTestCaseAIService {
     private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public String generateApiTestCase(ApiTestCaseAIRequest request, AiModelSourceDTO module, String userId) {
         ApiDefinitionBlob blob = apiDefinitionBlobMapper.selectByPrimaryKey(request.getApiDefinitionId());
@@ -156,7 +157,7 @@ public class ApiTestCaseAIService {
                         renderConfig.setBody(false);
                     }
                 }
-                case XML ->{
+                case XML -> {
                     if (body.getXmlBody() != null && StringUtils.isNotBlank(body.getXmlBody().getValue())) {
                         renderConfig.setTextBodyValue(body.getXmlBody().getValue());
                         renderConfig.setXmlBody(true);
@@ -289,32 +290,44 @@ public class ApiTestCaseAIService {
         }
     }
 
-    public ApiTestCaseDTO transformToDTO(ApiTestCaseAIRequest request, String userId) {
-        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
-        String prompt = ApiCaseAiPromptConstants.AI_CASE_TRANSFORM_MODULE_PROMPT + request.getPrompt();
-        AIChatOption aiChatOption = AIChatOption.builder()
-                .module(module)
-                .prompt(prompt)
-                .build();
-        ApiTestCaseAiDTO entity = aiChatBaseService.chat(aiChatOption)
-                .entity(ApiTestCaseAiDTO.class);
+    public ApiTestCaseDTO transformToDTO(ApiCaseAiTransformDTO request) {
+        ApiTestCaseAiDTO parse = ApiTestCaseDTOParser.parse(request.getPrompt());
         ApiDefinition apiDefinition = apiTestCaseService.getApiDefinition(request.getApiDefinitionId());
-        ApiTestCaseDTO apiTestCaseDTO = caseFormat(entity, apiDefinition);
+        ApiTestCaseDTO apiTestCaseDTO = caseFormat(parse, apiDefinition);
         return apiTestCaseDTO;
     }
 
     private ApiTestCaseDTO caseFormat(ApiTestCaseAiDTO entity, ApiDefinition apiDefinition) {
+        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId()));
         entity.getMsHTTPElement().setMethod(apiDefinition.getMethod());
-        if (StringUtils.isBlank(entity.getMsHTTPElement().getAuthConfig().getAuthType())) {
-            entity.getMsHTTPElement().getAuthConfig().setAuthType(HTTPAuthConfig.HTTPAuthType.NONE.name());
-        }
-        AbstractMsTestElement msTestElement = entity.getMsHTTPElement();
-        AbstractMsTestElement processorConfig = entity.getProcessorConfig();
+        MsHTTPElement msHTTPElement = entity.getMsHTTPElement();
+        MsCommonElement msCommonElement = entity.getProcessorConfig();
+        apiDefinitionBlobOptional.ifPresent(blob -> {
+            AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
+            MsCommonElement apimsCommonElement = apiCommonService.getMsCommonElement(msTestElement);
+            Optional.ofNullable(apimsCommonElement).ifPresent(item -> {
+                msCommonElement.setPreProcessorConfig(item.getPreProcessorConfig());
+                msCommonElement.setPostProcessorConfig(item.getPostProcessorConfig());
+            });
+
+            //接口定义json_schema
+            if (msTestElement instanceof MsHTTPElement) {
+                MsHTTPElement apiMsHTTPElement = (MsHTTPElement) msTestElement;
+                if (StringUtils.equals(apiMsHTTPElement.getBody().getBodyType(), Body.BodyType.JSON.name()) && apiMsHTTPElement.getBody().getJsonBody().getEnableJsonSchema()) {
+                    msHTTPElement.getBody().getJsonBody().setJsonSchema(apiMsHTTPElement.getBody().getJsonBody().getJsonSchema());
+                }
+
+            }
+        });
         LinkedList<AbstractMsTestElement> children = new LinkedList<>();
-        children.add(processorConfig);
-        msTestElement.setChildren(children);
+        children.add(msCommonElement);
+        msHTTPElement.setChildren(children);
         ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
-        apiTestCaseDTO.setRequest(msTestElement);
+        apiTestCaseDTO.setRequest(msHTTPElement);
+        apiTestCaseDTO.setName(msHTTPElement.getName());
+        apiTestCaseDTO.setModuleId(apiDefinition.getModuleId());
+        apiTestCaseDTO.setMethod(apiDefinition.getMethod());
+        apiTestCaseDTO.setNum(apiDefinition.getNum());
         return apiTestCaseDTO;
     }
 
@@ -326,36 +339,32 @@ public class ApiTestCaseAIService {
      * @param userId
      * @return
      */
-    public ApiCaseAiResponse batchSave(ApiTestCaseAiAddRequest request, String userId) {
-        AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
-        String prompt = ApiCaseAiPromptConstants.AI_CASE_TRANSFORM_MODULE_PROMPT + request.getPrompt();
-        AIChatOption aiChatOption = AIChatOption.builder()
-                .module(module)
-                .prompt(prompt)
-                .build();
-        List<ApiTestCaseAiDTO> aiCaseList = aiChatBaseService.chat(aiChatOption)
-                .entity(new ParameterizedTypeReference<>() {
-                });
-        return saveCaseModule(aiCaseList, request, userId);
+    public ApiCaseAiResponse batchSave(ApiCaseAiTransformDTO request, String userId) {
+        List<String> prompts = Arrays.stream(request.getPrompt().split("apiCaseEnd")).toList();
+        ApiDefinition apiDefinition = apiTestCaseService.getApiDefinition(request.getApiDefinitionId());
+        List<ApiTestCaseDTO> aiCaseList = new ArrayList<>();
+        prompts.forEach(prompt -> {
+            ApiTestCaseAiDTO parse = ApiTestCaseDTOParser.parse(prompt);
+            ApiTestCaseDTO apiTestCaseDTO = caseFormat(parse, apiDefinition);
+            aiCaseList.add(apiTestCaseDTO);
+        });
+        return saveAiTestCase(aiCaseList, userId, apiDefinition);
     }
 
 
-    private ApiCaseAiResponse saveCaseModule(List<ApiTestCaseAiDTO> aiCaseList, ApiTestCaseAiAddRequest request, String userId) {
+    private ApiCaseAiResponse saveAiTestCase(List<ApiTestCaseDTO> aiCaseList, String userId, ApiDefinition apiDefinition) {
         ApiCaseAiResponse response = new ApiCaseAiResponse();
-        ApiDefinition apiDefinition = apiTestCaseService.getApiDefinition(request.getApiDefinitionId());
         aiCaseList.forEach(aiCase -> {
-            ApiTestCaseDTO apiTestCaseDTO = caseFormat(aiCase, apiDefinition);
-            apiTestCaseDTO.setMethod(apiDefinition.getMethod());
             ApiTestCase testCase = new ApiTestCase();
             testCase.setId(IDGenerator.nextStr());
-            testCase.setProjectId(request.getProjectId());
-            testCase.setApiDefinitionId(request.getApiDefinitionId());
-            testCase.setName(aiCase.getMsHTTPElement().getName());
+            testCase.setProjectId(apiDefinition.getProjectId());
+            testCase.setApiDefinitionId(apiDefinition.getId());
+            testCase.setName(aiCase.getName());
             if (!checkCaseNameExist(testCase, response)) {
                 testCase.setPriority("P0");
                 testCase.setStatus(ApiDefinitionStatus.PROCESSING.name());
-                testCase.setPos(apiTestCaseService.getNextOrder(request.getProjectId()));
-                testCase.setNum(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
+                testCase.setPos(apiTestCaseService.getNextOrder(apiDefinition.getProjectId()));
+                testCase.setNum(NumGenerator.nextNum(apiDefinition.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
                 testCase.setVersionId(apiDefinition.getVersionId());
                 testCase.setCreateUser(userId);
                 testCase.setUpdateUser(userId);
@@ -367,10 +376,9 @@ public class ApiTestCaseAIService {
 
                 ApiTestCaseBlob caseBlob = new ApiTestCaseBlob();
                 caseBlob.setId(testCase.getId());
-                caseBlob.setRequest(apiTestCaseService.getMsTestElementStr(apiTestCaseDTO.getRequest()).getBytes());
+                caseBlob.setRequest(apiTestCaseService.getMsTestElementStr(aiCase.getRequest()).getBytes());
                 apiTestCaseBlobMapper.insert(caseBlob);
             }
-
         });
 
         return response;

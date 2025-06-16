@@ -2,8 +2,8 @@ package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.ApiCaseAiResponse;
+import io.metersphere.api.dto.definition.ApiCaseAiTransformDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseAiAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.service.definition.ApiTestCaseAIService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -49,14 +49,14 @@ public class ApiTestCaseAIController {
     @PostMapping("/transform")
     @Operation(summary = "接口管理-接口用例-单条AI数据生成用例对象")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
-    public ApiTestCaseDTO transformToDTO(@Validated @RequestBody ApiTestCaseAIRequest request) {
-        return apiTestCaseAIService.transformToDTO(request, SessionUtils.getUserId());
+    public ApiTestCaseDTO transformToDTO(@Validated @RequestBody ApiCaseAiTransformDTO request) {
+        return apiTestCaseAIService.transformToDTO(request);
     }
 
     @PostMapping("/batch/save")
     @Operation(summary = "接口管理-接口用例-批量保存AI用例")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD)
-    public ApiCaseAiResponse batchSave(@Validated @RequestBody ApiTestCaseAiAddRequest request) {
+    public ApiCaseAiResponse batchSave(@Validated @RequestBody ApiCaseAiTransformDTO request) {
         return apiTestCaseAIService.batchSave(request, SessionUtils.getUserId());
     }
 
