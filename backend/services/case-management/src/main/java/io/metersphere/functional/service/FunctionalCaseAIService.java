@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,7 +117,7 @@ public class FunctionalCaseAIService {
     /**
      * 保存用户的AI提示词
      *
-     * @param userId 用户ID
+     * @param userId    用户ID
      * @param promptDTO 包含AI模型用例生成方法提示词和生成用例的提示语
      */
     public void saveUserPrompt(String userId, FunctionalCaseAIConfigDTO promptDTO) {
@@ -149,30 +150,47 @@ public class FunctionalCaseAIService {
      * AI对话
      *
      * @param request 请求参数
-     * @param userId 用户ID
+     * @param userId  用户ID
      * @return 返回对话内容
      */
     public String chat(AIChatRequest request, String userId) {
         AiModelSourceDTO module = aiChatBaseService.getModule(request, userId);
         aiChatBaseService.saveUserConversationContent(request.getConversationId(), request.getPrompt());
+        String prompt = String.format("""
+                作为测试用例生成助手，判断：用户是否想要生成测试用例？
+                
+                用户输入：%s
+                
+                只返回单个布尔值：
+                - 是 → true
+                - 否 → false
+                - 不要返回任何其他文字或解释
+                """, request.getPrompt());
 
-        String prompt = "你是一个测试用例生成助手，请判断用户是否希望生成测试用例   用户输入是：\n" + request.getPrompt() + "\n 如果是，请返回布尔值true，否则返回false。 禁止返回对象、禁止解释说明。";
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
                 .module(module)
-                .system("你是一个语义识别引擎，负责判断是否要生成测试用例")
                 .prompt(prompt)
                 .build();
-        Boolean isGenerateCase = Boolean.parseBoolean(aiChatBaseService.chat(aiChatOption).content());
-        if (Boolean.TRUE.equals(isGenerateCase)) {
+
+        boolean isGenerateCase = Optional.ofNullable(aiChatBaseService.chat(aiChatOption).content())
+                .map(content -> StringUtils.containsIgnoreCase(content, "true"))
+                .orElse(false);
+
+        LogUtils.info("AI判断是否生成测试用例: {}", isGenerateCase);
+
+        Consumer<AIChatOption> configureTestGeneration = option -> {
             SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(generatePrompt);
             Message systemMessage = systemPromptTemplate.createMessage();
-            aiChatOption.setSystem(systemMessage.toString());
-            aiChatOption.setPrompt(buildUserPromptTpl(userId, request.getPrompt()));
-        } else {
-            aiChatOption.setSystem("接下来不是测试生成任务，请作为AI助手来回答以下问题");
-            aiChatOption.setPrompt(request.getPrompt());
-        }
+            option.setSystem(systemMessage.toString());
+            option.setPrompt(buildUserPromptTpl(userId, request.getPrompt()));
+        };
+
+        Consumer<AIChatOption> configureNormalAssistant = option -> option.setPrompt(request.getPrompt());
+
+        // 根据条件选择并执行相应的配置行为
+        (isGenerateCase ? configureTestGeneration : configureNormalAssistant).accept(aiChatOption);
+
         String content = TextCleaner.cleanMdTitle(aiChatBaseService.chatWithMemory(aiChatOption).content());
         aiChatBaseService.saveAssistantConversationContent(request.getConversationId(), content);
         return content;
@@ -180,8 +198,9 @@ public class FunctionalCaseAIService {
 
     /**
      * 构建用户提示词模板
+     *
      * @param userId 用户ID
-     * @param input 用户输入
+     * @param input  用户输入
      * @return 提示词
      */
     private String buildUserPromptTpl(String userId, String input) {

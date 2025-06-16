@@ -216,7 +216,16 @@ public class ApiTestCaseAIService {
         // 持久化原始提示词
         aiChatBaseService.saveUserConversationContent(request.getConversationId(), request.getPrompt());
 
-        String prompt = "判断我下面这段话中是否需要生成用例，是的话返回 true，不是的话返回 false？文本如下：\n" + request.getPrompt();
+        String prompt = String.format("""
+                作为接口测试用例生成助手，判断：用户是否想要生成接口测试用例？
+                
+                用户输入：%s
+                
+                只返回单个布尔值：
+                - 是 → true
+                - 否 → false
+                - 不要返回任何其他文字或解释
+                """, request.getPrompt());
 
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
@@ -224,17 +233,13 @@ public class ApiTestCaseAIService {
                 .prompt(prompt)
                 .build();
 
-        Boolean isGenerateCase = StringUtils.contains(aiChatBaseService.chat(aiChatOption).content(), "true");
+        boolean isGenerateCase = Optional.ofNullable(aiChatBaseService.chat(aiChatOption).content())
+                .map(content -> StringUtils.containsIgnoreCase(content, "true"))
+                .orElse(false);
 
-        String assistantMessage;
-        if (BooleanUtils.isTrue(isGenerateCase)) {
-            // 判断对话是否是需要生成用例
-            assistantMessage = generateApiTestCase(request, module, userId);
-        } else {
-            aiChatOption.setPrompt(request.getPrompt());
-            assistantMessage = aiChatBaseService.chatWithMemory(aiChatOption)
-                    .content();
-        }
+        String assistantMessage = isGenerateCase
+                ? generateApiTestCase(request, module, userId)  // 生成测试用例
+                : aiChatBaseService.chatWithMemory(aiChatOption.withPrompt(request.getPrompt())).content();
 
         // 持久化回答内容
         aiChatBaseService.saveAssistantConversationContent(request.getConversationId(), assistantMessage);
