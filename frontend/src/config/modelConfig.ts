@@ -127,7 +127,7 @@ export const DEEP_SEEK_REASONER: ModelAdvancedSetType[] = [
     label: 'system.config.modelConfig.maxTokens',
     value: 4000,
     enable: true,
-    minValue: 4000,
+    minValue: 1,
     maxValue: 8000,
   },
   {
@@ -188,7 +188,7 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
       label: 'system.config.modelConfig.maxTokens',
       value: 1000,
       enable: true,
-      minValue: 4000,
+      minValue: 1,
       maxValue: 8000,
     },
     {
@@ -230,7 +230,7 @@ export const defaultAdvancedSetValueMap: Record<ModelBaseTypeEnum, ModelAdvanced
       label: 'system.config.modelConfig.maxTokens',
       value: 4000,
       enable: true,
-      minValue: 4000,
+      minValue: 1,
       maxValue: 8000,
     },
   ],
