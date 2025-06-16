@@ -13,6 +13,7 @@ import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.EnumValidator;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,31 +33,71 @@ public class ApiTestCaseDTOParser {
             String line = lines[i].trim();
 
             // 用例名称
-            if (line.equals("## 用例名称")) {
+            if (line.equals("##  用例名称")) {
                 msHTTPElement.setName(lines[i + 1].trim());
                 i++; // 跳过名称行
             }
             // 请求头
-            else if (line.equals("## 请求头")) {
+            else if (line.equals("##  请求头")) {
                 i = parseHeaders(msHTTPElement, lines, i + 1);
             }
             // Query参数
-            else if (line.equals("## Query参数")) {
+            else if (line.equals("##  Query参数")) {
                 i = parseQuery(msHTTPElement, lines, i + 1);
             }
             // Rest参数
-            else if (line.equals("## Rest参数")) {
+            else if (line.equals("##  Rest参数")) {
                 i = parseRest(msHTTPElement, lines, i + 1);
             }
 
             // 请求体
-            else if (line.equals("## 请求体")) {
-                i = parseBody(msHTTPElement, lines, i);
+            else if (line.equals("##  请求体")) {
+                i = parseBody(msHTTPElement, lines, i, content);
             }
             // 断言
-            else if (line.equals("## 断言")) {
+            else if (line.equals("##  断言")) {
                 i = parseAssertions(processorConfig, lines, i);
             }
+        }
+
+        if (CollectionUtils.isEmpty(msHTTPElement.getHeaders())) {
+            msHTTPElement.setHeaders(new ArrayList<>());
+        }
+
+        if (CollectionUtils.isEmpty(msHTTPElement.getQuery())) {
+            msHTTPElement.setQuery(new ArrayList<>());
+        }
+        if (CollectionUtils.isEmpty(msHTTPElement.getRest())) {
+            msHTTPElement.setRest(new ArrayList<>());
+        }
+
+        if (msHTTPElement.getBody() == null) {
+            //null body 没有请求体反返回一个默认结构
+            Body body = new Body();
+            FormDataBody formDataBody = new FormDataBody();
+            formDataBody.setFormValues(new ArrayList<>());
+            body.setFormDataBody(formDataBody);
+
+            WWWFormBody wwwFormBody = new WWWFormBody();
+            wwwFormBody.setFormValues(new ArrayList<>());
+            body.setWwwFormBody(new WWWFormBody());
+
+            XmlBody xmlBody = new XmlBody();
+            xmlBody.setValue("");
+            body.setXmlBody(xmlBody);
+
+            JsonBody jsonBody = new JsonBody();
+            jsonBody.setJsonValue("");
+            body.setJsonBody(new JsonBody());
+
+            RawBody rawBody = new RawBody();
+            rawBody.setValue("");
+            body.setRawBody(rawBody);
+
+            BinaryBody binaryBody = new BinaryBody();
+            body.setBinaryBody(binaryBody);
+
+            msHTTPElement.setBody(body);
         }
 
         testCase.setMsHTTPElement(msHTTPElement);
@@ -74,8 +115,6 @@ public class ApiTestCaseDTOParser {
         while (i < lines.length) {
             String line = lines[i].trim();
             if (line.isEmpty()) break;
-            // 格式:
-            line = "|" + line + " |";
 
             String[] parts = line.split("\\|");
             if (parts.length >= 4) {
@@ -101,8 +140,6 @@ public class ApiTestCaseDTOParser {
         while (i < lines.length) {
             String line = lines[i].trim();
             if (line.isEmpty()) break;
-            // 格式:
-            line = "|" + line + " |";
 
             String[] parts = line.split("\\|");
             if (parts.length >= 4) {
@@ -129,9 +166,6 @@ public class ApiTestCaseDTOParser {
             String line = lines[i].trim();
             if (line.isEmpty()) break;
 
-            // 格式:
-            line = "|" + line + " |";
-
 
             String[] parts = line.split("\\|");
             if (parts.length >= 4) {
@@ -147,10 +181,10 @@ public class ApiTestCaseDTOParser {
         return i;
     }
 
-    private static int parseBody(MsHTTPElement msHTTPElement, String[] lines, int startIndex) {
+    private static int parseBody(MsHTTPElement msHTTPElement, String[] lines, int startIndex, String content) {
         // 获取请求体类型
         String typeLine = lines[startIndex + 1].trim();
-        String[] typeParts = typeLine.split("\\|");
+        String[] typeParts = typeLine.replaceAll("\\*", "").split("：");
         if (typeParts.length >= 2) {
             Body body = new Body();
             String bodyType = typeParts[1].trim();
@@ -179,7 +213,6 @@ public class ApiTestCaseDTOParser {
             String line = lines[i].trim();
             if (line.isEmpty()) break;
 
-            line = "|" + line + " |";
             // 格式:
             String[] parts = line.split("\\|");
 
@@ -207,13 +240,25 @@ public class ApiTestCaseDTOParser {
                     }
                 }
                 case XML -> {
-                    xmlBody.setValue(parts[1].trim());
+                    Pattern pattern = Pattern.compile("```xml\\s*(\\{[\\s\\S]*?})\\s*```");
+                    Matcher matcher = pattern.matcher(content);
+                    if (matcher.find()) {
+                        xmlBody.setValue(matcher.group(1));
+                    }
                 }
                 case JSON -> {
-                    jsonBody.setJsonValue(parts[1].trim());
+                    Pattern pattern = Pattern.compile("```json\\s*(\\{[\\s\\S]*?})\\s*```");
+                    Matcher matcher = pattern.matcher(content);
+                    if (matcher.find()) {
+                        jsonBody.setJsonValue(matcher.group(1));
+                    }
                 }
                 case RAW -> {
-                    rawBody.setValue(parts[1].trim());
+                    Pattern pattern = Pattern.compile("```tex\\s*(\\{[\\s\\S]*?})\\s*```");
+                    Matcher matcher = pattern.matcher(content);
+                    if (matcher.find()) {
+                        rawBody.setValue(matcher.group(1));
+                    }
                 }
                 case NONE -> {
                 }
@@ -248,6 +293,7 @@ public class ApiTestCaseDTOParser {
                 MsResponseCodeAssertion codeAssertion = new MsResponseCodeAssertion();
                 codeAssertion.setCondition(MsAssertionCondition.EQUALS.name());
                 codeAssertion.setExpectedValue(matcher.group(1) != null ? matcher.group(1) : matcher.group(2));
+                codeAssertion.setName("状态码");
                 assertions.add(codeAssertion);
             }
             i++;

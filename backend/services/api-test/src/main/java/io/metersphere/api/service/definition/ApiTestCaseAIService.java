@@ -346,6 +346,7 @@ public class ApiTestCaseAIService {
         apiTestCaseDTO.setModuleId(apiDefinition.getModuleId());
         apiTestCaseDTO.setMethod(apiDefinition.getMethod());
         apiTestCaseDTO.setNum(apiDefinition.getNum());
+        apiTestCaseDTO.setProtocol(apiDefinition.getProtocol());
         return apiTestCaseDTO;
     }
 
