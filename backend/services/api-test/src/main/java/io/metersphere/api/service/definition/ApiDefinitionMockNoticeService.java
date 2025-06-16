@@ -52,11 +52,28 @@ public class ApiDefinitionMockNoticeService {
         return mockDTO;
     }
 
+    /**
+     * 根据Mock ID获取API Mock DTO对象
+     *
+     * @param id Mock的唯一标识
+     * @return 对应的DTO对象，如果找不到相关数据则返回一个空DTO对象
+     */
     public ApiDefinitionCaseDTO getApiMockDTO(String id) {
         ApiDefinitionCaseDTO mockDTO = new ApiDefinitionCaseDTO();
+
+        // 获取Mock对象
         ApiDefinitionMock apiDefinitionMock = apiDefinitionMockMapper.selectByPrimaryKey(id);
+        if (apiDefinitionMock == null) {
+            return mockDTO;
+        }
+
+        // 获取并复制API定义信息
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
-        BeanUtils.copyBean(mockDTO, apiDefinition);
+        if (apiDefinition != null) {
+            BeanUtils.copyBean(mockDTO, apiDefinition);
+        }
+
+        // 设置Mock名称
         mockDTO.setMockName(apiDefinitionMock.getName());
         return mockDTO;
     }
