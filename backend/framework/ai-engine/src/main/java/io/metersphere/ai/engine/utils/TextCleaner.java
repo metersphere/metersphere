@@ -1,5 +1,7 @@
 package io.metersphere.ai.engine.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.HashSet;
@@ -196,7 +198,12 @@ public class TextCleaner {
             if (matcher.find()) {
                 line = matcher.replaceAll("$1 $2");
             }
-            result.append(line).append("\n");
+            // 如果行包含 featureCaseEnd，featureCaseEnd 后面去掉换行符，则不添加换行符
+            if(StringUtils.containsIgnoreCase(line, "featureCaseEnd")) {
+                result.append(line.trim());
+            }else {
+                result.append(line).append("\n");
+            }
         }
 
         return result.toString();

@@ -344,9 +344,11 @@ public class FunctionalCaseAIService {
 
             if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
                 caseCustomField.setValue(userId);
-            }
+            } else
             if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
                 caseCustomField.setValue(caseCustomField.getValue().replace("CREATE_USER", userId));
+            } else {
+                caseCustomField.setValue(v.getDefaultValue() == null ? StringUtils.EMPTY : v.getDefaultValue().toString());
             }
             customFieldMapper.insertSelective(caseCustomField);
         });
