@@ -54,8 +54,11 @@ public class SystemAIConfigService {
                 aiModelSourceDTO.getId() : IDGenerator.nextStr();
         boolean isAddOperation = StringUtils.isBlank(aiModelSourceDTO.getId());
 
+        //设置模型拥有者
+        setOwner(aiModelSourceDTO, userId);
+
         // 校验模型名称唯一性
-        if (isModelNameDuplicated(aiModelSourceDTO.getName(), id, isAddOperation)) {
+        if (isModelNameDuplicated(aiModelSourceDTO.getName(), id, isAddOperation, aiModelSourceDTO.getOwner())) {
             throw new MSException(Translator.get("system_model_name_exist"));
         }
 
@@ -82,13 +85,21 @@ public class SystemAIConfigService {
         return aiModelSource;
     }
 
+    private static void setOwner(AiModelSourceDTO aiModelSourceDTO, String userId) {
+        if (StringUtils.equalsIgnoreCase(aiModelSourceDTO.getPermissionType(), AIConfigConstants.AiPermissionType.PRIVATE.toString())) {
+            aiModelSourceDTO.setOwner(userId);
+        } else {
+            aiModelSourceDTO.setOwner(DEFAULT_OWNER);
+        }
+    }
+
     // 提取验证模型名称是否重复的逻辑
-    private boolean isModelNameDuplicated(String name, String id, boolean isAddOperation) {
+    private boolean isModelNameDuplicated(String name, String id, boolean isAddOperation, String owner) {
         var example = new AiModelSourceExample();
         if (isAddOperation) {
-            example.createCriteria().andNameEqualTo(name);
+            example.createCriteria().andNameEqualTo(name).andOwnerEqualTo(owner);
         } else {
-            example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
+            example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id).andOwnerEqualTo(owner);
         }
         return aiModelSourceMapper.countByExample(example) > 0;
     }
@@ -127,11 +138,7 @@ public class SystemAIConfigService {
         aiModelSource.setPermissionType(aiModelSourceDTO.getPermissionType());
         aiModelSource.setStatus(aiModelSourceDTO.getStatus());
         aiModelSource.setOwnerType(aiModelSourceDTO.getOwnerType());
-        if (StringUtils.equalsIgnoreCase(aiModelSourceDTO.getPermissionType(), AIConfigConstants.AiPermissionType.PRIVATE.toString())) {
-            aiModelSource.setOwner(userId);
-        } else {
-            aiModelSource.setOwner(DEFAULT_OWNER);
-        }
+        aiModelSource.setOwner(aiModelSourceDTO.getOwner());
         aiModelSource.setBaseName(aiModelSourceDTO.getBaseName());
         aiModelSource.setAppKey(aiModelSourceDTO.getAppKey());
         aiModelSource.setApiUrl(aiModelSourceDTO.getApiUrl());
