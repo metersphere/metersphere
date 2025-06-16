@@ -224,8 +224,7 @@ public class ApiTestCaseAIService {
                 .prompt(prompt)
                 .build();
 
-        Boolean isGenerateCase = aiChatBaseService.chat(aiChatOption)
-                .entity(Boolean.class);
+        Boolean isGenerateCase = StringUtils.contains(aiChatBaseService.chat(aiChatOption).content(), "true");
 
         String assistantMessage;
         if (BooleanUtils.isTrue(isGenerateCase)) {

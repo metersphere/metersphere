@@ -48,11 +48,8 @@ public class MsMessageChatMemory implements ChatMemory {
                     MessageType type = MessageType.fromValue(conversationContent.getType());
                     String content = conversationContent.getContent();
                     Message message = switch (type) {
-                        case USER -> {
-                            // 过滤，简化提示词
-                            TextCleaner.fullClean(content);
-                            yield new UserMessage(content);
-                        }
+                        // 过滤，简化提示词
+                        case USER -> new UserMessage(TextCleaner.fullClean(content));
                         case ASSISTANT -> new AssistantMessage(content);
                         case SYSTEM -> new SystemMessage(content);
                         // The content is always stored empty for ToolResponseMessages.
