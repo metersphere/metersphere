@@ -1,6 +1,12 @@
 <template>
   <div class="mb-[16px] flex justify-center">
-    <MsAiButton size="large" icon-size="18px" :text="t('ms.ai.openNewConversation')" @click="openNewConversation" />
+    <MsAiButton
+      size="large"
+      icon-size="18px"
+      :text="t('ms.ai.openNewConversation')"
+      :disabled="props.answering"
+      @click="openNewConversation"
+    />
   </div>
   <div class="flex-1 overflow-y-hidden">
     <a-list
@@ -131,23 +137,26 @@
 
   const tempInputVal = ref<string>('');
 
-  async function handleEditConfirm(item: AiChatListItem) {
-    if (!tempInputVal.value.trim()) {
-      item.isEditing = false;
-      return;
-    }
-    try {
-      await updateAiChatTitle({
-        id: item.id,
-        title: tempInputVal.value.trim(),
-      });
-      item.title = tempInputVal.value.trim();
-      tempInputVal.value = '';
-      item.isEditing = false;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
+  function handleEditConfirm(item: AiChatListItem) {
+    // setTimeout 解决中文输入法输入英文回车时英文未被填充的问题
+    setTimeout(async () => {
+      if (!tempInputVal.value.trim()) {
+        item.isEditing = false;
+        return;
+      }
+      try {
+        await updateAiChatTitle({
+          id: item.id,
+          title: tempInputVal.value.trim(),
+        });
+        item.title = tempInputVal.value.trim();
+        tempInputVal.value = '';
+        item.isEditing = false;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    });
   }
 
   function handleEditCancel(item: AiChatListItem) {

@@ -85,7 +85,9 @@
   const answering = ref<boolean>(false);
 
   function openNewConversation() {
-    conversationListRef.value?.openNewConversation();
+    if (!answering.value) {
+      conversationListRef.value?.openNewConversation();
+    }
   }
 
   function handleAddConversationSuccess() {

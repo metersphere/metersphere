@@ -75,7 +75,7 @@
                             (props.type === 'api' && item.content.includes('apiCaseStart'))
                           "
                           :value="caseItem"
-                          class="items-start"
+                          class="mt-[6px] h-[16px] items-start"
                         />
                         <Typewriter
                           :content="caseItem.replace(/featureCaseStart|featureCaseEnd|apiCaseStart|apiCaseEnd/g, '')"
@@ -140,28 +140,30 @@
         </BubbleList>
       </a-checkbox-group>
     </div>
-    <div class="flex items-center gap-[12px] py-[16px]">
-      <template v-if="props.type === 'chat'">
-        <MsAiButton
-          v-permission="['FUNCTIONAL_CASE:READ+ADD']"
-          :text="t('ms.ai.generateFeatureCase')"
-          no-icon
-          @click="jump('case')"
-        />
-        <MsAiButton
-          v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
-          :text="t('ms.ai.generateApiCase')"
-          no-icon
-          @click="jump('api')"
-        />
-      </template>
-      <a-button v-if="checkedCases.length > 0" type="outline" @click="handleSync()">
-        <template #icon>
-          <MsIcon type="icon-icon_synchronous" />
+    <div class="flex items-center justify-between gap-[12px] py-[16px]">
+      <div class="flex items-center gap-[12px]">
+        <template v-if="props.type === 'chat'">
+          <MsAiButton
+            v-permission="['FUNCTIONAL_CASE:READ+ADD']"
+            :text="t('ms.ai.generateFeatureCase')"
+            no-icon
+            @click="jump('case')"
+          />
+          <MsAiButton
+            v-permission="['PROJECT_API_DEFINITION_CASE:READ+ADD']"
+            :text="t('ms.ai.generateApiCase')"
+            no-icon
+            @click="jump('api')"
+          />
         </template>
-        {{ t('ms.ai.caseSync') }}
-      </a-button>
-      <MsAiButton :text="t('ms.ai.openNewConversation')" @click="handleOpenNewConversation" />
+        <a-button v-if="checkedCases.length > 0" type="outline" @click="handleSync()">
+          <template #icon>
+            <MsIcon type="icon-icon_synchronous" />
+          </template>
+          {{ t('ms.ai.caseSync') }}
+        </a-button>
+      </div>
+      <MsAiButton :text="t('ms.ai.openNewConversation')" :disabled="answering" @click="handleOpenNewConversation" />
     </div>
     <Sender
       ref="senderRef"
@@ -383,8 +385,10 @@
   }
 
   function handleOpenNewConversation() {
-    conversationItems.value = [];
-    emit('openNewConversation');
+    if (!answering.value) {
+      conversationItems.value = [];
+      emit('openNewConversation');
+    }
   }
 
   function handleEdit(item: AiChatContentItem) {

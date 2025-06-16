@@ -5,6 +5,7 @@
       type="outline"
       class="!border-none !bg-white"
       :class="props.size === 'large' ? 'h-[40px]' : ''"
+      :disabled="props.disabled"
       @click="emit('click')"
     >
       <template v-if="!props.noIcon" #icon>
@@ -24,6 +25,7 @@
       size?: 'large' | 'small' | 'mini' | 'medium';
       iconSize?: string | number;
       noIcon?: boolean;
+      disabled?: boolean;
     }>(),
     {
       size: 'medium',
