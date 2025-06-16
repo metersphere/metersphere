@@ -288,10 +288,11 @@
       }
     }
     // 编辑
-    if (!isCopy && record?.id) {
+    if ((!isCopy && record?.id) || aiCreate) {
       isEdit.value = true;
-      detailForm.value = cloneDeep(record as RequestParam);
-      environmentId.value = record.environmentId ?? environmentId.value;
+      detailForm.value = cloneDeep(aiCreate ? { ...record, ...record?.request } : (record as RequestParam));
+      detailForm.value.protocol = apiDetailInfo.value.protocol; // 保持协议一致
+      environmentId.value = record?.environmentId ?? environmentId.value;
       detailForm.value.isNew = false;
     }
     appStore.hideLoading();

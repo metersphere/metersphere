@@ -611,6 +611,8 @@
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log('Error initializing conversation detail:', error);
+        conversationItems.value = [];
+        checkedCases.value = [];
       } finally {
         loading.value = false;
       }

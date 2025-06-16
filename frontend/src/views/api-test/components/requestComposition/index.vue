@@ -260,7 +260,7 @@
               v-if="!props.isCase && props.isDefinition"
               v-show="requestVModel.activeTab === RequestComposition.BASE_INFO"
               ref="apiBaseFormRef"
-              v-model:requestVModel="requestVModel"
+              v-model:request-v-model="requestVModel"
               :select-tree="selectTree as ModuleTreeNode[]"
             />
             <a-spin
@@ -407,7 +407,7 @@
       </a-form-item>
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
-          v-model:modelValue="saveModalForm.moduleId"
+          v-model:model-value="saveModalForm.moduleId"
           :data="selectTree as ModuleTreeNode[]"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           :tree-props="{
@@ -737,10 +737,11 @@
       case RequestComposition.BODY:
         return requestVModel.value.body?.bodyType !== RequestBodyFormat.NONE ? '1' : '';
       case RequestComposition.QUERY:
-        const queryNum = filterKeyValParams(requestVModel.value.query, defaultRequestParamsItem).validParams.length;
+        const queryNum = filterKeyValParams(requestVModel.value.query || [], defaultRequestParamsItem).validParams
+          .length;
         return `${queryNum > 0 ? queryNum : ''}`;
       case RequestComposition.REST:
-        const restNum = filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem).validParams.length;
+        const restNum = filterKeyValParams(requestVModel.value.rest || [], defaultRequestParamsItem).validParams.length;
         return `${restNum > 0 ? restNum : ''}`;
       case RequestComposition.PRECONDITION:
         return `${

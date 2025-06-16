@@ -48,8 +48,6 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
-
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import conversation from './components/conversation.vue';
