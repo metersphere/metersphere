@@ -218,7 +218,7 @@ export default {
   'system.config.modelConfig.modelConfigSet': '模型设置',
   'system.config.modelConfig.suppliers': '供应商',
   'system.config.modelConfig.bySearchModelName': '通过模型名称搜索',
-  'system.config.modelConfig.modelCreateUser': '创作者',
+  'system.config.modelConfig.modelCreateUser': '创建者',
   'system.config.modelConfig.modelType': '模型类型',
   'system.config.modelConfig.baseModel': '基础模型',
   'system.config.modelConfig.addModel': '添加模型',
