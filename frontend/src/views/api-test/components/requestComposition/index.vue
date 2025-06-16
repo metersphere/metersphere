@@ -745,21 +745,21 @@
         return `${restNum > 0 ? restNum : ''}`;
       case RequestComposition.PRECONDITION:
         return `${
-          requestVModel.value.children[0].preProcessorConfig.processors.length > 99
+          requestVModel.value.children[0]?.preProcessorConfig.processors.length > 99
             ? '99+'
-            : requestVModel.value.children[0].preProcessorConfig.processors.length || ''
+            : requestVModel.value.children[0]?.preProcessorConfig.processors.length || ''
         }`;
       case RequestComposition.POST_CONDITION:
         return `${
-          requestVModel.value.children[0].postProcessorConfig.processors.length > 99
+          requestVModel.value.children[0]?.postProcessorConfig.processors.length > 99
             ? '99+'
-            : requestVModel.value.children[0].postProcessorConfig.processors.length || ''
+            : requestVModel.value.children[0]?.postProcessorConfig.processors.length || ''
         }`;
       case RequestComposition.ASSERTION:
         return `${
-          requestVModel.value.children[0].assertionConfig.assertions.length > 99
+          requestVModel.value.children[0]?.assertionConfig.assertions.length > 99
             ? '99+'
-            : requestVModel.value.children[0].assertionConfig.assertions.length || ''
+            : requestVModel.value.children[0]?.assertionConfig.assertions.length || ''
         }`;
       case RequestComposition.AUTH:
         return requestVModel.value.authConfig.authType !== RequestAuthType.NONE ? '1' : '';
