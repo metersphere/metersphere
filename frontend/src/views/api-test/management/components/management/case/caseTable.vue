@@ -45,14 +45,18 @@
         </div>
       </template>
       <template #num="{ record }">
-        <div class="flex items-center gap-[8px]">
+        <div class="flex min-w-0 flex-nowrap items-center gap-[8px]">
           <MsAiTag v-if="record.aiCreate" />
-          <MsButton type="text" @click="openCaseTab(record)">
-            {{ record.num }}
+          <MsButton class="!mr-0 flex-1 overflow-hidden" type="text" @click="openCaseTab(record)">
+            <a-tooltip :content="record.num.toString()" :mouse-enter-delay="300">
+              <div class="one-line-text">
+                {{ record.num }}
+              </div>
+            </a-tooltip>
           </MsButton>
           <a-tooltip v-if="record.apiChange" class="ms-tooltip-white">
             <!-- 接口参数发生变更提示 -->
-            <MsIcon type="icon-icon_warning_colorful" size="16" />
+            <MsIcon class="flex-shrink-0" type="icon-icon_warning_colorful" size="16" />
             <template #content>
               <div class="flex flex-row">
                 <span class="text-[var(--color-text-1)]">
@@ -458,7 +462,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 180,
+      width: 170,
       columnSelectorDisabled: true,
     },
     {
