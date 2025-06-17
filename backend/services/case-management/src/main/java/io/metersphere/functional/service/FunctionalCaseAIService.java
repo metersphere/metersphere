@@ -176,7 +176,7 @@ public class FunctionalCaseAIService {
                 .prompt(prompt)
                 .build();
 
-        boolean isGenerateCase = Optional.of(aiChatBaseService.chat(aiChatOption).content())
+        boolean isGenerateCase = Optional.ofNullable(aiChatBaseService.chat(aiChatOption).content())
                 .map(content -> StringUtils.containsIgnoreCase(content, "true"))
                 .orElse(false);
 
@@ -249,6 +249,11 @@ public class FunctionalCaseAIService {
             scenes.add("`异常`");
         }
         variables.put("scenes", scenes.isEmpty() ? "`正常`, `异常`" : String.join(",", scenes));
+		if (StringUtils.isNotBlank(designConfig.getScenarioMethodDescription())) {
+			variables.put("sceneTips", designConfig.getScenarioMethodDescription());
+		} else {
+			variables.put("sceneTips", "");
+		}
 
         Message systemMessage = systemPromptTemplate.createMessage(variables);
         return systemMessage.toString();
