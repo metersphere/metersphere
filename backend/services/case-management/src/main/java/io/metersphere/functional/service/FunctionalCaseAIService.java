@@ -176,7 +176,7 @@ public class FunctionalCaseAIService {
                 .prompt(prompt)
                 .build();
 
-        boolean isGenerateCase = Optional.ofNullable(aiChatBaseService.chat(aiChatOption).content())
+        boolean isGenerateCase = Optional.of(aiChatBaseService.chat(aiChatOption).content())
                 .map(content -> StringUtils.containsIgnoreCase(content, "true"))
                 .orElse(false);
 
@@ -240,7 +240,7 @@ public class FunctionalCaseAIService {
                 }
             }
         }
-        variables.put("designs", designs.size() == 0 ? "" : String.join(",", designs));
+        variables.put("designs", designs.isEmpty() ? "" : String.join(",", designs));
         List<String> scenes = new ArrayList<>();
         if (designConfig.getNormal()) {
             scenes.add("`正常`");
@@ -248,7 +248,7 @@ public class FunctionalCaseAIService {
         if (designConfig.getAbnormal()) {
             scenes.add("`异常`");
         }
-        variables.put("scenes", scenes.size() == 0 ? "`正常`, `异常`" : String.join(",", scenes));
+        variables.put("scenes", scenes.isEmpty() ? "`正常`, `异常`" : String.join(",", scenes));
 
         Message systemMessage = systemPromptTemplate.createMessage(variables);
         return systemMessage.toString();
@@ -337,10 +337,10 @@ public class FunctionalCaseAIService {
             caseCustomField.setCaseId(id);
             caseCustomField.setFieldId(v.getFieldId());
 
-            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && StringUtils.isNotBlank(caseCustomField.getValue()) && caseCustomField.getValue().contains("CREATE_USER")) {
                 caseCustomField.setValue(userId);
             } else
-            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && caseCustomField.getValue().contains("CREATE_USER")) {
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && StringUtils.isNotBlank(caseCustomField.getValue()) && caseCustomField.getValue().contains("CREATE_USER")) {
                 caseCustomField.setValue(caseCustomField.getValue().replace("CREATE_USER", userId));
             } else {
                 caseCustomField.setValue(v.getDefaultValue() == null ? StringUtils.EMPTY : v.getDefaultValue().toString());
