@@ -6,8 +6,10 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiCaseAIConfigDTO;
 import io.metersphere.api.dto.ApiCaseAIRenderConfig;
 import io.metersphere.api.dto.ApiCaseAiResponse;
-import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.request.MsCommonElement;
+import io.metersphere.api.dto.definition.ApiAiCaseDTO;
+import io.metersphere.api.dto.definition.ApiCaseAiTransformDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseAIRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.FormDataBody;
@@ -45,7 +47,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -220,9 +225,9 @@ public class ApiTestCaseAIService {
 
         String prompt = String.format("""
                 作为接口测试用例生成助手，判断：用户是否想要生成接口测试用例？
-                
+                                
                 用户输入：%s
-                
+                                
                 只返回单个布尔值：
                 - 是 → true
                 - 否 → false
@@ -311,47 +316,9 @@ public class ApiTestCaseAIService {
     }
 
     public ApiTestCaseDTO transformToDTO(ApiCaseAiTransformDTO request) {
-        ApiTestCaseAiDTO parse = ApiTestCaseDTOParser.parse(request.getPrompt());
-        ApiDefinition apiDefinition = apiTestCaseService.getApiDefinition(request.getApiDefinitionId());
-        ApiTestCaseDTO apiTestCaseDTO = caseFormat(parse, apiDefinition);
+        ApiTestCaseDTO apiTestCaseDTO = ApiTestCaseDTOParser.parse(request.getApiDefinitionId(), request.getPrompt());
         return apiTestCaseDTO;
     }
-
-    private ApiTestCaseDTO caseFormat(ApiTestCaseAiDTO entity, ApiDefinition apiDefinition) {
-        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId()));
-        entity.getMsHTTPElement().setMethod(apiDefinition.getMethod());
-        MsHTTPElement msHTTPElement = entity.getMsHTTPElement();
-        MsCommonElement msCommonElement = entity.getProcessorConfig();
-        apiDefinitionBlobOptional.ifPresent(blob -> {
-            AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
-            MsCommonElement apimsCommonElement = apiCommonService.getMsCommonElement(msTestElement);
-            Optional.ofNullable(apimsCommonElement).ifPresent(item -> {
-                msCommonElement.setPreProcessorConfig(item.getPreProcessorConfig());
-                msCommonElement.setPostProcessorConfig(item.getPostProcessorConfig());
-            });
-
-            //接口定义json_schema
-            if (msTestElement instanceof MsHTTPElement) {
-                MsHTTPElement apiMsHTTPElement = (MsHTTPElement) msTestElement;
-                if (StringUtils.equals(apiMsHTTPElement.getBody().getBodyType(), Body.BodyType.JSON.name()) && apiMsHTTPElement.getBody().getJsonBody().getEnableJsonSchema()) {
-                    msHTTPElement.getBody().getJsonBody().setJsonSchema(apiMsHTTPElement.getBody().getJsonBody().getJsonSchema());
-                }
-
-            }
-        });
-        LinkedList<AbstractMsTestElement> children = new LinkedList<>();
-        children.add(msCommonElement);
-        msHTTPElement.setChildren(children);
-        ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
-        apiTestCaseDTO.setRequest(msHTTPElement);
-        apiTestCaseDTO.setName(msHTTPElement.getName());
-        apiTestCaseDTO.setModuleId(apiDefinition.getModuleId());
-        apiTestCaseDTO.setMethod(apiDefinition.getMethod());
-        apiTestCaseDTO.setNum(apiDefinition.getNum());
-        apiTestCaseDTO.setProtocol(apiDefinition.getProtocol());
-        return apiTestCaseDTO;
-    }
-
 
     /**
      * 批量保存AI用例
@@ -365,8 +332,7 @@ public class ApiTestCaseAIService {
         ApiDefinition apiDefinition = apiTestCaseService.getApiDefinition(request.getApiDefinitionId());
         List<ApiTestCaseDTO> aiCaseList = new ArrayList<>();
         prompts.forEach(prompt -> {
-            ApiTestCaseAiDTO parse = ApiTestCaseDTOParser.parse(prompt);
-            ApiTestCaseDTO apiTestCaseDTO = caseFormat(parse, apiDefinition);
+            ApiTestCaseDTO apiTestCaseDTO = ApiTestCaseDTOParser.parse(request.getApiDefinitionId(), prompt);
             aiCaseList.add(apiTestCaseDTO);
         });
         return saveAiTestCase(aiCaseList, userId, apiDefinition);

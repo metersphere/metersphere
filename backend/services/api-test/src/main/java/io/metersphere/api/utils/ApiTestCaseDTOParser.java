@@ -1,116 +1,174 @@
 package io.metersphere.api.utils;
 
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
-import io.metersphere.api.dto.definition.ApiTestCaseAiDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.MsHeader;
 import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
+import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
+import io.metersphere.api.service.ApiCommonService;
+import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.assertion.MsAssertion;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.sdk.constants.MsAssertionCondition;
-import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.EnumValidator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class ApiTestCaseDTOParser {
 
-    public static ApiTestCaseAiDTO parse(String content) {
-        ApiTestCaseAiDTO testCase = new ApiTestCaseAiDTO();
+    public static ApiTestCaseDTO parse(String id, String content) {
+        ApiTestCaseDTO caseDTO = new ApiTestCaseDTO();
+        String[] lines = content.split("\\n");
+
         MsHTTPElement msHTTPElement = new MsHTTPElement();
         MsCommonElement processorConfig = new MsCommonElement();
-        String[] lines = content.split("\\n");
+
+        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
+        List<MsAssertion> assertions = new ArrayList<>();
+
+        //请求头
+        List<MsHeader> headers = new ArrayList<>();
+        // Query参数
+        List<QueryParam> query = new ArrayList<>();
+        // Rest参数
+        List<RestParam> restParams = new ArrayList<>();
+        // 请求体
+        Body body = new Body();
+        FormDataBody formDataBody = new FormDataBody();
+        WWWFormBody wwwFormBody = new WWWFormBody();
+        XmlBody xmlBody = new XmlBody();
+        JsonBody jsonBody = new JsonBody();
+        RawBody rawBody = new RawBody();
+        NoneBody noneBody = new NoneBody();
+
 
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
 
             // 用例名称
-            if (line.equals("##  用例名称")) {
+            Pattern namePattern = Pattern.compile("^##\\s*用例名称\\s*(.*)$", Pattern.MULTILINE);
+            Matcher nameMatcher = namePattern.matcher(line);
+            if (nameMatcher.find()) {
                 msHTTPElement.setName(lines[i + 1].trim());
                 i++; // 跳过名称行
             }
+
             // 请求头
-            else if (line.equals("##  请求头")) {
-                i = parseHeaders(msHTTPElement, lines, i + 1);
+            Pattern headersPattern = Pattern.compile("^##\\s*请求头\\s*(.*)$", Pattern.MULTILINE);
+            Matcher headersMatcher = headersPattern.matcher(line);
+            if (headersMatcher.find()) {
+                i = parseHeaders(headers, lines, i + 1);
             }
             // Query参数
-            else if (line.equals("##  Query参数")) {
-                i = parseQuery(msHTTPElement, lines, i + 1);
+            Pattern queryPattern = Pattern.compile("^##\\s*Query参数\\s*(.*)$", Pattern.MULTILINE);
+            Matcher queryMatcher = queryPattern.matcher(line);
+            if (queryMatcher.find()) {
+                i = parseQuery(query, lines, i + 1);
             }
+
             // Rest参数
-            else if (line.equals("##  Rest参数")) {
-                i = parseRest(msHTTPElement, lines, i + 1);
+            Pattern restPattern = Pattern.compile("^##\\s*Rest参数\\s*(.*)$", Pattern.MULTILINE);
+            Matcher restMatcher = restPattern.matcher(line);
+            if (restMatcher.find()) {
+                i = parseRest(restParams, lines, i + 1);
             }
 
             // 请求体
-            else if (line.equals("##  请求体")) {
-                i = parseBody(msHTTPElement, lines, i, content);
+            Pattern bodyPattern = Pattern.compile("^##\\s*请求体\\s*(.*)$", Pattern.MULTILINE);
+            Matcher bodyMatcher = bodyPattern.matcher(line);
+            if (bodyMatcher.find()) {
+                i = parseBody(body, lines, i, content, formDataBody, wwwFormBody, xmlBody, jsonBody, rawBody);
             }
+
+
             // 断言
-            else if (line.equals("##  断言")) {
-                i = parseAssertions(processorConfig, lines, i);
+            Pattern assertionsPattern = Pattern.compile("^##\\s*断言\\s*(.*)$", Pattern.MULTILINE);
+            Matcher assertionsMatcher = assertionsPattern.matcher(line);
+            if (assertionsMatcher.find()) {
+                i = parseAssertions(assertions, lines, i);
             }
         }
 
-        if (CollectionUtils.isEmpty(msHTTPElement.getHeaders())) {
-            msHTTPElement.setHeaders(new ArrayList<>());
-        }
 
-        if (CollectionUtils.isEmpty(msHTTPElement.getQuery())) {
-            msHTTPElement.setQuery(new ArrayList<>());
-        }
-        if (CollectionUtils.isEmpty(msHTTPElement.getRest())) {
-            msHTTPElement.setRest(new ArrayList<>());
-        }
+        body.setFormDataBody(formDataBody);
+        body.setWwwFormBody(wwwFormBody);
+        body.setXmlBody(xmlBody);
+        body.setJsonBody(jsonBody);
+        body.setRawBody(rawBody);
+        body.setNoneBody(noneBody);
+        msHTTPElement.setHeaders(headers);
+        msHTTPElement.setQuery(query);
+        msHTTPElement.setRest(restParams);
+        msHTTPElement.setBody(body);
 
-        if (msHTTPElement.getBody() == null) {
-            //null body 没有请求体反返回一个默认结构
-            Body body = new Body();
-            FormDataBody formDataBody = new FormDataBody();
-            formDataBody.setFormValues(new ArrayList<>());
-            body.setFormDataBody(formDataBody);
+        msAssertionConfig.setAssertions(assertions);
+        processorConfig.setAssertionConfig(msAssertionConfig);
 
-            WWWFormBody wwwFormBody = new WWWFormBody();
-            wwwFormBody.setFormValues(new ArrayList<>());
-            body.setWwwFormBody(new WWWFormBody());
+        //构建返回参数
+        buildReturnDto(caseDTO, msHTTPElement, processorConfig, id);
+        return caseDTO;
+    }
 
-            XmlBody xmlBody = new XmlBody();
-            xmlBody.setValue("");
-            body.setXmlBody(xmlBody);
+    private static void buildReturnDto(ApiTestCaseDTO caseDTO, MsHTTPElement msHTTPElement, MsCommonElement processorConfig, String id) {
+        ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+        ApiDefinitionBlobMapper apiDefinitionBlobMapper = CommonBeanFactory.getBean(ApiDefinitionBlobMapper.class);
+        ApiCommonService apiCommonService = CommonBeanFactory.getBean(ApiCommonService.class);
+        //接口定义信息
+        ApiDefinition apiDefinition = apiTestCaseService.getApiDefinition(id);
+        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId()));
 
-            JsonBody jsonBody = new JsonBody();
-            jsonBody.setJsonValue("");
-            body.setJsonBody(new JsonBody());
+        msHTTPElement.setMethod(apiDefinition.getMethod());
 
-            RawBody rawBody = new RawBody();
-            rawBody.setValue("");
-            body.setRawBody(rawBody);
+        apiDefinitionBlobOptional.ifPresent(blob -> {
+            AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
+            MsCommonElement apimsCommonElement = apiCommonService.getMsCommonElement(msTestElement);
+            Optional.ofNullable(apimsCommonElement).ifPresent(item -> {
+                processorConfig.setPreProcessorConfig(item.getPreProcessorConfig());
+                processorConfig.setPostProcessorConfig(item.getPostProcessorConfig());
+            });
 
-            BinaryBody binaryBody = new BinaryBody();
-            body.setBinaryBody(binaryBody);
+            //接口定义json_schema
+            if (msTestElement instanceof MsHTTPElement) {
+                MsHTTPElement apiMsHTTPElement = (MsHTTPElement) msTestElement;
+                if (StringUtils.equals(apiMsHTTPElement.getBody().getBodyType(), Body.BodyType.JSON.name()) && apiMsHTTPElement.getBody().getJsonBody().getEnableJsonSchema()) {
+                    msHTTPElement.getBody().getJsonBody().setJsonSchema(apiMsHTTPElement.getBody().getJsonBody().getJsonSchema());
+                }
 
-            msHTTPElement.setBody(body);
-        }
+            }
+        });
+        LinkedList<AbstractMsTestElement> children = new LinkedList<>();
+        children.add(processorConfig);
+        msHTTPElement.setChildren(children);
 
-        testCase.setMsHTTPElement(msHTTPElement);
-        testCase.setProcessorConfig(processorConfig);
-        return testCase;
+        caseDTO.setRequest(msHTTPElement);
+        caseDTO.setName(msHTTPElement.getName());
+        caseDTO.setModuleId(apiDefinition.getModuleId());
+        caseDTO.setMethod(apiDefinition.getMethod());
+        caseDTO.setNum(apiDefinition.getNum());
+        caseDTO.setProtocol(apiDefinition.getProtocol());
+        caseDTO.setAiCreate(true);
     }
 
 
-    private static int parseQuery(MsHTTPElement msHTTPElement, String[] lines, int startIndex) {
+    private static int parseQuery(List<QueryParam> query, String[] lines, int startIndex) {
         // 跳过表头行和分隔行
         int i = startIndex + 2;
-
-        List<QueryParam> query = new ArrayList<>();
 
         while (i < lines.length) {
             String line = lines[i].trim();
@@ -127,15 +185,12 @@ public class ApiTestCaseDTOParser {
             }
             i++;
         }
-        msHTTPElement.setQuery(query);
         return i;
     }
 
-    private static int parseRest(MsHTTPElement msHTTPElement, String[] lines, int startIndex) {
+    private static int parseRest(List<RestParam> restParams, String[] lines, int startIndex) {
         // 跳过表头行和分隔行
         int i = startIndex + 2;
-
-        List<RestParam> restParams = new ArrayList<>();
 
         while (i < lines.length) {
             String line = lines[i].trim();
@@ -152,16 +207,14 @@ public class ApiTestCaseDTOParser {
             }
             i++;
         }
-        msHTTPElement.setRest(restParams);
         return i;
     }
 
 
-    private static int parseHeaders(MsHTTPElement msHTTPElement, String[] lines, int startIndex) {
+    private static int parseHeaders(List<MsHeader> headers, String[] lines, int startIndex) {
         // 跳过表头行和分隔行
         int i = startIndex + 2;
 
-        List<MsHeader> headers = new ArrayList<>();
         while (i < lines.length) {
             String line = lines[i].trim();
             if (line.isEmpty()) break;
@@ -177,16 +230,19 @@ public class ApiTestCaseDTOParser {
             }
             i++;
         }
-        msHTTPElement.setHeaders(headers);
         return i;
     }
 
-    private static int parseBody(MsHTTPElement msHTTPElement, String[] lines, int startIndex, String content) {
+    private static int parseBody(Body body, String[] lines, int startIndex, String content,
+                                 FormDataBody formDataBody,
+                                 WWWFormBody wwwFormBody,
+                                 XmlBody xmlBody,
+                                 JsonBody jsonBody,
+                                 RawBody rawBody) {
         // 获取请求体类型
         String typeLine = lines[startIndex + 1].trim();
         String[] typeParts = typeLine.replaceAll("\\*", "").split("：");
         if (typeParts.length >= 2) {
-            Body body = new Body();
             String bodyType = typeParts[1].trim();
             switch (bodyType) {
                 case "form-data" -> body.setBodyType(Body.BodyType.FORM_DATA.name());
@@ -194,17 +250,10 @@ public class ApiTestCaseDTOParser {
                 case "json" -> body.setBodyType(Body.BodyType.JSON.name());
                 case "xml" -> body.setBodyType(Body.BodyType.XML.name());
                 case "raw" -> body.setBodyType(Body.BodyType.RAW.name());
-                default -> throw new MSException("请求体类型错误：" + bodyType);
+                default -> {
+                }
             }
-            msHTTPElement.setBody(body);
         }
-
-        FormDataBody formDataBody = new FormDataBody();
-        WWWFormBody wwwFormBody = new WWWFormBody();
-        XmlBody xmlBody = new XmlBody();
-        JsonBody jsonBody = new JsonBody();
-        RawBody rawBody = new RawBody();
-        NoneBody noneBody = new NoneBody();
 
         // 跳过表头行和分隔行
         int i = startIndex + 4;
@@ -217,7 +266,7 @@ public class ApiTestCaseDTOParser {
             String[] parts = line.split("\\|");
 
             //判断请求体类型 todo
-            Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, msHTTPElement.getBody().getBodyType());
+            Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, body.getBodyType());
             switch (bodyType) {
                 case FORM_DATA -> {
                     if (parts.length >= 5) {
@@ -267,26 +316,17 @@ public class ApiTestCaseDTOParser {
             }
             i++;
         }
-
-        msHTTPElement.getBody().setFormDataBody(formDataBody);
-        msHTTPElement.getBody().setWwwFormBody(wwwFormBody);
-        msHTTPElement.getBody().setXmlBody(xmlBody);
-        msHTTPElement.getBody().setJsonBody(jsonBody);
-        msHTTPElement.getBody().setRawBody(rawBody);
-        msHTTPElement.getBody().setNoneBody(noneBody);
         return i;
     }
 
-    private static int parseAssertions(MsCommonElement processorConfig, String[] lines, int startIndex) {
+    private static int parseAssertions(List<MsAssertion> assertions, String[] lines, int startIndex) {
         int i = startIndex + 1;
 
-        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
-        List<MsAssertion> assertions = msAssertionConfig.getAssertions();
 
         while (i < lines.length) {
             String line = lines[i].trim();
 
-            Pattern pattern = Pattern.compile("(?:.*?状态码[:：]\\s*(\\d{3})\\b|\\b(\\d{3})\\b)");
+            Pattern pattern = Pattern.compile("(?:.*?状态码[^\\d]*(\\d{3}))");
             Matcher matcher = pattern.matcher(line);
 
             if (matcher.find()) {
@@ -298,8 +338,6 @@ public class ApiTestCaseDTOParser {
             }
             i++;
         }
-        processorConfig.setAssertionConfig(msAssertionConfig);
         return i;
     }
-
 }
