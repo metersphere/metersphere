@@ -107,12 +107,17 @@ public class ApiTestCaseAIService {
                 .content();
 
         // 保证生成内容不包含额外内容
-        Pattern pattern = Pattern.compile("apiCaseStart(.*)apiCaseEnd", Pattern.DOTALL);
+        Pattern pattern = Pattern.compile("apiCaseStart(.*?)apiCaseEnd", Pattern.DOTALL);
         assert content != null;
         Matcher matcher = pattern.matcher(content);
 
-        if (matcher.find()) {
-            content = matcher.group(0).trim();
+        boolean found = false;
+        while (matcher.find()) {
+            if (!found) {
+                content = StringUtils.EMPTY;
+            }
+            found = true;
+            content += matcher.group(0).trim();
         }
 
         content = content.replace("\n\t", "\n");
