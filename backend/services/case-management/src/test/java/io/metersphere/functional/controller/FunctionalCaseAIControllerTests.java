@@ -234,7 +234,7 @@ public class FunctionalCaseAIControllerTests extends BaseTest {
         aiModelSource.setName(name);
         aiModelSource.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSource.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
-        aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.SYSTEM.toString());
         aiModelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
         aiModelSource.setApiUrl("https://api.siliconflow.cn");
         aiModelSource.setAppKey("sk-eaglaphcsokapygezyovozbzaypm");

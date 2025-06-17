@@ -59,7 +59,7 @@ public class SystemAIConfigService {
 
         // 校验模型名称唯一性
         if (isModelNameDuplicated(aiModelSourceDTO.getName(), id, isAddOperation, aiModelSourceDTO.getOwner())) {
-            throw new MSException(Translator.get("system_model_name_exist"));
+            throw new MSException(Translator.get("system_model_name_exist") + StringUtils.SPACE + aiModelSourceDTO.getName() + StringUtils.SPACE + Translator.get("system_model_name_exist_label"));
         }
 
         // 检查AppKey变更
@@ -97,9 +97,19 @@ public class SystemAIConfigService {
     private boolean isModelNameDuplicated(String name, String id, boolean isAddOperation, String owner) {
         var example = new AiModelSourceExample();
         if (isAddOperation) {
-            example.createCriteria().andNameEqualTo(name).andOwnerEqualTo(owner);
+            if (StringUtils.equalsIgnoreCase(owner, DEFAULT_OWNER)) {
+                example.createCriteria().andNameEqualTo(name); // 如果是系统模型，则不需要owner条件
+            } else {
+                example.createCriteria().andNameEqualTo(name).andOwnerEqualTo(owner); // 如果是个人模型，则需要owner条件
+            }
         } else {
-            example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id).andOwnerEqualTo(owner);
+            // 更新操作时，排除当前ID
+            if (StringUtils.equalsIgnoreCase(owner, DEFAULT_OWNER)) {
+                example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id); // 系统模型
+            } else {
+                // 个人模型需要owner条件
+                example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id).andOwnerEqualTo(owner);
+            }
         }
         return aiModelSourceMapper.countByExample(example) > 0;
     }

@@ -56,7 +56,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSource.setName(name);
         aiModelSource.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSource.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
-        aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSource.setOwnerType(AIConfigConstants.AiOwnerType.SYSTEM.toString());
         aiModelSource.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
         aiModelSource.setApiUrl("https://api.siliconflow.cn");
         aiModelSource.setAppKey("sk-rtgghhjkkll");
@@ -105,7 +105,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSourceDTO.setId(s);
         aiModelSourceDTO.setProviderName(AIModelType.DEEP_SEEK);
         aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
-        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.SYSTEM.toString());
         aiModelSourceDTO.setBaseName("deepseek-ai/DeepSeek-R1-Distill-Qwen-7B");
         aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
         aiModelSourceDTO.setAppKey("sk-r**** ll");
@@ -130,7 +130,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSourceDTO.setType("LLM");
         aiModelSourceDTO.setProviderName(AIModelType.ZHI_PU_AI);
         aiModelSourceDTO.setPermissionType(AIConfigConstants.AiPermissionType.PUBLIC.toString());
-        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.ORGANIZATION.toString());
+        aiModelSourceDTO.setOwnerType(AIConfigConstants.AiOwnerType.SYSTEM.toString());
         aiModelSourceDTO.setBaseName("THUDM/GLM-Z1-9B-0414");
         aiModelSourceDTO.setApiUrl("https://api.siliconflow.cn");
         aiModelSourceDTO.setAppKey("sk-eaglapmcezyovozbzaypm");
