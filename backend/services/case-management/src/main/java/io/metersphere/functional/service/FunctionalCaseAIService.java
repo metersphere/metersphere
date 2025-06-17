@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.ai.engine.utils.TextCleaner;
+import io.metersphere.functional.constants.CaseMdTitleConstants;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.domain.FunctionalCase;
@@ -65,8 +66,10 @@ public class FunctionalCaseAIService {
     @Resource
     private AiChatBaseService aiChatBaseService;
 
-    @Value("classpath:/prompts/generate.st")
-    private org.springframework.core.io.Resource generatePrompt;
+    @Value("classpath:/prompts/generate_step.st")
+    private org.springframework.core.io.Resource stepPrompt;
+    @Value("classpath:/prompts/generate_text.st")
+    private org.springframework.core.io.Resource textPrompt;
 
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
@@ -180,10 +183,8 @@ public class FunctionalCaseAIService {
         LogUtils.info("AI判断是否生成测试用例: {}", isGenerateCase);
 
         Consumer<AIChatOption> configureTestGeneration = option -> {
-            SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(generatePrompt);
-            Message systemMessage = systemPromptTemplate.createMessage();
-            option.setSystem(systemMessage.toString());
-            option.setPrompt(buildUserPromptTpl(userId, request.getPrompt()));
+            option.setSystem(renderSystemPromptTpl(userId));
+            option.setPrompt(request.getPrompt());
         };
 
         Consumer<AIChatOption> configureNormalAssistant = option -> option.setPrompt(request.getPrompt());
@@ -197,43 +198,30 @@ public class FunctionalCaseAIService {
     }
 
     /**
-     * 构建用户提示词模板
-     *
+     * 解析用户提示词模板
      * @param userId 用户ID
-     * @param input  用户输入
      * @return 提示词
      */
-    private String buildUserPromptTpl(String userId, String input) {
+    private String renderSystemPromptTpl(String userId) {
+        Map<String, Object> variables = new HashMap<>();
         FunctionalCaseAIConfigDTO userPrompt = getUserPrompt(userId);
         FunctionalCaseAITemplateConfigDTO templateConfig = userPrompt.getTemplateConfig();
-        List<String> modules = new ArrayList<>();
-        if (templateConfig != null) {
-            for (Field field : FunctionalCaseAITemplateConfigDTO.class.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Schema.class) && !StringUtils.equalsAny(field.getName(), "caseName", "caseSteps", "expectedResult")) {
-                    field.setAccessible(true);
-                    Schema annotation = field.getAnnotation(Schema.class);
-                    try {
-                        Object value = field.get(templateConfig);
-                        if (value instanceof String) {
-                            if (StringUtils.equals("STEP", value.toString())) {
-                                modules.add("步骤描述");
-                            } else if (StringUtils.equals("TEXT", value.toString())) {
-                                modules.add("文本描述");
-                                modules.add("预期结果");
-                            }
-                        }
-                        if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
-                            modules.add(annotation.description());
-                        }
-                    } catch (IllegalAccessException e) {
-                        LogUtils.error(e.getMessage());
-                    }
-                }
-            }
+        SystemPromptTemplate systemPromptTemplate;
+        if (StringUtils.equals(templateConfig.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.STEP.name())) {
+            systemPromptTemplate = new SystemPromptTemplate(stepPrompt);
         } else {
-            modules.addAll(Arrays.asList("用例名称", "前置条件", "文本描述", "预期结果", "备注"));
+            systemPromptTemplate = new SystemPromptTemplate(textPrompt);
         }
-
+        if (templateConfig.getPreCondition()) {
+            variables.put("preCondition", "### " + CaseMdTitleConstants.PRE_REQUISITE);
+        } else {
+            variables.put("preCondition", "");
+        }
+        if (templateConfig.getRemark()) {
+            variables.put("remark", "### " + CaseMdTitleConstants.DESCRIPTION);
+        } else {
+            variables.put("remark", "");
+        }
 
         FunctionalCaseAIDesignConfigDTO designConfig = userPrompt.getDesignConfig();
         List<String> designs = new ArrayList<>();
@@ -245,17 +233,26 @@ public class FunctionalCaseAIService {
                     try {
                         Object value = field.get(designConfig);
                         if (Boolean.TRUE.equals(value)) {
-                            designs.add(annotation.description());
+                            designs.add("`" + annotation.description() + "`");
                         }
                     } catch (IllegalAccessException e) {
                         LogUtils.error(e.getMessage());
                     }
                 }
             }
-        } else {
-            designs.addAll(Arrays.asList("等价类划分", "边界值分析", "决策表测试", "因果图法", "正交实验法", "场景法", "场景法描述"));
         }
-        return String.format("%s，合理运用设计方法: %s，必须包含以下模块: %s", input, String.join(", ", designs), String.join(", ", modules));
+        variables.put("designs", designs.size() == 0 ? "" : String.join(",", designs));
+        List<String> scenes = new ArrayList<>();
+        if (designConfig.getNormal()) {
+            scenes.add("`正常`");
+        }
+        if (designConfig.getAbnormal()) {
+            scenes.add("`异常`");
+        }
+        variables.put("scenes", scenes.size() == 0 ? "`正常`, `异常`" : String.join(",", scenes));
+
+        Message systemMessage = systemPromptTemplate.createMessage(variables);
+        return systemMessage.toString();
     }
 
 
@@ -310,11 +307,7 @@ public class FunctionalCaseAIService {
             if (StringUtils.equals(FunctionalCaseTypeConstants.CaseEditType.TEXT.name(), aiCase.getCaseEditType())) {
                 functionalCaseBlob.setTextDescription(StringUtils.defaultIfBlank(aiCase.getTextDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             } else {
-                if (StringUtils.isNotBlank(aiCase.getSteps())) {
-                    functionalCaseBlob.setSteps(aiCase.getSteps().getBytes(StandardCharsets.UTF_8));
-                } else {
-                    functionalCaseBlob.setSteps(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
-                }
+                functionalCaseBlob.setSteps(StringUtils.defaultIfBlank(aiCase.getSteps(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             }
             functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(aiCase.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(aiCase.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));

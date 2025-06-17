@@ -58,7 +58,7 @@ public class MdUtil {
 						caseDTO.setExpectedResult(appendHtml(caseDTO.getExpectedResult(), toHtml(node)));
 					} else if (currentSection.contains(CaseMdTitleConstants.STEP_DESCRIPTION)) {
 						List<FunctionalCaseAIStep> steps = new ArrayList<>();
-						stepNodeTableToObj(node, steps, caseDTO.getName());
+						stepNodeTableToObj(node, steps);
 						caseDTO.setSteps(JSON.toJSONString(steps));
 						caseDTO.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
 					} else if (currentSection.contains(CaseMdTitleConstants.DESCRIPTION)) {
@@ -97,9 +97,8 @@ public class MdUtil {
 	 *
 	 * @param node     Markdown节点
 	 * @param steps    用例步骤列表
-	 * @param caseName 用例名称
 	 */
-	private static void stepNodeTableToObj(Node node, List<FunctionalCaseAIStep> steps, String caseName) {
+	private static void stepNodeTableToObj(Node node, List<FunctionalCaseAIStep> steps) {
 		if (node instanceof TableBlock) {
 			for (Node tableNode : node.getChildren()) {
 				if (tableNode instanceof TableHead) {
@@ -115,15 +114,14 @@ public class MdUtil {
 									cells.add(((TableCell) cell).getText().toString().replaceAll("(?i)<br\\s*/?>", "\n"));
 								}
 							}
-							if (cells.size() < 2) {
-								throw new MSException("用例: `" + caseName + "` 生成的步骤描述表格有误，至少需要两列, 请取消勾选或重新生成后再同步!");
+							if (cells.size() >= 2) {
+								FunctionalCaseAIStep step = new FunctionalCaseAIStep();
+								step.setNum(index);
+								step.setDesc(cells.get(0));
+								step.setResult(cells.get(1));
+								steps.add(step);
+								index++;
 							}
-							FunctionalCaseAIStep step = new FunctionalCaseAIStep();
-							step.setNum(index);
-							step.setDesc(cells.get(0));
-							step.setResult(cells.get(1));
-							steps.add(step);
-							index++;
 						}
 					}
 				}
