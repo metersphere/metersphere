@@ -98,9 +98,9 @@ public class SystemAIConfigService {
         var example = new AiModelSourceExample();
         if (isAddOperation) {
             if (StringUtils.equalsIgnoreCase(owner, DEFAULT_OWNER)) {
-                example.createCriteria().andNameEqualTo(name); // 如果是系统模型，则不需要owner条件
+                example.createCriteria().andNameEqualTo(name); // 如果是系统模型，判断所有数据
             } else {
-                example.createCriteria().andNameEqualTo(name).andOwnerEqualTo(owner); // 如果是个人模型，则需要owner条件
+                example.createCriteria().andNameEqualTo(name).andOwnerIn(List.of(owner,DEFAULT_OWNER)); // 如果是个人模型，则需要判断当前用户和系统中是否有同名模型
             }
         } else {
             // 更新操作时，排除当前ID
@@ -108,7 +108,7 @@ public class SystemAIConfigService {
                 example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id); // 系统模型
             } else {
                 // 个人模型需要owner条件
-                example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id).andOwnerEqualTo(owner);
+                example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id).andOwnerIn(List.of(owner,DEFAULT_OWNER));
             }
         }
         return aiModelSourceMapper.countByExample(example) > 0;
