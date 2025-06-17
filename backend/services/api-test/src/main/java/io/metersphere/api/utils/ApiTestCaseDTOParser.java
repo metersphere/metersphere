@@ -240,20 +240,27 @@ public class ApiTestCaseDTOParser {
                                  JsonBody jsonBody,
                                  RawBody rawBody) {
         // 获取请求体类型
-        String typeLine = lines[startIndex + 1].trim();
-        String[] typeParts = typeLine.replaceAll("\\*", "").split("：");
-        if (typeParts.length >= 2) {
-            String bodyType = typeParts[1].trim();
-            switch (bodyType) {
-                case "form-data" -> body.setBodyType(Body.BodyType.FORM_DATA.name());
-                case "x-www-form-urlencoded" -> body.setBodyType(Body.BodyType.WWW_FORM.name());
-                case "json" -> body.setBodyType(Body.BodyType.JSON.name());
-                case "xml" -> body.setBodyType(Body.BodyType.XML.name());
-                case "raw" -> body.setBodyType(Body.BodyType.RAW.name());
-                default -> {
+        for (int i = startIndex+1; i < lines.length ; i++) {
+            String typeLine = lines[i].trim();
+            if ( typeLine.contains("**请求体类型")) {
+                String[] typeParts = typeLine.replaceAll("\\*", "").split("：");
+                if (typeParts.length >= 2) {
+                    String bodyType = typeParts[1].trim();
+                    switch (bodyType) {
+                        case "form-data" -> body.setBodyType(Body.BodyType.FORM_DATA.name());
+                        case "x-www-form-urlencoded" -> body.setBodyType(Body.BodyType.WWW_FORM.name());
+                        case "json" -> body.setBodyType(Body.BodyType.JSON.name());
+                        case "xml" -> body.setBodyType(Body.BodyType.XML.name());
+                        case "raw" -> body.setBodyType(Body.BodyType.RAW.name());
+                        default -> {
+                        }
+                    }
                 }
+                break;
             }
+            i++;
         }
+
 
         // 跳过表头行和分隔行
         int i = startIndex + 4;
