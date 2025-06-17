@@ -228,7 +228,16 @@ public class ApiTestCaseAIService {
         // 持久化原始提示词
         aiChatBaseService.saveUserConversationContent(request.getConversationId(), request.getPrompt());
 
-        String prompt = "判断我下面这段话中是否需要生成用例，是的话返回 true，不是的话返回 false？文本如下：\n" + request.getPrompt();
+        String prompt = String.format("""
+                判断：用户输入是否想要生成用例？
+                
+                用户输入：%s
+                
+                只返回单个布尔值：
+                - 是 → true
+                - 否 → false
+                - 不要返回任何其他文字或解释
+                """, request.getPrompt());
 
         AIChatOption aiChatOption = AIChatOption.builder()
                 .conversationId(request.getConversationId())
