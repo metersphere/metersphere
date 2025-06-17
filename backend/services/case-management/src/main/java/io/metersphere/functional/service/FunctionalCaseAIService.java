@@ -48,7 +48,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -205,11 +205,11 @@ public class FunctionalCaseAIService {
         Map<String, Object> variables = new HashMap<>();
         FunctionalCaseAIConfigDTO userPrompt = getUserPrompt(userId);
         FunctionalCaseAITemplateConfigDTO templateConfig = userPrompt.getTemplateConfig();
-        SystemPromptTemplate systemPromptTemplate;
+        PromptTemplate promptTemplate;
         if (StringUtils.equals(templateConfig.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.STEP.name())) {
-            systemPromptTemplate = new SystemPromptTemplate(stepPrompt);
+            promptTemplate = new PromptTemplate(stepPrompt);
         } else {
-            systemPromptTemplate = new SystemPromptTemplate(textPrompt);
+            promptTemplate = new PromptTemplate(textPrompt);
         }
         if (templateConfig.getPreCondition()) {
             variables.put("preCondition", "### " + CaseMdTitleConstants.PRE_REQUISITE);
@@ -255,7 +255,7 @@ public class FunctionalCaseAIService {
 			variables.put("sceneTips", "");
 		}
 
-        Message systemMessage = systemPromptTemplate.createMessage(variables);
+        Message systemMessage = promptTemplate.createMessage(variables);
         return systemMessage.toString();
     }
 

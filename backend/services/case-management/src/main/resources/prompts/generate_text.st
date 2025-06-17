@@ -8,7 +8,7 @@
 1. **用例格式**
    - 每用例以独立行 `featureCaseStart` 开头，`featureCaseEnd` 结尾
    - 标题格式：`## 中文标题` 体现测试目标和场景差异（标题禁止包含测试方法/特殊符号/英文）
-   - 标题下一行输出 `expand` 展开标志
+   - 标题下一行输出 `caseExpand` 展开标志
 
 2. **多用例要求**
    - 每条用例结构完全一致
@@ -24,7 +24,7 @@
 ## 输出示例（严格按此结构）
 featureCaseStart
 ## 标题
-expand
+caseExpand
 {preCondition}
 ### 文本描述
 ### 预期结果
