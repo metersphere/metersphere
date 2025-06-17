@@ -63,7 +63,7 @@
                       expand-icon-position="right"
                       show-expand-icon
                       :bordered="false"
-                      class="flex w-full flex-col gap-[24px]"
+                      class="flex w-full flex-col"
                     >
                       <template #expand-icon="{ active }">
                         <icon-up v-if="active" />
@@ -74,7 +74,7 @@
                           .split(/featureCaseEnd|apiCaseEnd/)
                           .filter((e) => e.trim())"
                         :key="caseItem + idx"
-                        class="flex w-full border-b border-[var(--color-text-n8)] pb-[16px]"
+                        class="case-collapse-item flex w-full border-b border-[var(--color-text-n8)] pb-[16px]"
                       >
                         <a-checkbox
                           v-if="
@@ -746,6 +746,11 @@
       background: rgb(var(--link-1));
       :deep(.typer-content) {
         background: rgb(var(--link-1));
+      }
+      .case-collapse-item {
+        &:not(:last-child) {
+          margin-bottom: 24px;
+        }
       }
       :deep(.arco-collapse-item-icon-right) {
         right: 0;
