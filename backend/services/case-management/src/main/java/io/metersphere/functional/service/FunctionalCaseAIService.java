@@ -310,7 +310,11 @@ public class FunctionalCaseAIService {
             if (StringUtils.equals(FunctionalCaseTypeConstants.CaseEditType.TEXT.name(), aiCase.getCaseEditType())) {
                 functionalCaseBlob.setTextDescription(StringUtils.defaultIfBlank(aiCase.getTextDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             } else {
-                functionalCaseBlob.setSteps(aiCase.getSteps().getBytes(StandardCharsets.UTF_8));
+                if (StringUtils.isNotBlank(aiCase.getSteps())) {
+                    functionalCaseBlob.setSteps(aiCase.getSteps().getBytes(StandardCharsets.UTF_8));
+                } else {
+                    functionalCaseBlob.setSteps(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+                }
             }
             functionalCaseBlob.setExpectedResult(StringUtils.defaultIfBlank(aiCase.getExpectedResult(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
             functionalCaseBlob.setPrerequisite(StringUtils.defaultIfBlank(aiCase.getPrerequisite(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
@@ -328,8 +332,7 @@ public class FunctionalCaseAIService {
     private Map<String, TemplateCustomFieldDTO> getStringTemplateCustomFieldDTOMap(String templateId, String projectId) {
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById(templateId, projectId, TemplateScene.FUNCTIONAL.name());
         List<TemplateCustomFieldDTO> customFields = Optional.ofNullable(templateDTO.getCustomFields()).orElse(new ArrayList<>());
-        Map<String, TemplateCustomFieldDTO> customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
-        return customFieldsMap;
+        return customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
     }
 
     private static void saveCustomField(String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap, String id, FunctionalCaseCustomFieldMapper customFieldMapper) {

@@ -193,19 +193,22 @@ public class TextCleaner {
 			return "";
 		}
         String[] lines = content.split("\\n");
-        for (String line : lines) {
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
             Matcher matcher = HEADER_PATTERN.matcher(line);
             if (matcher.find()) {
                 line = matcher.replaceAll("$1 $2");
             }
             // 如果行包含 featureCaseEnd，featureCaseEnd 后面去掉换行符，则不添加换行符
-            if(StringUtils.containsIgnoreCase(line, "featureCaseEnd")) {
+            if (StringUtils.containsIgnoreCase(line, "featureCaseEnd")) {
                 result.append(line.trim());
-            }else {
+            } else if( i == lines.length - 1) {
+                // 最后一行不添加换行符
+                result.append(line.trim());
+            } else {
                 result.append(line).append("\n");
             }
         }
-
         return result.toString();
     }
 }
