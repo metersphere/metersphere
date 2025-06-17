@@ -19,7 +19,7 @@ export interface ModelFormConfigParams {
   permissionType: ModelPermissionTypeEnum; // 模型类型（公有/私有）
   status: boolean; // 模型链接状态
   owner: string; // 模型拥有者
-  ownerType: ModelOwnerTypeTypeEnum; // 模型拥有者类型（个人/企业）
+  ownerType: ModelOwnerTypeTypeEnum; // 模型拥有者类型（个人/系统）
   baseName: string; // 基础模型名称
   appKey: string;
   apiUrl: string;

@@ -243,7 +243,7 @@
     permissionType: props.modelKey === 'personal' ? ModelPermissionTypeEnum.PRIVATE : ModelPermissionTypeEnum.PUBLIC,
     status: true,
     owner: (props.modelKey === 'personal' ? userStore?.id : '') || '',
-    ownerType: props.modelKey === 'personal' ? ModelOwnerTypeTypeEnum.PERSONAL : ModelOwnerTypeTypeEnum.ORGANIZATION,
+    ownerType: props.modelKey === 'personal' ? ModelOwnerTypeTypeEnum.PERSONAL : ModelOwnerTypeTypeEnum.SYSTEM,
     baseName: '',
     appKey: '',
     apiUrl: '',

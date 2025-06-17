@@ -16,7 +16,7 @@ export enum ModelPermissionTypeEnum {
 }
 
 export enum ModelOwnerTypeTypeEnum {
-  ORGANIZATION = 'ORGANIZATION', // 企业
+  SYSTEM = 'SYSTEM ', // 系统
   PERSONAL = 'PERSONAL', // 个人
 }
 
