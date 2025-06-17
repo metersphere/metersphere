@@ -4,8 +4,8 @@
 # 用例模板
 ```
 	apiCaseStart
-	#\# 用例名称
-	${用例名称}
+	#\# 用例名称: ${用例名称}
+	caseExpand
 
     #if($api.headers && !$api.headers.isEmpty())
 	#\# 请求头
