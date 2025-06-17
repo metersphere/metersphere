@@ -67,7 +67,7 @@ public class SystemAIConfigService {
 
         // 创建并填充模型对象
         var aiModelSource = new AiModelSource();
-        buildModelSource(aiModelSourceDTO, userId, aiModelSource, id);
+        buildModelSource(aiModelSourceDTO, userId, aiModelSource, id, isAddOperation);
 
         // 根据操作类型执行不同逻辑
         if (isAddOperation) {
@@ -140,7 +140,7 @@ public class SystemAIConfigService {
      * @param aiModelSource    模型源对象
      * @param id               模型源ID
      */
-    private void buildModelSource(AiModelSourceDTO aiModelSourceDTO, String userId, AiModelSource aiModelSource, String id) {
+    private void buildModelSource(AiModelSourceDTO aiModelSourceDTO, String userId, AiModelSource aiModelSource, String id, boolean isAddOperation) {
         aiModelSource.setId(id);
         aiModelSource.setType(aiModelSourceDTO.getType());
         aiModelSource.setName(aiModelSourceDTO.getName());
@@ -157,7 +157,13 @@ public class SystemAIConfigService {
         List<AdvSettingDTO> advSettingDTOS = getAdvSettingDTOS(advSettingDTOList);
         aiModelSource.setAdvSettings(JSON.toJSONString(advSettingDTOS));
         aiModelSource.setCreateTime(System.currentTimeMillis());
-        aiModelSource.setCreateUser(userId);
+        if (isAddOperation) {
+            aiModelSource.setCreateUser(userId);
+        } else {
+            // 更新操作时，保留原创建人
+            aiModelSource.setCreateUser(aiModelSourceDTO.getCreateUser());
+        }
+
         aiModelSource.setStatus(aiModelSourceDTO.getStatus() != null && aiModelSourceDTO.getStatus());
     }
 

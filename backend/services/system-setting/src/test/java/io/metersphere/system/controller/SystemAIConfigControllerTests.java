@@ -118,6 +118,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         list.add(advSettingDTO);
         aiModelSourceDTO.setAdvSettingDTOList(list);
         aiModelSourceDTO.setName("测试模型1");
+        aiModelSourceDTO.setCreateUser("admin");
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().isOk());
         aiModelSourceDTO.setStatus(true);
         aiModelSourceDTO.setAppKey("sk-rfghll");
@@ -139,6 +140,7 @@ public class SystemAIConfigControllerTests  extends BaseTest {
         aiModelSourceDTO.setAppKey("rrr");
         aiModelSourceDTO.setName("智谱");
         aiModelSourceDTO.setId(s);
+        aiModelSourceDTO.setCreateUser("admin");
         this.requestPost(EDIT_SOURCE, aiModelSourceDTO).andExpect(status().isOk());
         this.requestGetWithOk(DETAIL+s);
 
