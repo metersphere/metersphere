@@ -133,7 +133,7 @@
   import { getGenerateId } from '@/utils';
 
   import { AddApiCaseParams, ApiCaseDetail, ApiDefinitionDetail } from '@/models/apiTest/management';
-  import { RequestCaseStatus, RequestMethods } from '@/enums/apiEnum';
+  import { RequestCaseStatus, RequestDefinitionStatus, RequestMethods } from '@/enums/apiEnum';
 
   import { casePriorityOptions, defaultResponse } from '@/views/api-test/components/config';
   import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
@@ -282,18 +282,31 @@
       }
       detailForm.value.name = `copy_${record?.name}`;
       detailForm.value.isCopy = true;
+      detailForm.value.aiCreate = false; // 复制的用例不是 AI 创建的
       environmentId.value = record?.environmentId ?? environmentId.value;
       if (detailForm.value.name.length > 255) {
         detailForm.value.name = detailForm.value.name.slice(0, 255);
       }
     }
     // 编辑
-    if ((!isCopy && record?.id) || aiCreate) {
+    if (!isCopy && record?.id) {
       isEdit.value = true;
-      detailForm.value = cloneDeep(aiCreate ? { ...record, ...record?.request } : (record as RequestParam));
+      detailForm.value = cloneDeep(record as RequestParam);
       detailForm.value.protocol = apiDetailInfo.value.protocol; // 保持协议一致
       environmentId.value = record?.environmentId ?? environmentId.value;
       detailForm.value.isNew = false;
+    } else if (aiCreate) {
+      detailForm.value = cloneDeep({
+        ...record,
+        ...record?.request,
+        priority: 'P0',
+        status: RequestDefinitionStatus.PROCESSING,
+      });
+      detailForm.value.id = getGenerateId(); // AI 创建的用例没有 id
+      detailForm.value.protocol = apiDetailInfo.value.protocol; // 保持协议一致
+      environmentId.value = record?.environmentId ?? environmentId.value;
+      detailForm.value.isNew = true;
+      detailForm.value.aiCreate = true; // AI 创建的用例
     }
     appStore.hideLoading();
     innerVisible.value = true;

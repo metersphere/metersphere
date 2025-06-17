@@ -333,16 +333,21 @@
 
   const senderRef = ref<InstanceType<typeof Sender>>();
   const senderValue = ref('');
-  const model = ref(
-    aiStore.aiSourceNameList.find((item) => item.id === localStorage.getItem('aiChatModel'))?.id ||
-      aiStore.aiSourceNameList[0]?.id ||
-      ''
-  ); // 默认选择第一个模型
+  const model = ref(aiStore.aiSourceNameList[0]?.id || ''); // 默认选择第一个模型
   const models = computed(() =>
     aiStore.aiSourceNameList.map((item) => ({
       label: item.name,
       value: item.id,
     }))
+  );
+
+  watch(
+    () => models.value,
+    (vals) => {
+      model.value =
+        vals.find((item) => item.value === localStorage.getItem('aiChatModel'))?.value || vals[0]?.value || '';
+    },
+    { immediate: true }
   );
 
   watch(model, (newModel) => {
@@ -609,6 +614,7 @@
           placement: e.type === AiChatContentRoleTypeEnum.ASSISTANT ? 'start' : 'end',
         }));
         checkedCases.value = [];
+        editTitle.value = false;
         nextTick(() => {
           bubbleListRef.value?.scrollToBottom();
         });

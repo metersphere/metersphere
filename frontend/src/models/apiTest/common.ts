@@ -356,6 +356,7 @@ export interface ExecuteApiRequestFullParams {
   url: string;
   polymorphicName: string; // 协议多态名称
   children: ExecuteCommonChild[]; // 协议共有的子项配置
+  aiCreate?: boolean; // 是否AI创建
 }
 // 执行插件请求入参
 export interface ExecutePluginRequestParams {
