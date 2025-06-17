@@ -19,7 +19,6 @@ import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.EnumValidator;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -65,7 +64,8 @@ public class ApiTestCaseDTOParser {
             Pattern namePattern = Pattern.compile("^##\\s*用例名称\\s*(.*)$", Pattern.MULTILINE);
             Matcher nameMatcher = namePattern.matcher(line);
             if (nameMatcher.find()) {
-                msHTTPElement.setName(lines[i + 1].trim());
+                String[] split = line.split(": ");
+                msHTTPElement.setName(split[1].trim());
                 i++; // 跳过名称行
             }
 
@@ -240,9 +240,9 @@ public class ApiTestCaseDTOParser {
                                  JsonBody jsonBody,
                                  RawBody rawBody) {
         // 获取请求体类型
-        for (int i = startIndex+1; i < lines.length ; i++) {
+        for (int i = startIndex + 1; i < lines.length; i++) {
             String typeLine = lines[i].trim();
-            if ( typeLine.contains("**请求体类型")) {
+            if (typeLine.contains("**请求体类型")) {
                 String[] typeParts = typeLine.replaceAll("\\*", "").split("：");
                 if (typeParts.length >= 2) {
                     String bodyType = typeParts[1].trim();
