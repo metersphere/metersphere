@@ -110,6 +110,8 @@ public class ApiTestCaseAIService {
             content = matcher.group(0).trim();
         }
 
+        content = content.replace("\n\t", "\n");
+
         return TextCleaner.cleanMdTitle(content);
     }
 

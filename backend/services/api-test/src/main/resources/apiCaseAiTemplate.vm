@@ -3,8 +3,8 @@
 
 # 用例模板
 ```
-    apiCaseStart
-    #\# 用例名称
+	apiCaseStart
+	#\# 用例名称
 	${用例名称}
 
     #if($api.headers && !$api.headers.isEmpty())
@@ -12,7 +12,7 @@
 	| 参数名称 | 参数值 | 描述 |
 	| --- | --- | --- |
 	#foreach( $header in $api.headers )
-	| ${header.key} | ${参数值} | ${header.description} |
+	| $header.key | ${参数值} | #if($header.description) $header.description #end |
 	#end
     #end
 
@@ -21,7 +21,7 @@
 	| 参数名称 | 类型 | 参数值 | 描述 |
 	| --- | --- | --- | --- |
 	#foreach( $queryItem in $api.query )
-	| ${queryItem.key} | ${queryItem.paramType} | ${参数值} | ${queryItem.description} |
+	| $queryItem.key | $queryItem.paramType | ${参数值} | #if($queryItem.description) $queryItem.description #end |
 	#end
     #end
 
@@ -30,7 +30,7 @@
 	| 参数名称 | 类型 | 参数值 | 描述 |
 	| --- | --- | --- | --- |
 	#foreach( $restItem in $api.rest )
-	| ${restItem.key} | ${restItem.paramType} | ${参数值} | ${restItem.description} |
+	| $restItem.key | $restItem.paramType | ${参数值} | #if($restItem.description) $restItem.description #end |
 	#end
     #end
 
