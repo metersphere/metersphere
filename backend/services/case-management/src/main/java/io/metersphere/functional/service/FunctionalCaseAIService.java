@@ -183,8 +183,7 @@ public class FunctionalCaseAIService {
         LogUtils.info("AI判断是否生成测试用例: {}", isGenerateCase);
 
         Consumer<AIChatOption> configureTestGeneration = option -> {
-            option.setSystem(renderSystemPromptTpl(userId));
-            option.setPrompt(request.getPrompt());
+            option.setPrompt(request.getPrompt() + renderSystemPromptTpl(userId));
         };
 
         Consumer<AIChatOption> configureNormalAssistant = option -> option.setPrompt(request.getPrompt());

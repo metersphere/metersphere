@@ -214,10 +214,10 @@ public class FunctionalCaseService {
     private void filterCaseDetailTmpFile(FunctionalCaseAddRequest request) {
         // 非用例上传的图片文件不处理
         if (CollectionUtils.isNotEmpty(request.getCaseDetailFileIds())) {
-            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
-            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getTextDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
-            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getExpectedResult().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
-            request.getCaseDetailFileIds().removeIf(tmpFileId -> !request.getPrerequisite().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> StringUtils.isNotBlank(request.getDescription()) && !request.getDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> StringUtils.isNotBlank(request.getTextDescription()) && !request.getTextDescription().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> StringUtils.isNotBlank(request.getExpectedResult()) && !request.getExpectedResult().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
+            request.getCaseDetailFileIds().removeIf(tmpFileId -> StringUtils.isNotBlank(request.getPrerequisite()) && !request.getPrerequisite().contains("/attachment/download/file/" + request.getProjectId() + "/" + tmpFileId));
         }
     }
 
