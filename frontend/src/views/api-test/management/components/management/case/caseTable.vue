@@ -458,7 +458,7 @@
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 150,
+      width: 180,
       columnSelectorDisabled: true,
     },
     {

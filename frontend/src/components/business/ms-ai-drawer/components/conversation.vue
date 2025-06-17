@@ -58,16 +58,23 @@
                   :class="item.type === AiChatContentRoleTypeEnum.ASSISTANT ? '!rounded-none !bg-transparent' : ''"
                 >
                   <template #content>
-                    <template
-                      v-for="(caseItem, idx) in item.content.split(/featureCaseEnd|apiCaseEnd/).filter((e) => e.trim())"
-                      :key="caseItem + idx"
+                    <a-collapse
+                      v-if="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
+                      expand-icon-position="right"
+                      show-expand-icon
+                      :bordered="false"
+                      class="flex w-full flex-col gap-[24px]"
                     >
+                      <template #expand-icon="{ active }">
+                        <icon-up v-if="active" />
+                        <icon-down v-else />
+                      </template>
                       <div
-                        v-if="
-                          item.type === AiChatContentRoleTypeEnum.ASSISTANT &&
-                          (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
-                        "
-                        class="flex"
+                        v-for="(caseItem, idx) in item.content
+                          .split(/featureCaseEnd|apiCaseEnd/)
+                          .filter((e) => e.trim())"
+                        :key="caseItem + idx"
+                        class="flex w-full border-b border-[var(--color-text-n8)] pb-[16px]"
                       >
                         <a-checkbox
                           v-if="
@@ -75,19 +82,37 @@
                             (props.type === 'api' && item.content.includes('apiCaseStart'))
                           "
                           :value="caseItem"
-                          class="mt-[6px] h-[16px] items-start"
+                          class="mt-[4px] h-[16px] items-start"
                         />
-                        <Typewriter
-                          :content="caseItem.replace(/featureCaseStart|featureCaseEnd|apiCaseStart|apiCaseEnd/g, '')"
-                          :is-markdown="true"
-                        />
+                        <a-collapse-item
+                          :key="caseItem + idx"
+                          class="flex-1"
+                          :style="{
+                            background: 'transparent',
+                          }"
+                        >
+                          <template #header>
+                            <h3 class="text-[1.25em] font-semibold">
+                              {{ caseItem.split(/caseExpand/)[0].replace(/featureCaseStart|apiCaseStart|[#\s]/g, '') }}
+                            </h3>
+                          </template>
+                          <div
+                            v-if="item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart')"
+                            class="flex"
+                          >
+                            <Typewriter
+                              :content="
+                                caseItem
+                                  .split(/caseExpand/)[1]
+                                  ?.replace(/featureCaseStart|featureCaseEnd|apiCaseStart|apiCaseEnd/g, '')
+                              "
+                              :is-markdown="true"
+                            />
+                          </div>
+                        </a-collapse-item>
                       </div>
-                      <Typewriter
-                        v-else
-                        :content="item.content"
-                        :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
-                      />
-                    </template>
+                    </a-collapse>
+                    <Typewriter v-else :content="item.content" />
                   </template>
                 </Bubble>
               </div>
@@ -554,7 +579,7 @@
       loading.value = true;
       if (props.type === 'api') {
         await apiAiCaseBatchSave({
-          prompt: checkedCases.value.join(''),
+          prompt: checkedCases.value.join('apiCaseEnd'),
           chatModelId: model.value,
           conversationId: activeConversation.value?.id || '',
           organizationId: appStore.currentOrgId || '',
@@ -721,6 +746,16 @@
       background: rgb(var(--link-1));
       :deep(.typer-content) {
         background: rgb(var(--link-1));
+      }
+      :deep(.arco-collapse-item-icon-right) {
+        right: 0;
+      }
+      :deep(.arco-collapse-item-header-title) {
+        width: calc(100% - 20px);
+      }
+      :deep(.arco-collapse-item-content) {
+        margin-top: 16px;
+        padding: 0;
       }
     }
     :deep(.markdown-body) {
