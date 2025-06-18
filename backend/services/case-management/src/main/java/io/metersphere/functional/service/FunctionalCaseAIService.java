@@ -290,7 +290,7 @@ public class FunctionalCaseAIService {
             functionalCase.setTemplateId(templateId);
             functionalCase.setName(aiCase.getName());
             functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
-            functionalCase.setCaseEditType(FunctionalCaseTypeConstants.CaseEditType.STEP.name());
+            functionalCase.setCaseEditType(aiCase.getCaseEditType());
             functionalCase.setPos(pos);
             functionalCase.setTags(null);
             functionalCase.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(projectId));
