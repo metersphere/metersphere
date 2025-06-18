@@ -3,7 +3,7 @@
     <a-button
       :size="props.size"
       type="outline"
-      class="!border-none !bg-white"
+      class="!border-none !bg-[var(--color-text-fff)]"
       :class="props.size === 'large' ? 'h-[40px]' : ''"
       :disabled="props.disabled"
       @click="emit('click')"

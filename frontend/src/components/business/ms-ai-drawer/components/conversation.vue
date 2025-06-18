@@ -709,7 +709,7 @@
       padding: 0;
       width: 100%;
       max-width: 100%;
-      background: white;
+      background: var(--color-text-fff);
     }
     .el-bubble-footer {
       margin-top: 4px;
@@ -764,6 +764,7 @@
       color: var(--color-text-1);
       background: rgb(var(--link-1));
       :deep(.typer-content) {
+        color: var(--color-text-1);
         background: rgb(var(--link-1));
       }
       .case-collapse-item {
