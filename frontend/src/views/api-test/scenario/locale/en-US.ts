@@ -285,6 +285,8 @@ export default {
   'apiScenario.quoteCsv': 'Quote CSV',
   'apiScenario.replaceCsv': 'Replace CSV',
   'apiScenario.csvQuote': 'CSV quote',
+  'apiScenario.defaultEnvTip':
+    'The current environment is the default environment, and the parameters in the CSV file will not take effect',
   'apiScenario.csvNameNotNull': 'CSV name cannot be empty',
   'apiScenario.csvFileNotNull': 'CSV file cannot be empty',
   'apiScenario.export.type.simple': 'Simple',

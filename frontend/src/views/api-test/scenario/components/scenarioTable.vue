@@ -217,7 +217,7 @@
         <a-radio-group v-model:model-value="scheduleUseNewEnv" type="radio">
           <a-radio :value="false"
             >{{ t('case.execute.defaultEnv') }}
-            <a-tooltip :content="t('case.execute.defaultEnvTip')" position="top">
+            <a-tooltip :content="t('apiScenario.defaultEnvTip')" position="top">
               <icon-question-circle
                 class="text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
                 size="16"

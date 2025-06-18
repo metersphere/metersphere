@@ -279,6 +279,7 @@ export default {
   'apiScenario.quoteCsv': '引用 CSV',
   'apiScenario.replaceCsv': '替换 CSV',
   'apiScenario.csvQuote': 'CSV 引用',
+  'apiScenario.defaultEnvTip': '场景保存的环境',
   'apiScenario.csvNameNotNull': 'CSV 名称不能为空',
   'apiScenario.csvFileNotNull': 'CSV 文件不能为空',
   'apiScenario.export.type.simple': '普通导出',
