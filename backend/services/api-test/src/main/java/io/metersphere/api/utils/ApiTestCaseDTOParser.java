@@ -334,13 +334,13 @@ public class ApiTestCaseDTOParser {
         while (i < lines.length) {
             String line = lines[i].trim();
 
-            Pattern pattern = Pattern.compile("(?:.*?状态码[^\\d]*(\\d{3}))");
+            Pattern pattern = Pattern.compile(".*?(?:状态码|响应码)[^\\d]*(\\d{3})");
             Matcher matcher = pattern.matcher(line);
 
             if (matcher.find()) {
                 MsResponseCodeAssertion codeAssertion = new MsResponseCodeAssertion();
                 codeAssertion.setCondition(MsAssertionCondition.EQUALS.name());
-                codeAssertion.setExpectedValue(matcher.group(1) != null ? matcher.group(1) : matcher.group(2));
+                codeAssertion.setExpectedValue(matcher.group(1) != null ? matcher.group(1) : "");
                 codeAssertion.setName("状态码");
                 assertions.add(codeAssertion);
             }
