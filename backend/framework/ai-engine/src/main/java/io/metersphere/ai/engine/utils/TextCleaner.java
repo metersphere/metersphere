@@ -195,10 +195,7 @@ public class TextCleaner {
         String[] lines = content.split("\\n");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            Matcher matcher = HEADER_PATTERN.matcher(line);
-            if (matcher.find()) {
-                line = matcher.replaceAll("$1 $2");
-            }
+            line = formMdTitle(line);
             // 如果行包含 featureCaseEnd，featureCaseEnd 后面去掉换行符，则不添加换行符
             if (StringUtils.containsIgnoreCase(line, "featureCaseEnd")) {
                 result.append(line.trim());
@@ -210,5 +207,13 @@ public class TextCleaner {
             }
         }
         return result.toString();
+    }
+
+    public static String formMdTitle(String line) {
+        Matcher matcher = HEADER_PATTERN.matcher(line);
+        if (matcher.find()) {
+            line = matcher.replaceAll("$1 $2");
+        }
+        return line;
     }
 }

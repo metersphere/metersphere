@@ -106,11 +106,23 @@ public class ApiTestCaseAIService {
         String content = aiChatBaseService.chatWithMemory(aiChatOption)
                 .content();
 
+        return formatAiCase(content);
+    }
+
+
+    /**
+     * 格式化AI生成的用例内容
+     * @param content
+     * @return
+     */
+    public static String formatAiCase(String content) {
+        if (StringUtils.isBlank(content)) {
+            return content;
+        }
         // 保证生成内容不包含额外内容
         Pattern pattern = Pattern.compile("apiCaseStart(.*?)apiCaseEnd", Pattern.DOTALL);
         assert content != null;
         Matcher matcher = pattern.matcher(content);
-
         boolean found = false;
         while (matcher.find()) {
             if (!found) {
@@ -120,9 +132,19 @@ public class ApiTestCaseAIService {
             content += matcher.group(0).trim();
         }
 
-        content = content.replace("\n\t", "\n");
-
-        return TextCleaner.cleanMdTitle(content);
+        StringBuilder result = new StringBuilder();
+        String[] lines = content.split("\\n");
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i].trim();
+            // 处理标题格式
+            line = TextCleaner.formMdTitle(line);
+            result.append(line);
+            // 最后一行不添加换行符
+            if(i != lines.length - 1) {
+                result.append("\n");
+            }
+        }
+        return result.toString();
     }
 
     private ApiCaseAIRenderConfig getApiCaseAIRenderConfig(String userId) {
