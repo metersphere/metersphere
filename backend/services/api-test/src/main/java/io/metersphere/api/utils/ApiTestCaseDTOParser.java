@@ -276,7 +276,7 @@ public class ApiTestCaseDTOParser {
             Body.BodyType bodyType = EnumValidator.validateEnum(Body.BodyType.class, body.getBodyType());
             switch (bodyType) {
                 case FORM_DATA -> {
-                    if (parts.length >= 5) {
+                    if (parts.length >= 6) {
                         FormDataKV formDataKV = new FormDataKV();
                         formDataKV.setKey(parts[1].trim());
                         formDataKV.setParamType(parts[2].trim());
