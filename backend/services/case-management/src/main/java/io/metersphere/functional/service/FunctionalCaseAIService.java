@@ -342,11 +342,11 @@ public class FunctionalCaseAIService {
             caseCustomField.setCaseId(id);
             caseCustomField.setFieldId(v.getFieldId());
 
-            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && StringUtils.isNotBlank(caseCustomField.getValue()) && caseCustomField.getValue().contains("CREATE_USER")) {
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MEMBER.name()) && v.getDefaultValue()!=null && v.getDefaultValue().toString().contains("CREATE_USER")) {
                 caseCustomField.setValue(userId);
             } else
-            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && StringUtils.isNotBlank(caseCustomField.getValue()) && caseCustomField.getValue().contains("CREATE_USER")) {
-                caseCustomField.setValue(caseCustomField.getValue().replace("CREATE_USER", userId));
+            if (StringUtils.equalsIgnoreCase(v.getType(), CustomFieldType.MULTIPLE_MEMBER.name()) && v.getDefaultValue()!=null && v.getDefaultValue().toString().contains("CREATE_USER")) {
+                caseCustomField.setValue(JSON.toJSONString(List.of(userId)));
             } else {
                 caseCustomField.setValue(v.getDefaultValue() == null ? StringUtils.EMPTY : v.getDefaultValue().toString());
             }
