@@ -37,7 +37,7 @@
     #if($body)
 	#\# 请求体
     #if($fromDataBody)
-	**请求体类型： from-data**
+	**请求体类型： form-data**
 	| 参数名称 | 类型 | 参数值 | Content-Type | 描述 |
 	| --- | --- | --- | --- | --- |
 	#foreach( $formValue in $api.body.formDataBody.formValues )

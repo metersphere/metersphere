@@ -61,11 +61,10 @@ public class ApiTestCaseDTOParser {
             String line = lines[i].trim();
 
             // 用例名称
-            Pattern namePattern = Pattern.compile("^##\\s*用例名称\\s*(.*)$", Pattern.MULTILINE);
+            Pattern namePattern = Pattern.compile("##\\s*用例名称\\s*[：:]\\s*(.+)");
             Matcher nameMatcher = namePattern.matcher(line);
             if (nameMatcher.find()) {
-                String[] split = line.split(": ");
-                msHTTPElement.setName(split[1].trim());
+                msHTTPElement.setName(nameMatcher.group(1).trim());
                 i++; // 跳过名称行
             }
 
@@ -243,9 +242,10 @@ public class ApiTestCaseDTOParser {
         for (int i = startIndex + 1; i < lines.length; i++) {
             String typeLine = lines[i].trim();
             if (typeLine.contains("**请求体类型")) {
-                String[] typeParts = typeLine.replaceAll("\\*", "").split("：");
-                if (typeParts.length >= 2) {
-                    String bodyType = typeParts[1].trim();
+                Pattern pattern = Pattern.compile("\\*\\*请求体类型\\s*[：:]\\s*(.*?)\\s*\\*\\*");
+                Matcher matcher = pattern.matcher(typeLine);
+                if (matcher.find()) {
+                    String bodyType = matcher.group(1).trim();
                     switch (bodyType) {
                         case "form-data" -> body.setBodyType(Body.BodyType.FORM_DATA.name());
                         case "x-www-form-urlencoded" -> body.setBodyType(Body.BodyType.WWW_FORM.name());
@@ -281,7 +281,8 @@ public class ApiTestCaseDTOParser {
                         formDataKV.setKey(parts[1].trim());
                         formDataKV.setParamType(parts[2].trim());
                         formDataKV.setValue(parts[3].trim());
-                        formDataKV.setDescription(parts[4].trim());
+                        formDataKV.setContentType(parts[4].trim());
+                        formDataKV.setDescription(parts[5].trim());
                         formDataBody.getFormValues().add(formDataKV);
                     }
                 }
