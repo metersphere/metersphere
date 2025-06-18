@@ -121,7 +121,12 @@ import {
   UploadTempMockFileUrl,
 } from '@/api/requrls/api-test/management';
 
-import type { ApiAiChatConfig, ApiAiChatParams, ApiCaseAiBatchSaveParams } from '@/models/ai';
+import type {
+  ApiAiChatConfig,
+  ApiAiChatParams,
+  ApiCaseAiBatchSaveParams,
+  ApiCaseAiBatchSaveResponse,
+} from '@/models/ai';
 import { ApiCaseReportDetail, ExecuteRequestParams, PluginConfig } from '@/models/apiTest/common';
 import {
   AddApiCaseParams,
@@ -779,5 +784,5 @@ export function apiAiTransform(data: ApiAiChatParams) {
 
 // 接口用例AI批量保存
 export function apiAiCaseBatchSave(data: ApiCaseAiBatchSaveParams) {
-  return MSR.post({ url: ApiAiCaseBatchSaveUrl, data });
+  return MSR.post<ApiCaseAiBatchSaveResponse>({ url: ApiAiCaseBatchSaveUrl, data });
 }

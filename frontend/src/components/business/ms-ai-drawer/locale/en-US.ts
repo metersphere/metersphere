@@ -49,4 +49,6 @@ export default {
     'Currently answering, closing the conversation will stop the answer. Are you sure you want to close and terminate the answer?',
   'ms.ai.answeringNotAllowedDelete':
     'Currently answering, deletion of the conversation is not allowed. Please wait for the answer to complete before deleting',
+  'ms.ai.errorSyncTip':
+    'Synchronization complete, {successCount} succeeded, {errorCount} failed;Error details: {errorDetail}',
 };

@@ -108,3 +108,9 @@ export interface ApiAiChatParams {
 export interface ApiCaseAiBatchSaveParams extends ApiAiChatParams {
   projectId: string | number; // 项目 ID
 }
+
+export interface ApiCaseAiBatchSaveResponse {
+  errorCount: number; // 错误数量
+  successCount: number; // 成功数量
+  errorDetail: string; // 错误详情
+}

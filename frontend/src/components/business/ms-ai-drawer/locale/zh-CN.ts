@@ -46,4 +46,5 @@ export default {
   'ms.ai.answeringNotAllowedChange': '当前正在回答中，无法切换对话，请等待回答完成后再切换',
   'ms.ai.answeringCloseTip': '当前正在回答中，关闭对话将会停止回答，确认要关闭并终止回答吗？',
   'ms.ai.answeringNotAllowedDelete': '当前正在回答中，无法删除对话，请等待回答完成后再删除',
+  'ms.ai.errorSyncTip': '同步完成，成功{successCount}条，失败{errorCount}条；错误详情：{errorDetail}',
 };

@@ -59,7 +59,11 @@
                 >
                   <template #content>
                     <a-collapse
-                      v-if="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
+                      v-if="
+                        item.type === AiChatContentRoleTypeEnum.ASSISTANT &&
+                        (item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart'))
+                      "
+                      :default-active-key="[item.id]"
                       expand-icon-position="right"
                       show-expand-icon
                       :bordered="false"
@@ -85,7 +89,11 @@
                           class="mt-[4px] h-[16px] items-start"
                         />
                         <a-collapse-item
-                          :key="caseItem + idx"
+                          :key="
+                            item.content.split(/featureCaseEnd|apiCaseEnd/).filter((e) => e.trim()).length > 1
+                              ? caseItem + idx
+                              : item.id
+                          "
                           class="flex-1"
                           :style="{
                             background: 'transparent',
@@ -96,10 +104,7 @@
                               {{ caseItem.split(/caseExpand/)[0].replace(/featureCaseStart|apiCaseStart|[#\s]/g, '') }}
                             </h3>
                           </template>
-                          <div
-                            v-if="item.content.includes('featureCaseStart') || item.content.includes('apiCaseStart')"
-                            class="flex"
-                          >
+                          <div class="flex">
                             <Typewriter
                               :content="
                                 caseItem
@@ -112,7 +117,11 @@
                         </a-collapse-item>
                       </div>
                     </a-collapse>
-                    <Typewriter v-else :content="item.content" />
+                    <Typewriter
+                      v-else
+                      :content="item.content"
+                      :is-markdown="item.type === AiChatContentRoleTypeEnum.ASSISTANT"
+                    />
                   </template>
                 </Bubble>
               </div>
@@ -578,7 +587,7 @@
     try {
       loading.value = true;
       if (props.type === 'api') {
-        await apiAiCaseBatchSave({
+        const res = await apiAiCaseBatchSave({
           prompt: checkedCases.value.join('apiCaseEnd'),
           chatModelId: model.value,
           conversationId: activeConversation.value?.id || '',
@@ -586,7 +595,17 @@
           apiDefinitionId: props.apiDefinitionId || '',
           projectId: appStore.currentProjectId || '',
         });
-        Message.success(t('ms.ai.caseSyncSuccess'));
+        if (res.errorCount > 0) {
+          Message.success(
+            t('ms.ai.errorSyncTip', {
+              successCount: res.successCount,
+              errorCount: res.errorCount,
+              errorDetail: res.errorDetail,
+            })
+          );
+        } else {
+          Message.success(t('ms.ai.caseSyncSuccess'));
+        }
         checkedCases.value = [];
       } else if (props.type === 'case') {
         caseModuleSelectModalVisible.value = true;
