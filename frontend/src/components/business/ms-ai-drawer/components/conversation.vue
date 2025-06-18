@@ -94,7 +94,7 @@
                               ? caseItem + idx
                               : item.id
                           "
-                          class="flex-1"
+                          class="flex-1 overflow-hidden"
                           :style="{
                             background: 'transparent',
                           }"
