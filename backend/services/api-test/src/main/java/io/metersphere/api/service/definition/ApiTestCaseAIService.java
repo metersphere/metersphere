@@ -197,7 +197,7 @@ public class ApiTestCaseAIService {
                     if (formDataBody != null && CollectionUtils.isNotEmpty(formDataBody.getFormValues())) {
                         formDataBody.setFormValues(filterEnableAndValidKVs(formDataBody.getFormValues()));
                         if (CollectionUtils.isNotEmpty(formDataBody.getFormValues())) {
-                            renderConfig.setFromDataBody(true);
+                            renderConfig.setFormDataBody(true);
                         } else {
                             renderConfig.setBody(false);
                         }

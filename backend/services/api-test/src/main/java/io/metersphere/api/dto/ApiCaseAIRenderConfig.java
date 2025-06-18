@@ -8,7 +8,7 @@ import lombok.Data;
 public class ApiCaseAIRenderConfig extends AIRenderConfig {
     private Boolean body = true;
     private Boolean wwwFormBody = false;
-    private Boolean fromDataBody = false;
+    private Boolean formDataBody = false;
     private Boolean jsonBody = false;
     private Boolean xmlBody = false;
     private Boolean rawBody = false;
