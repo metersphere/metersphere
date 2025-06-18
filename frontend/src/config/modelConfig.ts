@@ -144,7 +144,7 @@ export const DEEP_SEEK_CHAT: ModelAdvancedSetType[] = [
   {
     name: 'frequencyPenalty',
     label: 'system.config.modelConfig.frequencyPenalty',
-    value: 0.75,
+    value: 0,
     enable: true,
     minValue: -2.0,
     maxValue: 2.0,
