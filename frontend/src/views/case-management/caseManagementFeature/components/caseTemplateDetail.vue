@@ -355,7 +355,26 @@
     reviewStatus: 'UN_REVIEWED',
   };
 
-  const form = ref<DetailCase | CreateOrUpdateCase>({ ...cloneDeep(initForm), ...cloneDeep(props.defaultCaseInfo) });
+  function getStepData(steps: string) {
+    stepData.value = JSON.parse(steps).map((item: any) => {
+      return {
+        id: item.id,
+        step: item.desc,
+        expected: item.result,
+      };
+    });
+  }
+
+  function initDefaultCaseInfo() {
+    if (props?.defaultCaseInfo?.steps) {
+      getStepData(props.defaultCaseInfo.steps);
+    }
+    return {
+      ...cloneDeep(props.defaultCaseInfo),
+    };
+  }
+
+  const form = ref<DetailCase | CreateOrUpdateCase>({ ...cloneDeep(initForm), ...initDefaultCaseInfo() });
 
   watch(
     () => stepData.value,
@@ -384,16 +403,6 @@
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref<any>(null);
-
-  function getStepData(steps: string) {
-    stepData.value = JSON.parse(steps).map((item: any) => {
-      return {
-        id: item.id,
-        step: item.desc,
-        expected: item.result,
-      };
-    });
-  }
 
   // 回显模板默认表单值
   function setSystemDefault(systemFields: CustomField[]) {
