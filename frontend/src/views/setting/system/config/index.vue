@@ -82,7 +82,7 @@
   async function getXpackTab() {
     await licenseStore.getValidateLicense();
     if (!licenseStore.hasLicense()) {
-      const excludes = ['baseConfig', 'memoryCleanup'];
+      const excludes = ['baseConfig', 'memoryCleanup', 'modelConfig'];
       tabList.value = tabList.value.filter((item: any) => excludes.includes(item.key));
     }
   }
