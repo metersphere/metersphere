@@ -55,6 +55,7 @@ public class ApiTestCaseDTOParser {
         JsonBody jsonBody = new JsonBody();
         RawBody rawBody = new RawBody();
         NoneBody noneBody = new NoneBody();
+        BinaryBody binaryBody = new BinaryBody();
 
 
         for (int i = 0; i < lines.length; i++) {
@@ -111,6 +112,7 @@ public class ApiTestCaseDTOParser {
         body.setJsonBody(jsonBody);
         body.setRawBody(rawBody);
         body.setNoneBody(noneBody);
+        body.setBinaryBody(binaryBody);
         msHTTPElement.setHeaders(headers);
         msHTTPElement.setQuery(query);
         msHTTPElement.setRest(restParams);
