@@ -249,8 +249,14 @@ public class ApiTestCaseDTOParser {
                 if (matcher.find()) {
                     String bodyType = matcher.group(1).trim();
                     switch (bodyType) {
-                        case "form-data" -> body.setBodyType(Body.BodyType.FORM_DATA.name());
-                        case "x-www-form-urlencoded" -> body.setBodyType(Body.BodyType.WWW_FORM.name());
+                        case "form-data" -> {
+                            body.setBodyType(Body.BodyType.FORM_DATA.name());
+                            startIndex = i + 3;
+                        }
+                        case "x-www-form-urlencoded" -> {
+                            body.setBodyType(Body.BodyType.WWW_FORM.name());
+                            startIndex = i + 3;
+                        }
                         case "json" -> body.setBodyType(Body.BodyType.JSON.name());
                         case "xml" -> body.setBodyType(Body.BodyType.XML.name());
                         case "raw" -> body.setBodyType(Body.BodyType.RAW.name());
@@ -260,12 +266,11 @@ public class ApiTestCaseDTOParser {
                 }
                 break;
             }
-            i++;
         }
 
 
         // 跳过表头行和分隔行
-        int i = startIndex + 4;
+        int i = startIndex;
 
         while (i < lines.length) {
             String line = lines[i].trim();
@@ -299,7 +304,7 @@ public class ApiTestCaseDTOParser {
                     }
                 }
                 case XML -> {
-                    Pattern pattern = Pattern.compile("```xml\\s*(\\{[\\s\\S]*?})\\s*```");
+                    Pattern pattern = Pattern.compile("```xml\\s*([\\s\\S]*?)\\s*```");
                     Matcher matcher = pattern.matcher(content);
                     if (matcher.find()) {
                         xmlBody.setValue(matcher.group(1));
@@ -313,7 +318,7 @@ public class ApiTestCaseDTOParser {
                     }
                 }
                 case RAW -> {
-                    Pattern pattern = Pattern.compile("```tex\\s*(\\{[\\s\\S]*?})\\s*```");
+                    Pattern pattern = Pattern.compile("```tex\\s*([\\s\\S]*?)\\s*```");
                     Matcher matcher = pattern.matcher(content);
                     if (matcher.find()) {
                         rawBody.setValue(matcher.group(1));
