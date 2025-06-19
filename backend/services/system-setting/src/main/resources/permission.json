@@ -179,13 +179,11 @@
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AI_MODEL:READ",
-            "name": "permission.system_parameter_setting_ai_model.read",
-            "license": true
+            "name": "permission.system_parameter_setting_ai_model.read"
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AI_MODEL:READ+UPDATE",
-            "name": "permission.system_parameter_setting_ai_model.update",
-            "license": true
+            "name": "permission.system_parameter_setting_ai_model.update"
           }
         ]
       },
