@@ -1,8 +1,6 @@
 package io.metersphere.system.service;
 
 import io.metersphere.ai.engine.common.AIModelParamType;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -363,13 +361,8 @@ public class SystemAIConfigService {
     }
 
     public List<OptionDTO> getModelSourceNameList(String userId) {
-        boolean userHasSystemPermission = permissionCheckService.userHasSourcePermission(userId, DEFAULT_OWNER, PermissionConstants.SYSTEM_PARAMETER_SETTING_AI_MODEL_READ, UserRoleType.SYSTEM.name());
         // 如果用户有系统级权限，则获取所有模型名称列表
-        if (userHasSystemPermission) {
-            return extAiModelSourceMapper.enableSourceNameList(userId);
-        } else {
-            return extAiModelSourceMapper.enablePersonalSourceNameList(userId);
-        }
+        return extAiModelSourceMapper.enableSourceNameList(userId);
     }
 
     /**
