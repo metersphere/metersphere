@@ -6,6 +6,11 @@ on:
       - "backend/**"
       - "pom.xml"
 
+# If two events are triggered within a short time in the same PR, cancel the run of the oldest event
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 name: MeterSphere 覆盖率统计
 
 permissions:
