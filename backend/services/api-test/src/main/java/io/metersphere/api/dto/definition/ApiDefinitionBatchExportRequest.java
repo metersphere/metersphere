@@ -7,11 +7,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author lan
@@ -37,17 +39,39 @@ public class ApiDefinitionBatchExportRequest extends ApiDefinitionBatchRequest i
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
 
     public String getSortString() {
-        if (sort == null || sort.isEmpty()) {
+        if (MapUtils.isEmpty(sort)) {
             return null;
         }
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : sort.entrySet()) {
-            String column = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entry.getKey());
-            sb.append(column)
-                    .append(StringUtils.SPACE)
-                    .append(StringUtils.equalsIgnoreCase(entry.getValue(), "DESC") ? "DESC" : "ASC")
-                    .append(",");
+
+        String orderStr = sort.entrySet().stream()
+                .map(entry -> {
+                    String column = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entry.getKey());
+                    String direction = StringUtils.equalsIgnoreCase(entry.getValue(), "DESC") ? "DESC" : "ASC";
+                    return column + StringUtils.SPACE + direction;
+                })
+                .collect(Collectors.joining(","));
+
+        if (checkSqlInjection(orderStr)) {
+            throw new IllegalArgumentException("排序字段存在SQL注入风险");
         }
-        return sb.substring(0, sb.length() - 1);
+
+        return orderStr;
     }
+
+    /**
+     * 返回 true 表示存在 SQL 注入风险
+     */
+    public static boolean checkSqlInjection(String script) {
+        if (StringUtils.isEmpty(script)) {
+            return false;
+        }
+
+        // 检测危险SQL模式
+        java.util.regex.Pattern dangerousPattern = java.util.regex.Pattern.compile(
+                "(;|--|#|'|\"|/\\*|\\*/|\\b(select|insert|update|delete|drop|alter|truncate|exec|union|xp_)\\b)",
+                java.util.regex.Pattern.CASE_INSENSITIVE);
+
+        return dangerousPattern.matcher(script).find();
+    }
+
 }
