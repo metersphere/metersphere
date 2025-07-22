@@ -55,15 +55,12 @@
               {{ $t('commons.login') }}
             </el-button>
           </div>
-          <el-divider v-xpack  v-if="orgOptions.length > 0"  class="login-divider"><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider>
-          <div
-            v-xpack
-              v-if="orgOptions.length > 0"
-              class="loginType"
-              @click="switchLoginType('QR_CODE')"
+          <el-divider v-xpack v-if="orgOptions.length > 0" class="login-divider"
+            ><span style="color: #959598; font-size: 12px">更多登录方式</span></el-divider
           >
-            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon"/>
-            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon"/>
+          <div v-xpack v-if="orgOptions.length > 0" class="loginType" @click="switchLoginType('QR_CODE')">
+            <svg-icon v-if="!showQrCodeTab" icon-class="icon_scan_code" class-name="ms-icon" />
+            <svg-icon v-if="showQrCodeTab" icon-class="icon_people" class-name="ms-icon" />
           </div>
           <div class="msg">
             {{ msg }}
@@ -83,9 +80,9 @@
 </template>
 
 <script>
-import {getCurrentUserId, publicKeyEncrypt} from '../../utils/token';
-import {DEFAULT_LANGUAGE, PRIMARY_COLOR, UPLOAD_LIMIT} from '../../utils/constants';
-import {hasLicense, hasPermissions, saveLicense} from '../../utils/permission';
+import { getCurrentUserId, publicKeyEncrypt } from '../../utils/token';
+import { DEFAULT_LANGUAGE, PRIMARY_COLOR, UPLOAD_LIMIT } from '../../utils/constants';
+import { hasLicense, hasPermissions, saveLicense } from '../../utils/permission';
 import {
   checkLdapOpen,
   getAuthSource,
@@ -93,16 +90,16 @@ import {
   getDisplayInfo,
   getLanguage,
   getSystemTheme,
-  saveBaseUrl
-} from "../../api/user";
-import {useUserStore} from "@/store"
-import {operationConfirm} from "../../utils";
-import {getModuleList} from "../../api/module";
-import {getLicense} from "../../api/license";
-import {setLanguage} from "../../i18n";
-import {getPlatformParamUrl} from "../../api/qrcode";
-import tabQrCode from "../login/tabQrCode.vue";
-import {getSystemBaseSetting} from "../../api/system";
+  saveBaseUrl,
+} from '../../api/user';
+import { useUserStore } from '@/store';
+import { operationConfirm } from '../../utils';
+import { getModuleList } from '../../api/module';
+import { getLicense } from '../../api/license';
+import { setLanguage } from '../../i18n';
+import { getPlatformParamUrl } from '../../api/qrcode';
+import tabQrCode from '../login/tabQrCode.vue';
+import { getSystemBaseSetting } from '../../api/system';
 
 const checkLicense = () => {
   return getLicense()
@@ -193,8 +190,8 @@ export default {
         }
 
         if (response.data && response.data[6] && response.data[6].paramValue) {
-          this.sysTitle = response.data[6].paramValue || "MeterSphere";
-          localStorage.setItem("default-sys-title", this.sysTitle);
+          this.sysTitle = response.data[6].paramValue || 'MeterSphere';
+          localStorage.setItem('default-sys-title', this.sysTitle);
         }
 
         let title = response.data[4].paramValue;
@@ -209,6 +206,7 @@ export default {
       .then((res) => {
         this.preheat = true;
         this.getLanguage(res.data.language);
+        this.setMaxUploadSize();
         window.location.href = '/';
       })
       .catch((data) => {
