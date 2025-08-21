@@ -93,7 +93,7 @@ MeterSphere 产品版本分为社区版和企业版，详情请参见：[MeterSp
 - [TAPD](https://www.tapd.cn/) 需求和缺陷同步插件：通过调用 TAPD 企业版本提供的 API 接口（[TAPD 企业版（API）申请](https://jsj.top/f/Lpk1sh)），将 MeterSphere 的测试用例和 TAPD 需求项进行关联，以及将 MeterSphere 和 TAPD 两个应用的缺陷进行双向同步。
 - 禅道需求和缺陷同步插件：将 MeterSphere 的测试用例和禅道需求项进行关联，以及将 MeterSphere 和禅道两个应用的缺陷进行双向同步。
 - JIRA 需求和缺陷同步插件：将 MeterSphere 的测试用例和 JIRA 需求项进行关联，以及将 MeterSphere 和 JIRA 两个应用的缺陷进行双向同步。
-- [Jenkins](https://www.jenkins.io/) 持续集成插件：实现在 Jenkins 流水线中触发并自动执行 MeteSphere 测试计划。
+- [Jenkins](https://www.jenkins.io/) 持续集成插件：实现在 Jenkins 流水线中触发并自动执行 MeterSphere 测试计划。
 - 自定义数据库驱动：支持对 达梦、Oracle、SQLite、Microsoft SQL Server 等数据库的连接和数据访问。
 - 接口协议插件：实现接口测试中对 TCP、Dubbo、MQTT 等协议的支持。
 - IDE 插件：[MeterSphere APl Debugger 插件](https://github.com/metersphere/metersphere-idea-plugin/) 是 MeterSphere 提供的 InteliJ IDEA 插件，它可以快速提取 API 特征，实时进行 API 调试并生成 API 文档，一键同步到 MeterSphere 进行管理。
