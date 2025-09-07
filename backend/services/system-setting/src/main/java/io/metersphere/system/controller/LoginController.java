@@ -56,10 +56,15 @@ public class LoginController {
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
             SessionUtils.putUser(sessionUser);
             // 用户只有工作空间权限, 或者项目已被禁用
-            Project lastProject = projectMapper.selectByPrimaryKey(sessionUser.getLastProjectId());
+            Project lastProject = null;
+            if (StringUtils.isNotEmpty(sessionUser.getLastProjectId())) {
+                lastProject = projectMapper.selectByPrimaryKey(sessionUser.getLastProjectId());
+
+            }
             if (StringUtils.isBlank(sessionUser.getLastProjectId()) || lastProject == null || !lastProject.getEnable()) {
                 sessionUser.setLastProjectId("no_such_project");
             }
+
             return ResultHolder.success(sessionUser);
         }
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
