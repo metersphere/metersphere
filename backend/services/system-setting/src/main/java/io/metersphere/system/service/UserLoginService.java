@@ -133,13 +133,11 @@ public class UserLoginService {
             return;
         }
         // 用户有 last_project_id 权限
-        if (hasLastProjectPermission(user)) {
-            return;
-        }
         // 用户有 last_organization_id 权限
-        if (hasLastOrganizationPermission(user)) {
+        if (hasLastProjectPermission(user) || hasLastOrganizationPermission(user)) {
             return;
         }
+
         // 判断其他权限
         checkNewOrganizationAndProject(user);
     }
