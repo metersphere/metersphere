@@ -59,9 +59,9 @@
       if (appStore.getPackageType === 'enterprise') {
         licenseStore.getValidateLicense();
       }
-      if (licenseStore.hasLicense()) {
-        appStore.initPageConfig(); // 初始化页面配置
-      }
+      // 初始化页面配置
+      appStore.initPageConfig();
+
       // 项目初始化时需要获取基础设置信息，看当前站点 url是否为系统内置默认地址，如果是需要替换为当前项目部署的 url 地址
       const isInitUrl = getLocalStorage('isInitUrl'); // 是否已经初始化过 url
       if (isInitUrl === 'true') return;
