@@ -35,12 +35,6 @@
             <artifactId>spring-ai-zhipuai</artifactId>
         </dependency>
 
-        <!-- 文档处理 -->
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-tika-document-reader</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-chat-memory-repository-jdbc</artifactId>
