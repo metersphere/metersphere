@@ -30,6 +30,10 @@ import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author metersphere-bot
+ */
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class IssueTemplateService extends TemplateBaseService {
@@ -74,6 +78,7 @@ public class IssueTemplateService extends TemplateBaseService {
     WorkspaceMapper workspaceMapper;
 
     private static final String CUSTOM_FIELD_TYPE = "select";
+    private static final int MAX_TEMPLATE_NAME_LENGTH = 64;
 
     public String add(UpdateIssueTemplateRequest request) {
         checkExist(request);
@@ -128,7 +133,7 @@ public class IssueTemplateService extends TemplateBaseService {
      * - 如果没有，则创建该工项目模板，并关联默认的字段
      * - 如果有，则更新原来关联的 fieldId
      *
-     * @param customField
+     * @param customField 自定义字段
      */
     public void handleSystemFieldCreate(CustomFieldDao customField) {
         IssueTemplateExample example = new IssueTemplateExample();
@@ -189,7 +194,7 @@ public class IssueTemplateService extends TemplateBaseService {
             if (StringUtils.isNotBlank(issueTemplate.getId())) {
                 criteria.andIdNotEqualTo(issueTemplate.getId());
             }
-            if (issueTemplateMapper.selectByExample(example).size() > 0) {
+            if (!issueTemplateMapper.selectByExample(example).isEmpty()) {
                 MSException.throwException(Translator.get("template_already") + issueTemplate.getName());
             }
         }
@@ -280,7 +285,7 @@ public class IssueTemplateService extends TemplateBaseService {
         projectRequest.setWorkspaceId(workspaceId);
         projectRequest.setUserId(userId);
         List<ProjectDTO> userProjectAndGroup = projectService.getUserProject(projectRequest);
-        if (userProjectAndGroup.size() == 0) {
+        if (userProjectAndGroup.isEmpty()) {
             issueTemplateCopyDto.setProjectDTOS(new ArrayList<>());
         }
         Iterator<ProjectDTO> iterator = userProjectAndGroup.iterator();
@@ -294,7 +299,7 @@ public class IssueTemplateService extends TemplateBaseService {
             for (GroupPermissionDTO groupPermission : groupPermissions) {
                 GroupResourceDTO projectTemplatePermissions = groupPermission.getPermissions().stream()
                         .filter(permission -> StringUtils.equals(CommonConstants.PROJECT_TEMPLATE, permission.getResource().getId()))
-                        .collect(Collectors.toList()).get(0);
+                        .toList().get(0);
                 if (projectTemplatePermissions == null) {
                     //模板设置的权限为空
                     continue;
@@ -353,7 +358,7 @@ public class IssueTemplateService extends TemplateBaseService {
             } else {
                 recordName = sourceIssueTemplate.getName();
             }
-            if (recordName.length() > 64) {
+            if (recordName.length() > MAX_TEMPLATE_NAME_LENGTH) {
                 MSException.throwException(Translator.get("copy_template_name_too_long"));
             }
             BeanUtils.copyBean(issueTemplateRecord, sourceIssueTemplate);
@@ -372,7 +377,7 @@ public class IssueTemplateService extends TemplateBaseService {
                 CustomField tarCustomField = new CustomField();
                 CustomField sourceCustomField = sourceCustomFields.stream()
                         .filter(item -> StringUtils.equals(item.getId(), sourceCustomFieldTemplate.getFieldId()))
-                        .collect(Collectors.toList()).get(0);
+                        .toList().get(0);
                 CustomFieldExample example = new CustomFieldExample();
                 example.createCriteria().andNameEqualTo(sourceCustomField.getName())
                         .andSceneEqualTo(sourceCustomField.getScene()).andSystemEqualTo(sourceCustomField.getSystem())
@@ -389,7 +394,7 @@ public class IssueTemplateService extends TemplateBaseService {
                     tarCustomField.setProjectId(targetProjectId);
                     customFieldRecords.add(tarCustomField);
                     if (sourceCustomField.getSystem()) {
-                        // 系统字段未查到, 则为全局模板Gloal字段
+                        // 系统字段未查到, 则为全局模板Global字段
                         CustomFieldExample customFieldExample = new CustomFieldExample();
                         customFieldExample.createCriteria().andNameEqualTo(sourceCustomField.getName())
                                 .andSceneEqualTo(sourceCustomField.getScene()).andSystemEqualTo(sourceCustomField.getSystem())
@@ -425,7 +430,7 @@ public class IssueTemplateService extends TemplateBaseService {
                             if (StringUtils.equals(CUSTOM_FIELD_TYPE, sourceCustomField.getType())) {
                                 // 下拉框选项
                                 List<CustomFieldOptionDTO> options = JSON.parseArray(sourceCustomField.getOptions(), CustomFieldOptionDTO.class);
-                                options.removeIf(sourceOption -> StringUtils.contains(tarCustomField.getOptions(), sourceOption.getText().toString()));
+                                options.removeIf(sourceOption -> StringUtils.contains(tarCustomField.getOptions(), sourceOption.getText()));
                                 if (CollectionUtils.isNotEmpty(options)) {
                                     optionsStr = JSON.toJSONString(options);
                                     optionsStr = StringUtils.replace(tarCustomField.getOptions(), "]", ",") + StringUtils.replace(optionsStr, "[", StringUtils.EMPTY);
@@ -471,15 +476,15 @@ public class IssueTemplateService extends TemplateBaseService {
 
     public String getLogDetails(String id, List<CustomFieldTemplate> newFields) {
         List<DetailColumn> columns = new LinkedList<>();
-        IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
-        if (templateWithBLOBs == null) {
+        IssueTemplate issueTemplate = issueTemplateMapper.selectByPrimaryKey(id);
+        if (issueTemplate == null) {
             return null;
         }
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
-        example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
+        example.createCriteria().andTemplateIdEqualTo(issueTemplate.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
         List<CustomFieldTemplate> oldFields = customFieldTemplateMapper.selectByExample(example);
-        Collections.sort(oldFields, (f1, f2) -> f1.getKey().compareTo(f2.getKey()));
+        oldFields.sort(Comparator.comparing(CustomFieldTemplate::getKey));
         if (newFields.size() > oldFields.size()) {
             int size = newFields.size() - oldFields.size();
             for (int i = 0; i < size; i++) {
@@ -487,25 +492,24 @@ public class IssueTemplateService extends TemplateBaseService {
                 oldFields.add(oldFields.size(), customFieldTemplate);
             }
         }
-        return getCustomFieldColums(columns, templateWithBLOBs, oldFields);
+        return getCustomFieldColumns(columns, issueTemplate, oldFields);
     }
 
     public String getLogDetails(UpdateIssueTemplateRequest request) {
         List<DetailColumn> columns = new LinkedList<>();
-        IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(request.getId());
-        if (templateWithBLOBs == null) {
+        IssueTemplate issueTemplate = issueTemplateMapper.selectByPrimaryKey(request.getId());
+        if (issueTemplate == null) {
             return null;
         }
-        List<CustomFieldTemplate> newCustomFieldTemplates = request.getCustomFields();
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
-        example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
+        example.createCriteria().andTemplateIdEqualTo(issueTemplate.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
         List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
-        Collections.sort(customFieldTemplates, (f1, f2) -> f1.getKey().compareTo(f2.getKey()));
-        return getCustomFieldColums(columns, templateWithBLOBs, customFieldTemplates);
+        customFieldTemplates.sort(Comparator.comparing(CustomFieldTemplate::getKey));
+        return getCustomFieldColumns(columns, issueTemplate, customFieldTemplates);
     }
 
-    private String getCustomFieldColums(List<DetailColumn> columns, IssueTemplate templateWithBLOBs, List<CustomFieldTemplate> customFields) {
+    private String getCustomFieldColumns(List<DetailColumn> columns, IssueTemplate issueTemplate, List<CustomFieldTemplate> customFields) {
         for (CustomFieldTemplate customFieldTemplate : customFields) {
             CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldTemplate.getFieldId());
             CustomFieldDao customFieldDao = new CustomFieldDao();
@@ -525,8 +529,8 @@ public class IssueTemplateService extends TemplateBaseService {
                 columns.addAll(columnsField);
             }
         }
-        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()),
-                templateWithBLOBs.getProjectId(), templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issueTemplate.getId()),
+                issueTemplate.getProjectId(), issueTemplate.getName(), issueTemplate.getCreateUser(), columns);
         return JSON.toJSONString(details);
     }
 
