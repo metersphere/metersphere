@@ -10,7 +10,11 @@
         >
           {{ t('caseManagement.featureCase.creatingCase') }}
         </a-button>
-        <MsAiButton v-if="aiStore.aiSourceNameList.length > 0" :text="t('settings.navbar.ai')" @click="openAI" />
+        <MsAiButton
+          v-if="aiStore.aiSourceNameList.length > 0 && props.apiDetail?.id"
+          :text="t('settings.navbar.ai')"
+          @click="openAI"
+        />
       </div>
       <MsAdvanceFilter
         ref="msAdvanceFilterRef"
