@@ -52,7 +52,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/organization/template/img/preview/**", "anon");
         filterChainDefinitionMap.put("/project/template/img/preview/**", "anon");
 
-        filterChainDefinitionMap.put("/system/version/current", "anon");
+        filterChainDefinitionMap.put("/system/version/**", "anon");
 
         //用户通过邮箱邀请自行注册的接口
         filterChainDefinitionMap.put("/system/user/check-invite/**", "anon");
