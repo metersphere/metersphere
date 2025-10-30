@@ -66,6 +66,7 @@ export default function useMinderOperation(options: MinderOperationProps) {
     const state = fsm.state();
     switch (state) {
       case 'input': {
+        isCopyFinished = true;
         break;
       }
       case 'normal': {
@@ -93,6 +94,7 @@ export default function useMinderOperation(options: MinderOperationProps) {
         break;
       }
       default:
+        isCopyFinished = true;
     }
   };
 
