@@ -56,8 +56,9 @@
         appStore.initFileSizeLimit(); // 初始化文件大小限制
       }
       // 企业版才校验license
+      await appStore.initSystemPackage();
       if (appStore.getPackageType === 'enterprise') {
-        licenseStore.getValidateLicense();
+        await licenseStore.getValidateLicense();
       }
       if (licenseStore.hasLicense()) {
         appStore.initPageConfig(); // 初始化页面配置

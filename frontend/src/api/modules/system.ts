@@ -24,9 +24,9 @@ export function switchUserOrg(organizationId: string, userId: string) {
   return MSR.post({ url: SwitchOrgUrl, data: { organizationId, userId } }, { ignoreCancelToken: true });
 }
 
-// 获取当前系统的版本
+// 获取当前系统的包类型
 export function getPackageType() {
-  return MSR.get<string>({ url: PackageTypeUrl });
+  return MSR.get<string>({ url: PackageTypeUrl }, { ignoreCancelToken: true });
 }
 
 // 获取当前用户是否具备项目权限
