@@ -176,7 +176,7 @@ public class TestPlanFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public void batchUpdateExecutor(@Validated @RequestBody TestPlanCaseUpdateRequest request) {
         testPlanFunctionalCaseService.batchUpdateExecutor(request);
-        testPlanCaseLogService.batchUpdateExecutor(request);
+        testPlanCaseLogService.batchUpdateExecutor(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/detail/{id}")

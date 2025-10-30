@@ -47,7 +47,7 @@ public class TestPlanCaseLogService {
     @Resource
     private TestPlanMapper testPlanMapper;
 
-    public void batchUpdateExecutor(TestPlanCaseUpdateRequest request) {
+    public void batchUpdateExecutor(TestPlanCaseUpdateRequest request, String userId) {
         try {
             List<String> ids = testPlanFunctionalCaseService.doSelectIds(request);
             if (CollectionUtils.isNotEmpty(ids)) {
@@ -69,7 +69,7 @@ public class TestPlanCaseLogService {
                             project.getId(),
                             project.getOrganizationId(),
                             k,
-                            request.getUserId(),
+                            userId,
                             OperationLogType.UPDATE.name(),
                             OperationLogModule.TEST_PLAN,
                             Translator.get("test_plan.update.executor") + ":" + caseMap.get(v));
