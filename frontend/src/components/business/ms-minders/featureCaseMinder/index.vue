@@ -1,7 +1,7 @@
 <template>
   <div class="h-full py-[16px]">
     <MsMinderEditor
-      v-model:activeExtraKey="activeExtraKey"
+      v-model:active-extra-key="activeExtraKey"
       v-model:extra-visible="extraVisible"
       v-model:loading="loading"
       v-model:import-json="importJson"
@@ -1084,6 +1084,9 @@
    * @param callback 保存成功回调
    */
   async function handleMinderSave(fullJson: MinderJson, callback: (refresh: boolean) => void) {
+    if (loading.value) {
+      return;
+    }
     try {
       loading.value = true;
       await saveCaseMinder(makeMinderParams(fullJson));
@@ -1097,7 +1100,9 @@
       console.log(error);
       resetMinderParams(false);
     } finally {
-      loading.value = false;
+      setTimeout(() => {
+        loading.value = false;
+      }, 300);
     }
   }
 

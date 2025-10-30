@@ -1001,6 +1001,9 @@
   }
 
   async function handleMinderSave(fullJson: MinderJson, callback: () => void) {
+    if (loading.value) {
+      return;
+    }
     try {
       let configFormValidResult = false;
       if (extraVisible.value) {
@@ -1035,7 +1038,9 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
-      loading.value = false;
+      setTimeout(() => {
+        loading.value = false;
+      }, 300);
       tempMinderParams.value = {
         planId: props.planId,
         editList: [],
