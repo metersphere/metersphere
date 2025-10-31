@@ -997,6 +997,7 @@
         <foreach collection="apiIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        and apiTestCase.deleted = false
     </select>
 
     <select id="selectAllDetailByIds" resultMap="ApiTestCaseDetailMap">
