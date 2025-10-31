@@ -498,8 +498,33 @@ export default {
             this.monitorParams = data.monitorParams || [];
             this.properties = data.properties || [];
             this.csvConfig = data.csvConfig;
+            this.refreshCsv();
           }
         });
+    },
+    refreshCsv() {
+      if (this.csvConfig && this.csvFiles) {
+        console.log(this.csvFiles, this.csvConfig);
+        this.csvFiles.forEach(f => {
+          f.csvSplit = this.csvConfig[f.name]?.csvSplit
+          f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
+          f.recycle = this.csvConfig[f.name]?.recycle;
+          f.stopThread = this.csvConfig[f.name]?.stopThread;
+          f.shareMode = this.csvConfig[f.name]?.shareMode;
+          if (f.csvHasHeader === undefined) {
+            f.csvHasHeader = true;
+          }
+          if (f.stopThread === undefined) {
+            f.stopThread = false;
+          }
+          if (f.recycle === undefined) {
+            f.recycle = true;
+          }
+          if (f.shareMode === undefined) {
+            f.shareMode = "shareMode.thread";
+          }
+        });
+      }
     },
     add(dataName) {
       if (dataName === 'domains') {

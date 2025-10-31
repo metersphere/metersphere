@@ -80,9 +80,21 @@ export default {
           tg.csvFiles.map(item => csvSet.add(item));
         }
       });
+      let csvFiles = [];
+      for (const f of csvSet) {
+        csvFiles.push({
+          name: f,
+          csvSplit: false,
+          csvHasHeader: true,
+          recycle: true,
+          stopThread: false,
+          shareMode: "shareMode.all"
+        });
+      }
 
       this.$set(handler, "threadGroups", threadGroups);
       this.$refs.pressureConfig.threadGroups = threadGroups;
+      this.$refs.advancedConfig.csvFiles = csvFiles;
 
       handler.calculateTotalChart();
     },
