@@ -1592,7 +1592,8 @@
         isBatch.value = true;
         scheduleModalTitle.value = t('testPlan.testPlanIndex.batchUpdateScheduledTask');
         showScheduleModal.value = true;
-        await initResourcePool();
+        initEnvList();
+        initResourcePool();
         break;
       default:
         break;
