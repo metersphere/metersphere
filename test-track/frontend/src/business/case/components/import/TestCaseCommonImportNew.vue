@@ -82,10 +82,10 @@
           <el-link slot="reference" type="primary">{{$t('test_track.case.import.click_preview_import_error_msg')}}</el-link>
         </el-popover>
         <el-button @click="close" size="small">{{ $t('commons.cancel') }}</el-button>
-        <el-button v-if="showContinueBtn" type="primary" size="small" @click="upload(true)">
+        <el-button v-if="showContinueBtn" type="primary" size="small" :disabled="loading" @click="upload(true)">
           {{ $t('test_track.case.import.continue_upload') }}
         </el-button>
-        <el-button v-if="!showContinueBtn" type="primary" size="small" @click="upload(false)">
+        <el-button v-if="!showContinueBtn" type="primary" size="small" :disabled="loading" @click="upload(false)">
           {{ $t('commons.import') }}
         </el-button>
       </el-row>
@@ -137,6 +137,7 @@ export default {
     open(name) {
       this.dialogVisible = true;
       this.name = name;
+      this.loading = false;
     },
     close() {
       this.dialogVisible = false;
@@ -215,6 +216,7 @@ export default {
     },
     upload(isIgnore) {
       this.isLoading = false;
+      this.loading = true;
       let param = {
         projectId: getCurrentProjectID(),
         userId: getCurrentUserId(),
@@ -226,7 +228,6 @@ export default {
         this.$warning(this.$t('test_track.case.import.import_file_tips'), false);
         return;
       }
-      this.loading = true;
       this.$fileUpload('/test/case/import', this.lastFile, param)
         .then(response => {
           this.loading = false;
