@@ -1656,7 +1656,15 @@ public class TestCaseService {
 
             List<TestCaseDTO> exportData = getExportData(batchRequest);
             exportData.forEach(item -> item.setNodePath(nodePathMap.get(item.getNodeId())));
-            List<TestCaseExcelData> excelData = parseCaseData2ExcelData(exportData, rowMergeInfo, isUseCustomId, request.getOtherHeaders());
+
+            boolean hasStepHeader = CollectionUtils.isNotEmpty(request.getBaseHeaders()) &&
+                    request.getBaseHeaders().stream()
+                            .filter(h -> StringUtils.equalsAny(h.getId(), "stepDesc", "stepResult"))
+                            .findAny()
+                            .isPresent();
+
+            List<TestCaseExcelData> excelData = parseCaseData2ExcelData(exportData, rowMergeInfo, isUseCustomId,
+                    request.getOtherHeaders(), hasStepHeader);
             List<List<Object>> data = parseExcelData2List(headList, excelData);
 
             File createFile = new File(tmpZipPath + File.separatorChar + "caseExport_" + i.get() + ".xlsx");
@@ -1726,7 +1734,7 @@ public class TestCaseService {
         FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(needIdCol, heads, caseLevelAndStatusValueMap);
 
         List<TestCaseExcelData> excelData = parseCaseData2ExcelData(generateExportData(projectId),
-                rowMergeInfo, isUseCustomId, null);
+                rowMergeInfo, isUseCustomId, null, true);
         List<List<Object>> data = parseExcelData2List(heads, excelData);
         new EasyExcelExporter(testCaseExcelData.getClass())
                 .exportByCustomWriteHandler(response, heads, data, Translator.get("test_case_import_template_name"),
@@ -1865,7 +1873,9 @@ public class TestCaseService {
     }
 
     private List<TestCaseExcelData> parseCaseData2ExcelData(List<TestCaseDTO> testCaseList, Map<Integer, Integer> rowMergeInfo,
-                                                            Boolean isUseCustomId, List<TestCaseExportRequest.TestCaseExportHeader> otherHeaders) {
+                                                            Boolean isUseCustomId,
+                                                            List<TestCaseExportRequest.TestCaseExportHeader> otherHeaders,
+                                                            boolean hasStepHeader) {
         if (CollectionUtils.isEmpty(testCaseList)) {
             return new ArrayList<>();
         }
@@ -1900,7 +1910,9 @@ public class TestCaseService {
             BeanUtils.copyBean(data, t);
             data.setMaintainer(userMap.get(data.getMaintainer()));
             buildExportCustomNum(isUseCustomId, t, data);
-            buildExportStep(t, stepDescList, stepResultList, data);
+            if (hasStepHeader) {
+                buildExportStep(t, stepDescList, stepResultList, data);
+            }
             buildExportCustomField(customSelectValueMap, customNameMap, t, data, textFields);
             buildExportOtherField(data, t, otherHeaders);
 
