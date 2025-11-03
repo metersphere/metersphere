@@ -128,6 +128,9 @@ public class MsLoopController extends MsTestElement {
     }
 
     public String getCondition() {
+        if (this.whileController == null) {
+            return null;
+        }
         String key = getContentValue();
 
         String variable = (StringUtils.isEmpty(key) || key.equals(this.whileController.getVariable())) || key.startsWith("__")
