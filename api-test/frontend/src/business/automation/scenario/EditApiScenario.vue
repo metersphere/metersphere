@@ -360,7 +360,8 @@
               <!-- 场景步骤内容 -->
               <div v-else ref="stepInfo" style="height: calc(100vh - 170px)">
                 <vue-virtual-tree
-                  node-key="data.id"
+                  node-key="resourceId"
+                  children="hashTree"
                   height="calc(100vh - 170px)"
                   :minItemSize="43"
                   :sizeDependencies="['expanded']"
@@ -670,7 +671,6 @@ import { useApiStore } from '@/store';
 import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
 import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
-
 const store = useApiStore();
 
 export default {
@@ -1836,7 +1836,7 @@ export default {
       const parent = node.parent;
       const hashTree = parent.data.hashTree || parent.data;
       // 深度复制
-      let obj = JSON.parse(JSON.stringify(row));
+      const obj = JSON.parse(JSON.stringify(row));
       obj.resourceId = getUUID();
       if (obj.hashTree && obj.hashTree.length > 0) {
         this.resetResourceId(obj.hashTree, obj.referenced);
@@ -1851,6 +1851,9 @@ export default {
         hashTree.push(obj);
       }
       this.sort();
+      if (this.$refs.stepTree.append) {
+        this.$refs.stepTree.append(obj, parent.data, index + 1);
+      }
     },
     reload() {
       this.loading = true;

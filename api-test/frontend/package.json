@@ -11,7 +11,7 @@
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^18.0.0",
     "@ckeditor/ckeditor5-vue": "^1.0.1",
-    "@fit2cloud-ui/vue-virtual-tree": "^1.0.1",
+    "@fit2cloud-ui/vue-virtual-tree": "^1.0.2",
     "@form-create/element-ui": "^2.5.8",
     "@fortawesome/fontawesome-svg-core": "^1.2.26",
     "@fortawesome/free-brands-svg-icons": "^5.13.0",
@@ -119,7 +119,6 @@
       "no-useless-escape": "off"
     }
   },
-
   "browserslist": [
     "> 1%",
     "last 2 versions",
