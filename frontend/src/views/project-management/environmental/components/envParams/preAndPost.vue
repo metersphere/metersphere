@@ -12,25 +12,18 @@
             : t('project.environmental.scenePostAlertDesc')
         }}
       </a-alert>
-      <a-scrollbar
-        :style="{
-          overflow: 'auto',
-          height: 'calc(100vh - 540px)',
-        }"
-      >
-        <PreTab
-          v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE"
-          :show-associated-scene="showAssociatedScene"
-          :show-pre-post-request="!showAssociatedScene"
-          :active-tab="activeTab"
-        />
-        <PostTab
-          v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_POST"
-          :show-associated-scene="showAssociatedScene"
-          :show-pre-post-request="!showAssociatedScene"
-          :active-tab="activeTab"
-        />
-      </a-scrollbar>
+      <PreTab
+        v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_PRE"
+        :show-associated-scene="showAssociatedScene"
+        :show-pre-post-request="!showAssociatedScene"
+        :active-tab="activeTab"
+      />
+      <PostTab
+        v-if="props.activeType === EnvTabTypeEnum.ENVIRONMENT_POST"
+        :show-associated-scene="showAssociatedScene"
+        :show-pre-post-request="!showAssociatedScene"
+        :active-tab="activeTab"
+      />
     </div>
     <div v-if="activeTab === 'requestProcessorConfig'" class="mt-4 h-full">
       <a-alert class="mb-4" closable>

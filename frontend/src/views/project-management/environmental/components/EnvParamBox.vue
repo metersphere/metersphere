@@ -35,21 +35,19 @@
         @change="handleTabChange"
       />
     </div>
-    <div class="content w-full">
+    <div class="content flex w-full flex-col">
       <div v-show="activeKey === EnvTabTypeEnum.ENVIRONMENT_PARAM">
         <EnvParamsTab v-model:keyword="envKeyword" />
       </div>
       <HttpTab v-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HTTP" />
       <DataBaseTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_DATABASE" />
       <HostTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_HOST" ref="hostTabRef" />
-      <div
+      <PreAndPostTab
         v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_PRE || activeKey === EnvTabTypeEnum.ENVIRONMENT_POST"
-        class="h-full"
-      >
-        <PreAndPostTab :active-type="activeKey" />
-      </div>
+        :active-type="activeKey"
+      />
 
-      <AssertTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_ASSERT" />
+      <AssertTab v-else-if="activeKey === EnvTabTypeEnum.ENVIRONMENT_ASSERT" class="flex flex-col" />
       <template v-for="item in envPluginList" :key="item.pluginId">
         <PluginTab
           v-if="activeKey === item.pluginId"
@@ -349,7 +347,6 @@
 
       overflow-y: auto;
       padding: 0 16px;
-      height: 100%;
       max-height: calc(100% - 320px);
       background-color: var(--color-text-fff);
     }
