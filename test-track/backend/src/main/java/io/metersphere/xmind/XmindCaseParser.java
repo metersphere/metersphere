@@ -6,11 +6,13 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.ExcelImportType;
 import io.metersphere.i18n.Translator;
 import io.metersphere.request.testcase.TestCaseImportRequest;
+import io.metersphere.service.TestCaseNodeService;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.xmind.parser.XmindParser;
 import io.metersphere.xmind.parser.pojo.Attached;
@@ -59,9 +61,13 @@ public class XmindCaseParser {
     private List<String> errorPath;
 
     private TestCaseImportRequest request;
+    private List<TestCaseNodeDTO> nodeTrees;
+    private TestCaseNodeService testCaseNodeService;
+    private Map<String, String> pathMap = new HashMap<>();
 
     public XmindCaseParser(TestCaseImportRequest request) {
         this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
+        this.testCaseNodeService = CommonBeanFactory.getBean(TestCaseNodeService.class);
         this.request = request;
         testCases = new LinkedList<>();
         updateTestCases = new LinkedList<>();
@@ -229,6 +235,10 @@ public class XmindCaseParser {
                 validatePass = false;
             }
         }
+
+        // 校验模块是否存在，没有存在则新建一个模块
+        testCaseNodeService.createNodeByNodePath(data.getNodePath(), request.getProjectId(), nodeTrees, pathMap);
+        data.setNodeId(pathMap.get(data.getNodePath()));
 
         // 判断新增
         if (StringUtils.equals(importType, ExcelImportType.Create.name())) {
@@ -434,6 +444,7 @@ public class XmindCaseParser {
         try {
             // 获取思维导图内容
             List<JsonRootBean> roots = XmindParser.parseObject(multipartFile);
+            nodeTrees = testCaseNodeService.getNodeTreeByProjectId(request.getProjectId());
             for (JsonRootBean root : roots) {
                 if (root != null && root.getRootTopic() != null && root.getRootTopic().getChildren() != null) {
                     // 判断是模块还是用例
