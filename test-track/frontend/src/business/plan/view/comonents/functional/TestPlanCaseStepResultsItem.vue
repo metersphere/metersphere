@@ -6,31 +6,51 @@
       class="tb-edit"
       size="mini"
       :border="true"
-      :default-sort="{prop: 'num', order: 'ascending'}"
-      highlight-current-row>
-      <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"/>
+      :default-sort="{ prop: 'num', order: 'ascending' }"
+      highlight-current-row
+    >
+      <el-table-column
+        :label="$t('test_track.case.number')"
+        prop="num"
+        min-width="5%"
+      />
 
-      <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
+      <el-table-column
+        :label="$t('test_track.case.step_desc')"
+        prop="desc"
+        min-width="21%"
+      >
         <template v-slot:default="scope">
           <el-input
             size="mini"
             class="border-hidden sync-textarea"
             type="textarea"
             :disabled="true"
-            v-model="scope.row.desc"/>
+            :autosize="{ minRows: 2 }"
+            v-model="scope.row.desc"
+          />
         </template>
       </el-table-column>
-      <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
+      <el-table-column
+        :label="$t('test_track.case.expected_results')"
+        prop="result"
+        min-width="21%"
+      >
         <template v-slot:default="scope">
           <el-input
             size="mini"
             class="border-hidden sync-textarea"
             type="textarea"
             :disabled="true"
-            v-model="scope.row.result"/>
-        </template>
-      </el-table-column>f
-      <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
+            :autosize="{ minRows: 2 }"
+            v-model="scope.row.result"
+          />
+        </template> </el-table-column
+      >f
+      <el-table-column
+        :label="$t('test_track.plan_view.actual_result')"
+        min-width="21%"
+      >
         <template v-slot:default="scope">
           <el-input
             v-model="scope.row.actualResult"
@@ -38,13 +58,17 @@
             size="mini"
             type="textarea"
             class="table-edit-input sync-textarea"
-            :rows="2"
+            :autosize="{ minRows: 2 }"
             :disabled="isReadOnly"
             :placeholder="$t('commons.input_content')"
-            @input="resizeTextarea(scope)"/>
+            @input="resizeTextarea(scope)"
+          />
         </template>
       </el-table-column>
-      <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
+      <el-table-column
+        :label="$t('test_track.plan_view.step_result')"
+        min-width="12%"
+      >
         <template v-slot:default="scope">
           <el-select
             :disabled="isReadOnly"
@@ -52,12 +76,15 @@
             @change="stepResultChange(scope)"
             filterable
             size="mini"
-            :ref="'stepResultSelect' + scope.$index">
-            <el-option v-for="item in executeResultOption"
-                       :key="item.value"
-                       :style="{color: item.color}"
-                       :value="item.value"
-                       :label="item.label"/>
+            :ref="'stepResultSelect' + scope.$index"
+          >
+            <el-option
+              v-for="item in executeResultOption"
+              :key="item.value"
+              :style="{ color: item.color }"
+              :value="item.value"
+              :label="item.label"
+            />
           </el-select>
         </template>
       </el-table-column>
@@ -66,37 +93,40 @@
 </template>
 
 <script>
-import {resizeTextarea} from "metersphere-frontend/src/utils";
+import { resizeTextarea } from "metersphere-frontend/src/utils";
 
 export default {
   name: "TestPlanCaseStepResultsItem",
-  props: ['testCase', 'isReadOnly', 'labelWidth'],
+  props: ["testCase", "isReadOnly", "labelWidth"],
   data() {
     return {
       visible: true,
       executeResultOption: [
         {
-          value: 'Pass',
-          label: this.$t('test_track.plan_view.pass'),
-          color: '#7ebf50'
-        },        {
-          value: 'Failure',
-          label: this.$t('test_track.plan_view.failure'),
-          color: '#e57471'
-        },        {
-          value: 'Blocking',
-          label: this.$t('test_track.plan_view.blocking'),
-          color: '#dda451'
-        },        {
-          value: 'Skip',
-          label: this.$t('test_track.plan_view.skip'),
-          color: '#919399'
+          value: "Pass",
+          label: this.$t("test_track.plan_view.pass"),
+          color: "#7ebf50",
         },
-      ]
-    }
+        {
+          value: "Failure",
+          label: this.$t("test_track.plan_view.failure"),
+          color: "#e57471",
+        },
+        {
+          value: "Blocking",
+          label: this.$t("test_track.plan_view.blocking"),
+          color: "#dda451",
+        },
+        {
+          value: "Skip",
+          label: this.$t("test_track.plan_view.skip"),
+          color: "#919399",
+        },
+      ],
+    };
   },
   watch: {
-    'testCase.steptResults'() {
+    "testCase.steptResults"() {
       this.$nextTick(() => {
         this.resizeTextarea();
         for (let i = 0; i < this.testCase.steptResults.length; i++) {
@@ -104,14 +134,17 @@ export default {
           this.changeTextColor(item.executeResult, i);
         }
       });
-    }
+    },
   },
   methods: {
     stepResultChange(scope) {
-      if (this.testCase.method === 'manual' || !this.testCase.method) {
-        this.isFailure = this.testCase.steptResults.filter(s => {
-          return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
-        }).length > 0;
+      if (this.testCase.method === "manual" || !this.testCase.method) {
+        this.isFailure =
+          this.testCase.steptResults.filter((s) => {
+            return (
+              s.executeResult === "Failure" || s.executeResult === "Blocking"
+            );
+          }).length > 0;
       } else {
         this.isFailure = false;
       }
@@ -123,28 +156,30 @@ export default {
       resizeTextarea(3, scope ? scope.$index : null);
     },
     changeTextColor(val, index) {
-      this.executeResultOption.forEach(item => {
+      this.executeResultOption.forEach((item) => {
         if (item.value === val) {
-          let name = 'stepResultSelect' + index;
+          let name = "stepResultSelect" + index;
           // 改变下拉框颜色值
           this.$refs[name].$el.children[0].children[0].style.color = item.color;
           return;
         }
       });
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-:deep(.table-edit-input .el-textarea__inner, .table-edit-input .el-input__inner) {
+:deep(
+    .table-edit-input .el-textarea__inner,
+    .table-edit-input .el-input__inner
+  ) {
   border-style: solid;
 }
 
-
-.el-table :deep(td:nth-child(2) .cell,.el-table :deep(td:nth-child(2))),
-.el-table :deep(td:nth-child(3) .cell,.el-table :deep(td:nth-child(3))),
-.el-table :deep(td:nth-child(4) .cell,.el-table :deep(td:nth-child(4))) {
+.el-table :deep(td:nth-child(2) .cell, .el-table :deep(td:nth-child(2))),
+.el-table :deep(td:nth-child(3) .cell, .el-table :deep(td:nth-child(3))),
+.el-table :deep(td:nth-child(4) .cell, .el-table :deep(td:nth-child(4))) {
   padding: 0;
 }
 

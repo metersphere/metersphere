@@ -1,36 +1,45 @@
 <template>
   <div>
-
-    <el-dialog :close-on-click-modal="false"
-               :title="isEdit ? $t('test_track.review.edit_review') : $t('test_track.review.create_review')"
-               :visible.sync="dialogFormVisible"
-               @close="close"
-               v-loading="result.loading"
-               width="60%">
-
+    <el-dialog
+      :close-on-click-modal="false"
+      :title="
+        isEdit
+          ? $t('test_track.review.edit_review')
+          : $t('test_track.review.create_review')
+      "
+      :visible.sync="dialogFormVisible"
+      @close="close"
+      v-loading="result.loading"
+      width="60%"
+    >
       <el-form :model="form" :rules="rules" ref="reviewForm">
         <el-row>
           <el-col :span="10">
             <el-form-item
-                :placeholder="$t('test_track.review.input_review_name')"
-                :label="$t('test_track.review.review_name')"
-                :label-width="formLabelWidth"
-                prop="name">
-              <el-input v-model="form.name"/>
+              :placeholder="$t('test_track.review.input_review_name')"
+              :label="$t('test_track.review.review_name')"
+              :label-width="formLabelWidth"
+              prop="name"
+            >
+              <el-input v-model="form.name" />
             </el-form-item>
           </el-col>
           <el-col :span="12" :offset="1">
-            <el-form-item prop="nodeId" :label="$t('test_track.case.module')" :label-width="formLabelWidth">
+            <el-form-item
+              prop="nodeId"
+              :label="$t('test_track.case.module')"
+              :label-width="formLabelWidth"
+            >
               <ms-select-tree
-                  class="review-node-tree"
-                  :disabled="false"
-                  :data="treeNodes"
-                  :obj="moduleObj"
-                  :default-key="form.nodeId"
-                  @getValue="setModule"
-                  checkStrictly
-                  size="small"
-                  ref="moduleTree"
+                class="review-node-tree"
+                :disabled="false"
+                :data="treeNodes"
+                :obj="moduleObj"
+                :default-key="form.nodeId"
+                @getValue="setModule"
+                checkStrictly
+                size="small"
+                ref="moduleTree"
               />
             </el-form-item>
           </el-col>
@@ -38,157 +47,256 @@
 
         <el-row>
           <el-col :span="10">
-            <el-form-item :label="$t('test_track.review.reviewer')" :label-width="formLabelWidth" prop="userIds">
+            <el-form-item
+              :label="$t('test_track.review.reviewer')"
+              :label-width="formLabelWidth"
+              prop="userIds"
+            >
               <el-select
-                  v-model="form.userIds"
-                  :placeholder="$t('test_track.review.input_reviewer')"
-                  filterable multiple
-                  style="width: 100%"
+                v-model="form.userIds"
+                :placeholder="$t('test_track.review.input_reviewer')"
+                filterable
+                multiple
+                style="width: 100%"
               >
                 <el-option
-                    v-for="item in reviewerOptions"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
+                  v-for="item in reviewerOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                >
                 </el-option>
               </el-select>
               <div v-if="isEdit" class="item-tip">
-                {{ $t('review.update_review_reviewer_tip') }}
+                {{ $t("review.update_review_reviewer_tip") }}
               </div>
             </el-form-item>
           </el-col>
           <el-col :span="12" :offset="1">
-            <el-form-item :label="$t('test_track.review.end_time')" :label-width="formLabelWidth" prop="endTime">
-              <el-date-picker @change="endTimeChange" type="datetime" :placeholder="$t('commons.select_date')"
-                              v-model="form.endTime" style="width: 100%"/>
+            <el-form-item
+              :label="$t('test_track.review.end_time')"
+              :label-width="formLabelWidth"
+              prop="endTime"
+            >
+              <el-date-picker
+                @change="endTimeChange"
+                type="datetime"
+                :placeholder="$t('commons.select_date')"
+                v-model="form.endTime"
+                style="width: 100%"
+              />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row style="margin-top: 10px;">
+        <el-row style="margin-top: 10px">
           <el-col :span="10">
-            <el-form-item :label="$t('review.review_pass_rule')" :label-width="formLabelWidth" prop="reviewPassRule">
+            <el-form-item
+              :label="$t('review.review_pass_rule')"
+              :label-width="formLabelWidth"
+              prop="reviewPassRule"
+            >
               <el-select v-model="form.reviewPassRule" default-first-option>
                 <el-option
-                    v-for="item in [
-                          {text: 'review.review_pass_rule_single', value: 'SINGLE'},
-                          {text: 'review.review_pass_rule_all', value: 'ALL'}
-                        ]"
-                    :key="item.value"
-                    :label="$t(item.text)"
-                    :value="item.value">
+                  v-for="item in [
+                    { text: 'review.review_pass_rule_single', value: 'SINGLE' },
+                    { text: 'review.review_pass_rule_all', value: 'ALL' },
+                  ]"
+                  :key="item.value"
+                  :label="$t(item.text)"
+                  :value="item.value"
+                >
                 </el-option>
               </el-select>
-              <ms-instructions-icon :content="$t('review.review_rule_tip')" effect="light"/>
+              <ms-instructions-icon
+                :content="$t('review.review_rule_tip')"
+                effect="light"
+              />
               <div v-if="isEdit" class="item-tip">
-                {{ $t('review.update_review_rule_tip') }}
+                {{ $t("review.update_review_rule_tip") }}
               </div>
             </el-form-item>
           </el-col>
 
           <el-col :span="12" :offset="1">
-            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-              <ms-input-tag :currentScenario="form" ref="tag" v-if="isStepTableAlive" class="review-tag"/>
+            <el-form-item
+              :label="$t('commons.tag')"
+              :label-width="formLabelWidth"
+              prop="tag"
+            >
+              <ms-input-tag
+                :currentScenario="form"
+                ref="tag"
+                v-if="isStepTableAlive"
+                class="review-tag"
+              />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row type="flex" justify="left" style="margin-top: 10px;">
+        <el-row type="flex" justify="left" style="margin-top: 10px">
           <el-col :span="23">
-            <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
-              <el-input v-model="form.description"
-                        type="textarea"
-                        :autosize="{ minRows: 2, maxRows: 4}"
-                        :rows="2"
-                        :placeholder="$t('commons.input_content')"/>
+            <el-form-item
+              :label="$t('commons.description')"
+              :label-width="formLabelWidth"
+              prop="description"
+            >
+              <el-input
+                v-model="form.description"
+                type="textarea"
+                :autosize="{ minRows: 2 }"
+                :rows="2"
+                :placeholder="$t('commons.input_content')"
+              />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row v-if="isEdit" type="flex" justify="left" style="margin-top: 10px;">
+        <el-row
+          v-if="isEdit"
+          type="flex"
+          justify="left"
+          style="margin-top: 10px"
+        >
           <el-col :span="19">
-            <el-form-item :label="$t('test_track.review.review_status')" :label-width="formLabelWidth" prop="status">
-              <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
+            <el-form-item
+              :label="$t('test_track.review.review_status')"
+              :label-width="formLabelWidth"
+              prop="status"
+            >
+              <test-plan-status-button
+                :status="form.status"
+                @statusChange="statusChange"
+              />
             </el-form-item>
           </el-col>
         </el-row>
-
       </el-form>
 
       <template v-slot:footer>
         <div class="dialog-footer">
           <el-button @click="dialogFormVisible = false">
-            {{ $t('test_track.cancel') }}
+            {{ $t("test_track.cancel") }}
           </el-button>
           <el-button type="primary" @click="saveReview">
-            {{ $t('test_track.confirm') }}
+            {{ $t("test_track.confirm") }}
           </el-button>
           <el-button type="primary" @click="reviewInfo">
-            {{ $t('test_track.planning_execution') }}
+            {{ $t("test_track.planning_execution") }}
           </el-button>
         </div>
       </template>
     </el-dialog>
   </div>
-
 </template>
 
 <script>
-
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import {
+  listenGoBack,
+  removeGoBackListener,
+} from "metersphere-frontend/src/utils";
 import MsInputTag from "metersphere-frontend/src/components/new-ui/MsInputTag";
 import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
 import i18n from "@/i18n";
-import {getMaintainer} from "@/api/project";
-import {saveOrUpdateTestCaseReview} from "@/api/test-review";
+import { getMaintainer } from "@/api/project";
+import { saveOrUpdateTestCaseReview } from "@/api/test-review";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
-import {getTestCaseReviewNodes} from "@/api/test-case-review-node";
-import {buildTree} from "@/business/utils/sdk-utils";
+import { getTestCaseReviewNodes } from "@/api/test-case-review-node";
+import { buildTree } from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestCaseReviewEdit",
-  components: {MsInputTag, TestPlanStatusButton, MsInstructionsIcon, MsSelectTree},
+  components: {
+    MsInputTag,
+    TestPlanStatusButton,
+    MsInstructionsIcon,
+    MsSelectTree,
+  },
   data() {
     return {
       isStepTableAlive: true,
       dialogFormVisible: false,
       result: {},
       form: {
-        name: '',
+        name: "",
         projectIds: [],
         userIds: [],
-        stage: '',
-        description: '',
-        endTime: '',
+        stage: "",
+        description: "",
+        endTime: "",
         followIds: [],
-        reviewPassRule: 'SINGLE',
-        nodeId: '',
-        nodePath: ''
+        reviewPassRule: "SINGLE",
+        nodeId: "",
+        nodePath: "",
       },
       dbProjectIds: [],
       rules: {
         name: [
-          {required: true, message: this.$t('test_track.review.input_review_name'), trigger: 'blur'},
-          {max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}
+          {
+            required: true,
+            message: this.$t("test_track.review.input_review_name"),
+            trigger: "blur",
+          },
+          {
+            max: 200,
+            message: this.$t("test_track.length_less_than") + "200",
+            trigger: "blur",
+          },
         ],
-        nodeId: [{required: true, message: this.$t("api_test.environment.module_warning"), trigger: "change"}],
-        userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
-        stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
-        description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
-        endTime: [{required: true, message: this.$t('commons.please_select_a_deadline'), trigger: 'blur'}],
-        reviewPassRule: [{required: true, message: this.$t('commons.input_review_name'), trigger: 'blur'}]
+        nodeId: [
+          {
+            required: true,
+            message: this.$t("api_test.environment.module_warning"),
+            trigger: "change",
+          },
+        ],
+        userIds: [
+          {
+            required: true,
+            message: this.$t("test_track.review.input_reviewer"),
+            trigger: "change",
+          },
+        ],
+        stage: [
+          {
+            required: true,
+            message: this.$t("test_track.plan.input_plan_stage"),
+            trigger: "change",
+          },
+        ],
+        description: [
+          {
+            max: 200,
+            message: this.$t("test_track.length_less_than") + "200",
+            trigger: "blur",
+          },
+        ],
+        endTime: [
+          {
+            required: true,
+            message: this.$t("commons.please_select_a_deadline"),
+            trigger: "blur",
+          },
+        ],
+        reviewPassRule: [
+          {
+            required: true,
+            message: this.$t("commons.input_review_name"),
+            trigger: "blur",
+          },
+        ],
       },
       formLabelWidth: "110px",
-      operationType: '',
+      operationType: "",
       reviewerOptions: [],
       treeNodes: null,
       moduleObj: {
         id: "id",
         label: "name",
       },
-      defaultNode: null
+      defaultNode: null,
     };
   },
   computed: {
@@ -196,25 +304,24 @@ export default {
       return getCurrentProjectID();
     },
     isEdit() {
-      return this.operationType === 'edit';
-    }
+      return this.operationType === "edit";
+    },
   },
   created() {
     this.getNodeTrees();
   },
   methods: {
     getNodeTrees() {
-      getTestCaseReviewNodes(this.projectId, {})
-        .then(r => {
-          let treeNodes = r.data;
-          treeNodes.forEach(node => {
-            buildTree(node, {path: ''});
-          });
-          this.treeNodes = treeNodes;
-          if (this.operationType === 'save') {
-            this.setDefaultModule();
-          }
+      getTestCaseReviewNodes(this.projectId, {}).then((r) => {
+        let treeNodes = r.data;
+        treeNodes.forEach((node) => {
+          buildTree(node, { path: "" });
         });
+        this.treeNodes = treeNodes;
+        if (this.operationType === "save") {
+          this.setDefaultModule();
+        }
+      });
     },
     setDefaultModule() {
       if (this.defaultNode == null) {
@@ -259,10 +366,10 @@ export default {
       this.defaultNode = selectDefaultNode;
       this.getNodeTrees();
       this.setReviewerOptions();
-      this.operationType = 'save';
+      this.operationType = "save";
       if (caseReview) {
         //修改
-        this.operationType = 'edit';
+        this.operationType = "edit";
         let tmp = {};
         Object.assign(tmp, caseReview);
         Object.assign(this.form, tmp);
@@ -276,16 +383,20 @@ export default {
       this.reload();
     },
     reviewInfo() {
-      this.$refs['reviewForm'].validate((valid) => {
+      this.$refs["reviewForm"].validate((valid) => {
         if (valid) {
-          if (this.form.status !== 'Finished' && this.form.status !== 'Archived' && !this.compareTime(new Date().getTime(), this.form.endTime)) {
+          if (
+            this.form.status !== "Finished" &&
+            this.form.status !== "Archived" &&
+            !this.compareTime(new Date().getTime(), this.form.endTime)
+          ) {
             return false;
           }
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (param.name === '') {
-            this.$warning(this.$t('test_track.plan.input_plan_name'));
+          if (param.name === "") {
+            this.$warning(this.$t("test_track.plan.input_plan_name"));
             return;
           }
           if (this.form.tags instanceof Array) {
@@ -294,11 +405,12 @@ export default {
           param.tags = this.form.tags;
           param.projectId = this.projectId;
           if (this.projectId) {
-            saveOrUpdateTestCaseReview(this.operationType, param)
-                .then((response) => {
-                  this.dialogFormVisible = false;
-                  this.$router.push('/track/review/view/' + response.data.id);
-                });
+            saveOrUpdateTestCaseReview(this.operationType, param).then(
+              (response) => {
+                this.dialogFormVisible = false;
+                this.$router.push("/track/review/view/" + response.data.id);
+              }
+            );
           }
         } else {
           return false;
@@ -306,16 +418,20 @@ export default {
       });
     },
     saveReview() {
-      this.$refs['reviewForm'].validate((valid) => {
+      this.$refs["reviewForm"].validate((valid) => {
         if (valid) {
-          if (this.form.status !== 'Finished' && this.form.status !== 'Archived' && !this.compareTime(new Date().getTime(), this.form.endTime)) {
+          if (
+            this.form.status !== "Finished" &&
+            this.form.status !== "Archived" &&
+            !this.compareTime(new Date().getTime(), this.form.endTime)
+          ) {
             return false;
           }
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (param.name === '') {
-            this.$warning(this.$t('test_track.plan.input_plan_name'));
+          if (param.name === "") {
+            this.$warning(this.$t("test_track.plan.input_plan_name"));
             return;
           }
           if (this.form.tags instanceof Array) {
@@ -324,12 +440,11 @@ export default {
           param.tags = this.form.tags;
           param.projectId = this.projectId;
           if (this.projectId) {
-            saveOrUpdateTestCaseReview(this.operationType, param)
-                .then(() => {
-                  this.$success(this.$t('commons.save_success'));
-                  this.dialogFormVisible = false;
-                  this.$emit("refresh");
-                });
+            saveOrUpdateTestCaseReview(this.operationType, param).then(() => {
+              this.$success(this.$t("commons.save_success"));
+              this.dialogFormVisible = false;
+              this.$emit("refresh");
+            });
           }
         } else {
           return false;
@@ -337,10 +452,9 @@ export default {
       });
     },
     setReviewerOptions() {
-      getMaintainer()
-          .then((response) => {
-            this.reviewerOptions = response.data;
-          })
+      getMaintainer().then((response) => {
+        this.reviewerOptions = response.data;
+      });
     },
     statusChange(status) {
       this.form.status = status;
@@ -352,19 +466,19 @@ export default {
     },
     resetForm() {
       //防止点击修改后，点击新建触发校验
-      if (this.$refs['reviewForm']) {
-        this.$refs['reviewForm'].validate(() => {
-          this.$refs['reviewForm'].resetFields();
-          this.form.name = '';
-          this.form.stage = '';
-          this.form.endTime = '';
-          this.form.description = '';
+      if (this.$refs["reviewForm"]) {
+        this.$refs["reviewForm"].validate(() => {
+          this.$refs["reviewForm"].resetFields();
+          this.form.name = "";
+          this.form.stage = "";
+          this.form.endTime = "";
+          this.form.description = "";
           this.form.status = null;
           this.form.projectIds = [];
           this.form.userIds = [];
           this.form.followIds = [];
-          this.form.nodeId = '';
-          this.form.nodePath = '';
+          this.form.nodeId = "";
+          this.form.nodePath = "";
           return true;
         });
       }
@@ -372,7 +486,10 @@ export default {
     endTimeChange(value) {
       if (value) {
         this.form.endTime = this.form.endTime.getTime();
-        if (this.form.status === 'Finished' || this.form.status === 'Archived') {
+        if (
+          this.form.status === "Finished" ||
+          this.form.status === "Archived"
+        ) {
           // 已归档或已结束的评审, 无需校验截止时间
           return;
         }
@@ -381,7 +498,7 @@ export default {
     },
     compareTime(ts1, ts2) {
       if (ts1 > ts2) {
-        this.$warning(i18n.t('test_track.review.deadline_cannot_early_tips'));
+        this.$warning(i18n.t("test_track.review.deadline_cannot_early_tips"));
         return false;
       }
       return true;
@@ -391,9 +508,9 @@ export default {
         this.form.nodeId = id;
         this.form.nodePath = data.path;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -403,7 +520,7 @@ export default {
 }
 
 .review-tag {
-  height: 40px!important;
+  height: 40px !important;
 }
 </style>
 
@@ -416,4 +533,3 @@ export default {
   margin-top: 9px;
 }
 </style>
-
