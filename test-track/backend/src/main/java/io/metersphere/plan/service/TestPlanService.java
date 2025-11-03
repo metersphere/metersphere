@@ -2075,9 +2075,9 @@ public class TestPlanService {
         return testPlanMapper.selectByPrimaryKey(planId).getRepeatCase();
     }
 
-    public List getStageOption(String projectId) {
+    public List<CustomFieldOptionDTO> getStageOption(String projectId) {
         CustomField stageField = baseCustomFieldService.getCustomFieldByName(projectId, "测试阶段");
-        return JSON.parseArray(stageField.getOptions());
+        return JSON.parseArray(stageField.getOptions(), CustomFieldOptionDTO.class);
     }
 
     public void batchUpdateScheduleEnable(ScheduleInfoRequest request) {

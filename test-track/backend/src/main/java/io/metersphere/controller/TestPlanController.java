@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.CustomFieldOptionDTO;
 import io.metersphere.dto.ScheduleDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
@@ -110,7 +111,7 @@ public class TestPlanController {
 
     @GetMapping("/get/stage/option/{projectId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
-    public List getStageOption(@PathVariable("projectId") String projectId) {
+    public List<CustomFieldOptionDTO> getStageOption(@PathVariable("projectId") String projectId) {
         return testPlanService.getStageOption(projectId);
     }
 

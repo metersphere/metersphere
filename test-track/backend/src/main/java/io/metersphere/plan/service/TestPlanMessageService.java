@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.StatusReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
@@ -124,7 +125,7 @@ public class TestPlanMessageService {
         String testPlanShareUrl = getTestPlanShareUrl(testPlanReport.getId(), creator);
         // 分享经过网关需要带上前缀
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/track/share-plan-report" + testPlanShareUrl);
-        handleSpecialValues(paramMap);
+        handleSpecialValues(paramMap, projectId);
 
         /**
          * 测试计划的消息通知配置包括 完成、成功、失败
@@ -173,12 +174,20 @@ public class TestPlanMessageService {
         return baseShareInfoService.conversionShareInfoToDTO(shareInfo).getShareUrl();
     }
 
-    private void handleSpecialValues(Map paramMap) {
+    private void handleSpecialValues(Map paramMap, String projectId) {
         // 翻译${stage}占位符
         String stageKey = "stage";
+        List<CustomFieldOptionDTO> stageOption = testPlanService.getStageOption(projectId);
         if (paramMap.containsKey(stageKey) && paramMap.get(stageKey) != null) {
-            paramMap.put(stageKey, StatusReference.statusMap.get(paramMap.get(stageKey).toString()));
+            String stageValue = paramMap.get(stageKey).toString();
+            for (CustomFieldOptionDTO optionDTO : stageOption) {
+                if (StringUtils.equals(optionDTO.getValue(), stageValue)) {
+                    paramMap.put(stageKey, Translator.get(optionDTO.getText(), optionDTO.getText()));
+                    break;
+                }
+            }
         }
+
         // 翻译${status}占位符
         String statusKey = "status";
         if (paramMap.containsKey(statusKey) && paramMap.get(statusKey) != null) {
