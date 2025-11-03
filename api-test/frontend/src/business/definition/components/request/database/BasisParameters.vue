@@ -3,13 +3,7 @@
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
-          <el-form
-            :model="request"
-            :rules="rules"
-            ref="request"
-            label-width="100px"
-            :disabled="isReadOnly"
-            style="margin: 10px">
+          <el-form :model="request" :rules="rules" ref="request" label-width="100px" style="margin: 10px">
             <el-row>
               <el-col :span="7">
                 <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
@@ -18,6 +12,7 @@
                     size="small"
                     class="ms-htt-width"
                     :placeholder="$t('api_test.definition.request.run_env')"
+                    :disabled="isReadOnly"
                     @change="environmentChange"
                     clearable>
                     <el-option
@@ -34,6 +29,7 @@
                           class="environment-button"
                           size="small"
                           type="primary"
+                          :disabled="isReadOnly"
                           @click="openEnvironmentConfig">
                           {{ $t('api_test.environment.environment_config') }}
                         </el-button>
@@ -47,7 +43,11 @@
                   :label="$t('api_test.request.sql.dataSource')"
                   prop="dataSourceId"
                   style="margin-left: 10px">
-                  <el-select v-model="request.dataSourceId" size="small" @change="reloadDataSource">
+                  <el-select
+                    v-model="request.dataSourceId"
+                    size="small"
+                    @change="reloadDataSource"
+                    :disabled="isReadOnly">
                     <el-option
                       v-for="(item, index) in databaseConfigsOptions"
                       :key="index"
@@ -80,11 +80,21 @@
             </el-row>
 
             <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
-              <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small" />
+              <el-input
+                v-model="request.resultVariable"
+                maxlength="500"
+                show-word-limit
+                size="small"
+                :disabled="isReadOnly" />
             </el-form-item>
 
             <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
-              <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small" />
+              <el-input
+                v-model="request.variableNames"
+                maxlength="500"
+                show-word-limit
+                size="small"
+                :disabled="isReadOnly" />
             </el-form-item>
 
             <el-tabs v-model="activeName" @tab-click="tabClick" class="ms-tab-content ms-tabs__nav-scroll">
@@ -374,19 +384,19 @@ export default {
           }
         });
         if (!hasEnvironment) {
-         this.request.environmentId = store.useEnvironment;
-         this.environments.forEach((environment) => {
-           if (environment.id === store.useEnvironment) {
-             currentEnvironment = environment;
-           }
-           if (environment.config && environment.config.databaseConfigs) {
-             environment.config.databaseConfigs.forEach((item) => {
-               if (item.id === this.request.dataSourceId) {
-                 targetDataSourceName = item.name;
-               }
-             });
-           }
-         });
+          this.request.environmentId = store.useEnvironment;
+          this.environments.forEach((environment) => {
+            if (environment.id === store.useEnvironment) {
+              currentEnvironment = environment;
+            }
+            if (environment.config && environment.config.databaseConfigs) {
+              environment.config.databaseConfigs.forEach((item) => {
+                if (item.id === this.request.dataSourceId) {
+                  targetDataSourceName = item.name;
+                }
+              });
+            }
+          });
         }
         this.initDataSource(environmentId, currentEnvironment, targetDataSourceName);
       });
@@ -458,7 +468,7 @@ export default {
           }
         });
         if (!hasEnvironment) {
-          this.request.environmentId = "";
+          this.request.environmentId = '';
         }
         this.initDataSource(envId, currentEnvironment, targetDataSourceName);
       });
