@@ -84,23 +84,12 @@
             </a-button> -->
           </div>
         </div>
-        <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
+        <ms-base-table v-bind="propsRes" no-disable @filter-change="refresh" v-on="propsEvent">
           <template #caseLevel="{ record }">
             <caseLevel :case-level="getCaseLevels(record.customFields)" />
           </template>
-          <template #caseLevelFilter="{ columnConfig }">
-            <TableFilter
-              v-model:visible="caseFilterVisible"
-              v-model:status-filters="caseFilters"
-              :title="(columnConfig.title as string)"
-              :list="caseLevelList"
-              value-key="value"
-              @search="searchCase()"
-            >
-              <template #item="{ item }">
-                <div class="flex"> <caseLevel :case-level="item.text" /></div>
-              </template>
-            </TableFilter>
+          <template #[FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL]="{ filterContent }">
+            <caseLevel :case-level="filterContent.value" />
           </template>
           <template v-if="(keyword || '').trim() === ''" #empty>
             <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
@@ -138,7 +127,6 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -147,10 +135,8 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import TableFilter from '../../tableFilter.vue';
 
   import {
     addPrepositionRelation,
@@ -166,8 +152,10 @@
 
   import type { CaseModuleQueryParams, OptionsField } from '@/models/caseManagement/featureCase';
   import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { FilterSlotNameEnum } from '@/enums/tableFilterEnum';
 
   import { getCaseLevels } from '../../utils';
+  import { casePriorityOptions } from '@/views/api-test/components/config';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -251,21 +239,6 @@
     activeFolderName.value = t('ms.case.associate.allCase');
   }
   const keyword = ref('');
-  const version = ref('');
-  const versionOptions = ref([
-    {
-      label: '全部',
-      value: 'all',
-    },
-    {
-      label: '版本1',
-      value: '1',
-    },
-    {
-      label: '版本2',
-      value: '2',
-    },
-  ]);
 
   const columns: MsTableColumn = [
     {
@@ -294,13 +267,12 @@
       dataIndex: 'caseLevel',
       slotName: 'caseLevel',
       titleSlotName: 'caseLevelFilter',
+      filterConfig: {
+        options: casePriorityOptions,
+        filterSlotName: FilterSlotNameEnum.CASE_MANAGEMENT_CASE_LEVEL,
+      },
       width: 100,
     },
-    // {
-    //   title: 'caseManagement.featureCase.tableColumnVersion',
-    //   slotName: 'version',
-    //   width: 80,
-    // },
     {
       title: 'caseManagement.featureCase.tableColumnTag',
       dataIndex: 'tags',
@@ -374,11 +346,7 @@
     moduleIds: [],
     excludeIds: [],
   });
-  // 用例等级表头检索
-  const caseLevelFields = ref<Record<string, any>>({});
-  const caseFilterVisible = ref(false);
   const caseLevelList = ref<OptionsField[]>([]);
-  const caseFilters = ref<string[]>([]);
 
   // 获取用例参数
   function getLoadListParams() {
@@ -392,25 +360,16 @@
       keyword: keyword.value,
       id: props.caseId,
       type: props.showType === 'preposition' ? 'PRE' : 'POST',
-      filter: {
-        caseLevel: caseFilters.value,
-      },
-      condition: {
-        keyword: keyword.value,
-        filter: {
-          caseLevel: caseFilters.value,
-          ...propsRes.value.filter,
-        },
-      },
     });
   }
 
   async function getModulesCount() {
     const { excludeIds } = searchParams.value;
+    const moduleIds = activeFolder.value === 'all' ? [] : [activeFolder.value, ...offspringIds.value];
     try {
       const emitTableParams: CaseModuleQueryParams = {
         keyword: keyword.value,
-        moduleIds: [],
+        moduleIds,
         projectId: currentProjectId.value,
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
@@ -418,13 +377,14 @@
         condition: {
           keyword: keyword.value,
           filter: {
-            caseLevel: caseFilters.value,
             ...propsRes.value.filter,
           },
         },
+        filter: propsRes.value.filter,
       };
       modulesCount.value = await getCaseModulesCounts(emitTableParams);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -438,6 +398,7 @@
       const result = await getAssociatedCaseIds(props.caseId);
       searchParams.value.excludeIds = result;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   }
@@ -446,6 +407,11 @@
     await getAssociatedIds();
     getLoadListParams();
     loadList();
+    getModulesCount();
+  }
+
+  async function refresh() {
+    await nextTick();
     getModulesCount();
   }
 
@@ -484,7 +450,6 @@
   async function initFilter() {
     await featureStore.getDefaultTemplate();
     caseLevelList.value = featureStore.getSystemCaseLevelFields();
-    caseFilters.value = [];
   }
 
   watch(
