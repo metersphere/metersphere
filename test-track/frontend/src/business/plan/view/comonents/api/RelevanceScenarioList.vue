@@ -346,7 +346,7 @@ export default {
     },
     getProject(projectId) {
       if (projectId) {
-        getProjectApplicationConfig(projectId, "SCENARIO_CUSTOM_NUM").then(
+        getProjectApplicationConfig("SCENARIO_CUSTOM_NUM", projectId).then(
           (result) => {
             let data = result.data;
             if (data && data.typeValue === "true") {
