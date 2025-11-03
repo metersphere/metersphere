@@ -77,6 +77,8 @@ public class TestReviewTestCaseService {
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestReviewCaseDTO> list = extTestReviewCaseMapper.list(request);
         if (CollectionUtils.isEmpty(list)) {
             return list;

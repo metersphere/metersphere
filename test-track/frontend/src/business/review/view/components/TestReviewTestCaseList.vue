@@ -233,7 +233,7 @@ import {parseTag} from "metersphere-frontend/src/utils"
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import {getProjectApplicationConfig} from "@/api/project-application";
-import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
+import {getTagToolTips, initTestCaseConditionComponents, parseColumnTag} from "@/business/case/test-case";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
@@ -416,7 +416,6 @@ export default {
       this.userFilter = data;
     });
     this.getTemplateField();
-    this.initPriorityFilters();
   },
   mounted() {
     this.$emit('setCondition', this.condition);
@@ -426,16 +425,25 @@ export default {
     this.getVersionOptions();
     this.getProject();
     this.getCustomNum();
+    this.loadConditionComponents();
   },
   methods: {
-    initPriorityFilters() {
+    loadConditionComponents() {
       getTestTemplate(this.projectId).then((template) => {
-        template.customFields.forEach(field => {
-          if (field.name === '用例等级') {
-            this.priorityFilters = field.options;
-          }
-        })
+        this.initPriorityFilters(template);
+        this.condition.components = initTestCaseConditionComponents(
+          this.condition,
+          template.customFields,
+          false
+        );
       });
+    },
+    initPriorityFilters(template) {
+      template.customFields.forEach(field => {
+        if (field.name === '用例等级') {
+          this.priorityFilters = field.options;
+        }
+      })
     },
     getTemplateField() {
       getProjectMember()
