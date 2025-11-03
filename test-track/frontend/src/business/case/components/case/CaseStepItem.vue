@@ -29,7 +29,7 @@
             type="textarea"
             class="table-edit-input sync-textarea"
             :disabled="readOnly"
-            :rows="defaultRows"
+            :autosize="{ minRows: 2 }"
             :placeholder="$t('commons.input_content')"
             @input="resizeTextarea(scope)"
           />
@@ -47,7 +47,7 @@
             size="mini"
             type="textarea"
             class="table-edit-input sync-textarea"
-            :rows="defaultRows"
+            :autosize="{ minRows: 2 }"
             :disabled="readOnly"
             :placeholder="$t('commons.input_content')"
             @input="resizeTextarea(scope)"
@@ -56,9 +56,32 @@
       </el-table-column>
       <el-table-column :label="$t('commons.operating')" width="150px">
         <template v-slot:default="scope">
-          <el-link type="primary" :disabled="readOnly" class="opt-item" :underline="false" @click="handleAddStep(scope.$index, scope.row)">{{ $t("commons.insert") }}</el-link>
-          <el-link type="primary" :disabled="readOnly" class="opt-item" :underline="false" @click="handleCopyStep(scope.$index, scope.row)">{{ $t("commons.copy") }}</el-link>
-          <el-link type="primary" :disabled="readOnly || (scope.$index === 0 && form.steps.length <= 1)" class="opt-item delete-item" :underline="false" @click="handleDeleteStep(scope.$index, scope.row)">{{ $t("commons.delete") }}</el-link>
+          <el-link
+            type="primary"
+            :disabled="readOnly"
+            class="opt-item"
+            :underline="false"
+            @click="handleAddStep(scope.$index, scope.row)"
+            >{{ $t("commons.insert") }}</el-link
+          >
+          <el-link
+            type="primary"
+            :disabled="readOnly"
+            class="opt-item"
+            :underline="false"
+            @click="handleCopyStep(scope.$index, scope.row)"
+            >{{ $t("commons.copy") }}</el-link
+          >
+          <el-link
+            type="primary"
+            :disabled="
+              readOnly || (scope.$index === 0 && form.steps.length <= 1)
+            "
+            class="opt-item delete-item"
+            :underline="false"
+            @click="handleDeleteStep(scope.$index, scope.row)"
+            >{{ $t("commons.delete") }}</el-link
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -66,7 +89,7 @@
 </template>
 
 <script>
-import {getUUID, resizeTextarea} from "@/business/utils/sdk-utils";
+import { getUUID, resizeTextarea } from "@/business/utils/sdk-utils";
 
 export default {
   name: "CaseStepItem",
@@ -76,8 +99,8 @@ export default {
     readOnly: Boolean,
     editable: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -135,7 +158,7 @@ export default {
     },
     handleCopyStep(index, data) {
       if (this.readOnly) {
-        return
+        return;
       }
       let step = {};
       step.id = this.newStepId();
@@ -184,7 +207,7 @@ export default {
 }
 
 .el-table--enable-row-hover :deep(.el-table__body tr:hover > td) {
-  background-color: rgba(31, 35, 41, 0.1)!important;
+  background-color: rgba(31, 35, 41, 0.1) !important;
 }
 /* .el-table :deep(td:nth-child(1) .cell) {
   text-align: center;
@@ -222,15 +245,15 @@ export default {
 }
 
 .table-edit-input :deep(.el-textarea__inner) {
-  min-height: 32px!important;
-  font-family: 'PingFang SC';
+  min-height: 32px !important;
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
   display: flex;
   align-items: center;
-  color: #1F2329;
+  color: #1f2329;
   cursor: pointer;
 }
 
@@ -249,8 +272,8 @@ export default {
 /*}*/
 
 .table-edit-input :deep(.el-textarea__inner:focus) {
-  border-style: solid!important;
-  border-color: #783887!important;
+  border-style: solid !important;
+  border-color: #783887 !important;
 }
 
 i.el-icon-more {
@@ -311,7 +334,7 @@ i.el-icon-more:hover {
 }
 
 .case-step-item-popover .copy-row:hover {
-  background-color: rgba(31, 35, 41, 0.1);;
+  background-color: rgba(31, 35, 41, 0.1);
 }
 
 .case-step-item-popover .copy-row .icon {
@@ -322,7 +345,7 @@ i.el-icon-more:hover {
 }
 
 .case-step-item-popover .delete-row:hover {
-  background-color: rgba(31, 35, 41, 0.1)!important;
+  background-color: rgba(31, 35, 41, 0.1) !important;
 }
 
 .case-step-item-popover .delete-row .icon {
@@ -331,7 +354,6 @@ i.el-icon-more:hover {
 .case-step-item-popover .delete-row .title {
   color: #f54a45;
 }
-
 
 .case-step-item-popover .add-row:hover {
   background-color: rgba(31, 35, 41, 0.1);
@@ -343,7 +365,6 @@ i.el-icon-more:hover {
 .case-step-item-popover .add-row .title {
   color: #1f2329;
 }
-
 
 .case-step-item-popover .delete-row {
   background-color: transparent;
