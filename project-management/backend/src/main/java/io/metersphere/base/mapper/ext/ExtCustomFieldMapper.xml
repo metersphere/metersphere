@@ -32,6 +32,11 @@
         </foreach>
     </insert>
 
+    <update id="updateIssueOldFieldId" parameterType="io.metersphere.dto.CustomFieldDao">
+        update custom_field_issues cfs join issues i on i.id = cfs.resource_id
+        set field_id = #{customField.id} where i.project_id = #{customField.projectId} and cfs.field_id = #{customField.originGlobalId};
+    </update>
+
     <select id="listRelate" resultType="io.metersphere.base.domain.CustomField">
         select
         <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,

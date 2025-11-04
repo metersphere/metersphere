@@ -177,6 +177,9 @@ public class IssueTemplateService extends TemplateBaseService {
 
                 customFieldTemplateService.create(customFieldTemplate, template.getId(),
                         TemplateConstants.FieldTemplateScene.ISSUE.name());
+
+                // 如果全局字段修改为普通字段, 则更新缺陷关联的旧字段数据
+                extCustomFieldMapper.updateIssueOldFieldId(customField);
             }
         });
         if (CollectionUtils.isNotEmpty(projectTemplates)) {
