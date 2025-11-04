@@ -492,6 +492,7 @@ export default {
           item.value = row.value;
         }
       });
+      this.change(row);
     },
     // 备注修改
     descriptionChange(row) {
