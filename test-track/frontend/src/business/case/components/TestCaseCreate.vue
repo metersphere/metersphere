@@ -75,7 +75,6 @@
           v-model="testCaseForm.remark"
           type="textarea"
           :autosize="{ minRows: 2 }"
-          :rows="2"
           size="small"
         />
       </el-form-item>

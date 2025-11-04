@@ -177,7 +177,6 @@
             v-model="form.description"
             type="textarea"
             :autosize="{ minRows: 2 }"
-            :rows="2"
             :placeholder="$t('commons.input_un_pass_reason')"
           />
         </el-form-item>

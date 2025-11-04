@@ -145,7 +145,6 @@
                 v-model="form.description"
                 type="textarea"
                 :autosize="{ minRows: 2 }"
-                :rows="2"
                 :placeholder="$t('commons.input_content')"
               />
             </el-form-item>

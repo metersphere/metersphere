@@ -156,7 +156,6 @@
                   v-model="testCase.prerequisite"
                   type="textarea"
                   :autosize="{ minRows: 2 }"
-                  :rows="2"
                   :placeholder="$t('test_track.case.input_prerequisite')"
                 ></el-input>
               </el-form-item>
@@ -202,7 +201,6 @@
                       :disabled="readOnly"
                       type="textarea"
                       :autosize="{ minRows: 2 }"
-                      :rows="2"
                       v-model="scope.row.desc"
                       :placeholder="$t('commons.input_content')"
                       clearable
@@ -221,7 +219,6 @@
                       :disabled="readOnly"
                       type="textarea"
                       :autosize="{ minRows: 2 }"
-                      :rows="2"
                       v-model="scope.row.result"
                       :placeholder="$t('commons.input_content')"
                       clearable
@@ -243,7 +240,6 @@
                   :autosize="{ minRows: 2 }"
                   type="textarea"
                   :disabled="readOnly"
-                  :rows="2"
                   :placeholder="$t('commons.input_content')"
                 ></el-input>
               </el-form-item>
