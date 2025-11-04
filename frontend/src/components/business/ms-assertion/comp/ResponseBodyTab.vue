@@ -70,7 +70,7 @@
         </template>
         <template #operationPre="{ record }">
           <a-popover
-            v-model:popupVisible="record.moreSettingPopoverVisible"
+            v-model:popup-visible="record.moreSettingPopoverVisible"
             position="tl"
             trigger="click"
             :title="t('common.setting')"
@@ -175,7 +175,7 @@
         </template>
         <template #operationPre="{ record }">
           <a-popover
-            v-model:popupVisible="record.moreSettingPopoverVisible"
+            v-model:popup-visible="record.moreSettingPopoverVisible"
             position="tl"
             trigger="click"
             :title="t('common.setting')"
@@ -320,7 +320,7 @@
         </template>
         <template #operationPre="{ record }">
           <a-popover
-            v-model:popupVisible="record.moreSettingPopoverVisible"
+            v-model:popup-visible="record.moreSettingPopoverVisible"
             position="tl"
             trigger="click"
             :title="t('common.setting')"

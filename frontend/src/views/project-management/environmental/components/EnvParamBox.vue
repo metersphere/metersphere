@@ -91,9 +91,10 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import { ContentTabItem, EnvPluginListItem } from '@/models/projectManagement/environmental';
+  import { ResponseAssertionType } from '@/enums/apiEnum';
   import { EnvTabTypeEnum } from '@/enums/envEnum';
 
-  import { defaultHeaderParamsItem } from '@/views/api-test/components/config';
+  import { defaultHeaderParamsItem, jsonPathDefaultParamItem } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const leaveTitle = 'common.tip';
@@ -208,6 +209,21 @@
         headers: filterKeyValParams(e.headers, defaultHeaderParamsItem, true).validParams,
       };
     });
+
+    const assertionConfig = {
+      assertions: paramsConfig.assertionConfig.assertions.map((a) => {
+        if (a.assertionType === ResponseAssertionType.RESPONSE_BODY) {
+          return {
+            ...a,
+            jsonPathAssertion: {
+              assertions: filterKeyValParams(a.jsonPathAssertion.assertions, jsonPathDefaultParamItem, true)
+                .validParams,
+            },
+          };
+        }
+        return a;
+      }),
+    };
     if (isNew) {
       store.currentEnvDetailInfo.name = store.currentEnvDetailInfo.name
         ? store.currentEnvDetailInfo.name
@@ -219,6 +235,7 @@
       config: {
         ...paramsConfig,
         httpConfig: httpConfigList,
+        assertionConfig,
       },
     };
   }
