@@ -20,7 +20,7 @@
             @clear="loadCaseList"
           />
           <MsCheckboxDropdown
-            v-model:selectList="lastExecResult"
+            v-model:select-list="lastExecResult"
             :options="executeResultOptions"
             :title="t('common.executionResult')"
             @handle-change="handleExecResultChange"
@@ -514,19 +514,25 @@
       }
 
       if (index < caseList.value.length - 1) {
+        const nextCaseId = caseList.value[index + 1]?.id;
         await loadCaseList();
-        activeCaseId.value = caseList.value[index + 1].caseId;
-        activeId.value = caseList.value[index + 1].id;
+        const nextCase = caseList.value.find((item) => item.id === nextCaseId);
+        if (nextCase) {
+          activeCaseId.value = nextCase.caseId;
+          activeId.value = nextCase.id;
+        }
       } else if (pageNation.value.current * pageNation.value.pageSize < pageNation.value.total) {
         // 当前页不是最后一页，则加载下一页并激活第一个用例
         pageNation.value.current += 1;
         await loadCaseList();
-        activeCaseId.value = caseList.value[0].caseId;
-        activeId.value = caseList.value[0].id;
+        activeCaseId.value = caseList.value[0]?.caseId;
+        activeId.value = caseList.value[0]?.id;
       } else {
         // 当前是最后一个，刷新数据
         loadCaseDetail();
         loadCaseList();
+        activeCaseId.value = caseList.value[0]?.caseId;
+        activeId.value = caseList.value[0]?.id;
       }
     } else {
       // 不自动下一个才请求详情
