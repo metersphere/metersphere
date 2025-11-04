@@ -1,6 +1,7 @@
 import {OPERATORS} from "./search-components";
 
 export function getAdvSearchCustomField(condition, fields) {
+  console.log(fields);
   let componentArr = condition.components;
   const components = [];
   for (let field of fields) {

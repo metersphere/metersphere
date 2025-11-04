@@ -255,7 +255,7 @@ import {
   deleteTestReviewCase,
   getTesReviewById
 } from "@/api/test-review";
-import {getTestTemplate} from "@/api/custom-field-template";
+import {getTestTemplate, getTestTemplateForList} from "@/api/custom-field-template";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -429,7 +429,7 @@ export default {
   },
   methods: {
     loadConditionComponents() {
-      getTestTemplate(this.projectId).then((template) => {
+      getTestTemplateForList(this.projectId).then((template) => {
         this.initPriorityFilters(template);
         this.condition.components = initTestCaseConditionComponents(
           this.condition,

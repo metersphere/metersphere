@@ -216,7 +216,7 @@ import {
 import { testCaseNodeListReviewRelate } from "@/api/test-case-node";
 import { getVersionFilters } from "@/business/utils/sdk-utils";
 import { projectRelated } from "@/api/project";
-import { getTestTemplate } from "@/api/custom-field-template";
+import {getTestTemplate, getTestTemplateForList} from "@/api/custom-field-template";
 import { initTestCaseConditionComponents } from "@/business/case/test-case";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
@@ -322,7 +322,7 @@ export default {
   },
   methods: {
     loadConditionComponents() {
-      getTestTemplate(this.projectId).then((template) => {
+      getTestTemplateForList(this.projectId).then((template) => {
         this.initPriorityFilters(template);
         this.condition.components = initTestCaseConditionComponents(
           this.condition,

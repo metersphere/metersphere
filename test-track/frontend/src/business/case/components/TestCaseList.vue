@@ -809,6 +809,7 @@ export default {
         this.testCaseTemplate.customFields,
         this.trashEnable
       );
+      console.log(this.condition.components);
     },
     setTestCaseDefaultValue(template) {
       let testCaseDefaultValue = {};

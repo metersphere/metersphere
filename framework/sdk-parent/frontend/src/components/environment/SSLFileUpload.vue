@@ -40,7 +40,7 @@
 </template>
 
 <script>
-  import {getUploadSizeLimit} from "@/utils";
+  import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
   export default {
     name: "SSLFileUpload",
