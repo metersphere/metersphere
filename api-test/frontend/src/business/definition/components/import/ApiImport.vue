@@ -150,7 +150,7 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
             <div class="el-upload__tip" slot="tip">
-              {{ $t('api_test.api_import.file_size_limit') }}
+              {{ $t('api_test.api_import.file_size_limit', {size: this.uploadSize}) }}
             </div>
           </el-upload>
         </el-col>
@@ -200,6 +200,7 @@ import MsApiAuthConfig from '../auth/ApiAuthConfig';
 import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import { KeyValue } from '../../model/ApiTestModel';
+import {getUploadSizeLimit} from "metersphere-frontend/src/utils/index";
 
 export default {
   name: 'ApiImport',
@@ -378,6 +379,9 @@ export default {
       }
       return '30%';
     },
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
   },
   methods: {
     open(module) {
