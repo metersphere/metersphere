@@ -7,7 +7,6 @@
             :model="request"
             ref="request"
             label-width="100px"
-            :disabled="isReadOnly"
             style="margin: 10px"
             class="ms-el-tabs__nav-scroll">
             <el-form-item :label="$t('api_test.request.dubbo.protocol')" prop="protocol">

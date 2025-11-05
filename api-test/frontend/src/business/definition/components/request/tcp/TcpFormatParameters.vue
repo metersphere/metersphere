@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
-          <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly">
+          <el-form class="tcp" :model="request" :rules="rules" ref="request">
             <el-tabs v-model="activeName" class="request-tabs ms-tabs__nav-scroll" @tab-click="tabClick">
               <!--test-->
               <el-tab-pane name="parameters">
@@ -67,20 +67,25 @@
                 <el-row style="margin: 0px 10px">
                   <el-col :span="7">
                     <el-form-item label="TCPClient" prop="classname" label-width="120px">
-                      <el-select v-model="request.classname" style="width: 100%" size="small">
+                      <el-select v-model="request.classname" style="width: 100%" size="small" :disabled="isReadOnly">
                         <el-option v-for="c in classes" :key="c" :label="c" :value="c" />
                       </el-select>
                     </el-form-item>
                     <el-form-item :label="$t('api_test.request.tcp.username')" prop="username" label-width="120px">
-                      <el-input v-model="request.username" maxlength="100" show-word-limit size="small" />
+                      <el-input
+                        v-model="request.username"
+                        maxlength="100"
+                        show-word-limit
+                        size="small"
+                        :disabled="isReadOnly" />
                     </el-form-item>
                     <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte" label-width="120px">
-                      <el-input v-model="request.eolByte" size="small" />
+                      <el-input v-model="request.eolByte" size="small" :disabled="isReadOnly" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="6" label-width="80px">
                     <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger" label-width="120px">
-                      <el-input v-model="request.soLinger" size="small" />
+                      <el-input v-model="request.soLinger" size="small" :disabled="isReadOnly" />
                     </el-form-item>
                     <el-form-item :label="$t('api_test.request.tcp.password')" prop="password" label-width="120px">
                       <el-input
@@ -89,12 +94,14 @@
                         show-word-limit
                         show-password
                         autocomplete="new-password"
+                        :disabled="isReadOnly"
                         size="small" />
                     </el-form-item>
                     <el-form-item label="Encoding" label-width="120px">
                       <el-select v-model="request.connectEncoding" size="small">
                         <el-option
                           v-for="item in connectEncodingArr"
+                          :disabled="isReadOnly"
                           :key="item.key"
                           :label="item.value"
                           :value="item.key" />
@@ -103,21 +110,31 @@
                   </el-col>
                   <el-col :span="5">
                     <el-form-item :label="$t('api_test.request.tcp.close_connection')" label-width="140px">
-                      <el-checkbox v-model="request.closeConnection" />
+                      <el-checkbox v-model="request.closeConnection" :disabled="isReadOnly" />
                     </el-form-item>
                     <el-form-item :label="$t('api_test.request.tcp.no_delay')" label-width="140px">
-                      <el-checkbox v-model="request.nodelay" />
+                      <el-checkbox v-model="request.nodelay" :disabled="isReadOnly" />
                     </el-form-item>
                     <el-form-item :label="$t('api_test.request.tcp.re_use_connection')" label-width="140px">
-                      <el-checkbox v-model="request.reUseConnection" />
+                      <el-checkbox v-model="request.reUseConnection" :disabled="isReadOnly" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="3">
                     <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout" label-width="80px">
-                      <el-input-number v-model="request.ctimeout" controls-position="right" :min="0" size="small" />
+                      <el-input-number
+                        v-model="request.ctimeout"
+                        controls-position="right"
+                        :min="0"
+                        size="small"
+                        :disabled="isReadOnly" />
                     </el-form-item>
                     <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout" label-width="80px">
-                      <el-input-number v-model="request.timeout" controls-position="right" :min="0" size="small" />
+                      <el-input-number
+                        v-model="request.timeout"
+                        controls-position="right"
+                        :min="0"
+                        size="small"
+                        :disabled="isReadOnly" />
                     </el-form-item>
                   </el-col>
                 </el-row>
