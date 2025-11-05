@@ -51,9 +51,19 @@
     </a-form>
     <template #footer>
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-[4px]">
-          <a-checkbox v-model:model-value="saveModalForm.saveApiAsCase"></a-checkbox>
-          {{ t('apiScenario.syncSaveAsCase') }}
+        <div>
+          <div class="flex items-center gap-[4px]">
+            <a-checkbox v-model:model-value="saveModalForm.saveApiAsCase"></a-checkbox>
+            {{ t('apiScenario.syncSaveAsCase') }}
+          </div>
+          <div v-if="saveModalForm.saveApiAsCase" class="flex items-center">
+            <span class="text-[12px]">{{ t('apiScenario.changeStepTo') }}</span>
+            <!-- TODO bq -->
+            <a-radio-group v-model:model-value="saveModalForm.changeStepTo" size="mini">
+              <a-radio value="quote" class="!mr-0 text-[12px]">{{ `${t('common.quote')}${t('common.case')}` }}</a-radio>
+              <a-radio value="copy" class="text-[12px]">{{ `${t('common.copy')}${t('common.case')}` }}</a-radio>
+            </a-radio-group>
+          </div>
         </div>
         <div class="flex items-center gap-[12px]">
           <a-button type="secondary" :disabled="saveLoading" @click="handleSaveApiCancel">
@@ -100,6 +110,7 @@
     path: '',
     moduleId: 'root',
     saveApiAsCase: false,
+    changeStepTo: 'quote',
   });
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);

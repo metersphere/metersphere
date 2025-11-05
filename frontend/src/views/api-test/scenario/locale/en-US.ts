@@ -198,7 +198,8 @@ export default {
   'apiScenario.sourceScenarioEnvTip': 'Runtime environment, including environment parameters',
   'apiScenario.setSuccess': 'Set Successful',
   'apiScenario.pleaseInputUrl': 'Please enter URL',
-  'apiScenario.syncSaveAsCase': 'Synchronously add test interface case',
+  'apiScenario.syncSaveAsCase': 'Synchronize adding interface test cases',
+  'apiScenario.changeStepTo': 'Change the current step to',
   'apiScenario.deleteStepConfirm': 'Are you sure you want to delete {name}?',
   'apiScenario.deleteStepConfirmWithChildren':
     'Are you sure you want to delete the selected step and all substeps within the step?',
