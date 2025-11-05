@@ -1261,10 +1261,7 @@
     </select>
     <select id="selectRepeatByProtocol" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition
-        where name in
-        <foreach collection="names" item="name" separator="," open="(" close=")">
-            #{name}
-        </foreach>
+        <include refid="Same_Where_Clause_Same" />
         and protocol = #{protocol}
         and project_id = #{projectId}
         and status != 'Trash'

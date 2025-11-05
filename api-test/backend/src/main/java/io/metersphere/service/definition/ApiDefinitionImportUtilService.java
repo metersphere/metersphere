@@ -969,11 +969,11 @@ public class ApiDefinitionImportUtilService {
 
     private List<ApiDefinitionWithBLOBs> getApiDefinitionWithBLOBsList(ApiTestImportRequest request, List<ApiDefinitionWithBLOBs> optionData) {
         //处理数据
-        List<String> nameList = optionData.stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+        //List<String> nameList = optionData.stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
         String projectId = request.getProjectId();
         String protocol = request.getProtocol();
         //获取系统内重复数据
-        return extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol, projectId);
+        return extApiDefinitionMapper.selectRepeatByProtocol(optionData, protocol, projectId);
     }
 
     private static void startCover(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData,
