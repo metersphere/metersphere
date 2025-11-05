@@ -104,7 +104,7 @@
           v-model:selected-keys="selectedKeys"
           v-model:steps="scenario.steps"
           v-model:checked-keys="checkedKeys"
-          v-model:stepKeyword="keyword"
+          v-model:step-keyword="keyword"
           v-model:scenario="scenario"
           :expand-all="isExpandAll"
           :step-details="scenario.stepDetails"

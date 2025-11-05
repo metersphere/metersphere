@@ -35,7 +35,7 @@
       </a-form-item>
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
-          v-model:modelValue="saveModalForm.moduleId"
+          v-model:model-value="saveModalForm.moduleId"
           :filter-tree-node="filterTreeNode"
           :data="apiModuleTree"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
@@ -58,7 +58,6 @@
           </div>
           <div v-if="saveModalForm.saveApiAsCase" class="flex items-center">
             <span class="text-[12px]">{{ t('apiScenario.changeStepTo') }}</span>
-            <!-- TODO bq -->
             <a-radio-group v-model:model-value="saveModalForm.changeStepTo" size="mini">
               <a-radio value="quote" class="!mr-0 text-[12px]">{{ `${t('common.quote')}${t('common.case')}` }}</a-radio>
               <a-radio value="copy" class="text-[12px]">{{ `${t('common.copy')}${t('common.case')}` }}</a-radio>
@@ -97,7 +96,13 @@
   const props = defineProps<{
     detail: RequestParam | ApiDefinitionRequestParam;
   }>();
-  const emit = defineEmits(['close']);
+  const emit = defineEmits<{
+    (e: 'close'): void;
+    (
+      e: 'saveCaseSuccess',
+      data: { id: string; type: 'quote' | 'copy'; resourceNum: number; resourceName: string }
+    ): void;
+  }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -105,7 +110,13 @@
   const visible = defineModel<boolean>('visible', {
     required: true,
   });
-  const saveModalForm = ref({
+  const saveModalForm = ref<{
+    name: string;
+    path: string;
+    moduleId: string;
+    saveApiAsCase: boolean;
+    changeStepTo: 'quote' | 'copy';
+  }>({
     name: '',
     path: '',
     moduleId: 'root',
@@ -156,7 +167,13 @@
       uploadFileIds: props.detail.uploadFileIds || [],
       linkFileIds: props.detail.linkFileIds || [],
     };
-    await addCase(params);
+    const res = await addCase(params);
+    emit('saveCaseSuccess', {
+      id: res.id,
+      type: saveModalForm.value.changeStepTo,
+      resourceNum: res.num,
+      resourceName: res.name,
+    });
   }
 
   /**
