@@ -23,6 +23,7 @@
     "diffable-html": "^4.0.0",
     "echarts": "^5.0.2",
     "el-table-infinite-scroll": "^1.0.10",
+    "el-table-virtual-scroll": "^2.0.2",
     "el-tree-transfer": "^2.4.7",
     "element-resize-detector": "^1.2.4",
     "element-ui": "2.15.13",

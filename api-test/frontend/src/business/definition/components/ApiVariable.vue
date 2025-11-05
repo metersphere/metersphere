@@ -4,169 +4,181 @@
       <span class="kv-description" v-if="description">
         {{ description }}
       </span>
-      <el-table @cell-dblclick="clickRow" border :show-header="true" row-key="id" :data="parameters" ref="expandTable">
-        <el-table-column
-          v-for="item in tableColumnArr"
-          :key="item.id"
-          :prop="item.prop"
-          :label="item.label"
-          :min-width="getTableMinWidth(item.prop)"
-          :show-overflow-tooltip="item.prop !== 'value'">
-          <template v-slot:default="scope">
-            <div v-show="!scope.row.isEdit">
-              <div v-if="item.prop === 'required' || item.prop === 'urlEncode'">
-                <span class="param-span" v-if="scope.row[item.prop]">{{ $t('commons.yes') }}</span>
-                <span class="param-span" v-else>{{ $t('commons.no') }}</span>
+      <virtual-scroll
+        :data="parameters"
+        :item-size="41"
+        key-prop="uuid"
+        @change="(renderData) => (virtualList = renderData)">
+        <el-table
+          @cell-dblclick="clickRow"
+          border
+          :show-header="true"
+          row-key="uuid"
+          max-height="400"
+          :data="virtualList"
+          ref="expandTable">
+          <el-table-column
+            v-for="item in tableColumnArr"
+            :key="item.id"
+            :prop="item.prop"
+            :label="item.label"
+            :min-width="getTableMinWidth(item.prop)"
+            :show-overflow-tooltip="item.prop !== 'value'">
+            <template v-slot:default="scope">
+              <div v-show="!scope.row.isEdit">
+                <div v-if="item.prop === 'required' || item.prop === 'urlEncode'">
+                  <span class="param-span" v-if="scope.row[item.prop]">{{ $t('commons.yes') }}</span>
+                  <span class="param-span" v-else>{{ $t('commons.no') }}</span>
+                </div>
+                <div v-else-if="item.prop === 'value' && isActive && scope.row.type === 'file'">
+                  <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="true" :disabled="true" />
+                </div>
+                <div v-else-if="item.prop === 'value' && isActive && scope.row.type !== 'file'">
+                  <overflow-tooltip :content="scope.row.value" :autoEnterable="true" popperClass="ms-table-tooltip" />
+                </div>
+                <span v-else>
+                  {{ scope.row[item.prop] }}
+                </span>
               </div>
-              <div v-else-if="item.prop === 'value' && isActive && scope.row.type === 'file'">
-                <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="true" :disabled="true" />
-              </div>
-              <div v-else-if="item.prop === 'value' && isActive && scope.row.type !== 'file'">
-                <overflow-tooltip :content="scope.row.value" :autoEnterable="true" popperClass="ms-table-tooltip" />
-              </div>
-              <span v-else>
-                {{ scope.row[item.prop] }}
-              </span>
-            </div>
-            <div v-show="scope.row.isEdit">
-              <div v-if="item.prop === 'type'">
-                <el-select
-                  v-if="type === 'body'"
-                  :disabled="isReadOnly"
-                  v-model="scope.row.type"
-                  size="mini"
-                  @change="typeChange(scope.row)">
-                  <el-option value="text" />
-                  <el-option value="file" />
-                  <el-option value="json" />
-                </el-select>
-              </div>
-              <div v-else-if="item.prop === 'name'">
-                <el-input
-                  v-if="!suggestions"
-                  :disabled="isReadOnly"
-                  v-model="scope.row.name"
-                  size="small"
-                  maxlength="200"
-                  @change="change"
-                  :placeholder="keyText">
-                </el-input>
-                <el-autocomplete
-                  :disabled="isReadOnly"
-                  v-if="suggestions"
-                  v-model="scope.row.name"
-                  size="small"
-                  :fetch-suggestions="querySearch"
-                  @change="change"
-                  :placeholder="keyText"
-                  show-word-limit />
-              </div>
-              <div v-else-if="item.prop === 'required'">
-                <el-select v-model="scope.row.required" size="small" style="width: 99%">
-                  <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
-                </el-select>
-              </div>
-              <div v-else-if="item.prop === 'value'">
-                <div v-if="isActive && scope.row.type !== 'file'">
+              <div v-show="scope.row.isEdit">
+                <div v-if="item.prop === 'type'">
+                  <el-select
+                    v-if="type === 'body'"
+                    :disabled="isReadOnly"
+                    v-model="scope.row.type"
+                    size="mini"
+                    @change="typeChange(scope.row)">
+                    <el-option value="text" />
+                    <el-option value="file" />
+                    <el-option value="json" />
+                  </el-select>
+                </div>
+                <div v-else-if="item.prop === 'name'">
+                  <el-input
+                    v-if="!suggestions"
+                    :disabled="isReadOnly"
+                    v-model="scope.row.name"
+                    size="small"
+                    maxlength="200"
+                    @change="change"
+                    :placeholder="keyText">
+                  </el-input>
                   <el-autocomplete
                     :disabled="isReadOnly"
+                    v-if="suggestions"
+                    v-model="scope.row.name"
                     size="small"
-                    class="input-with-autocomplete"
-                    v-model="scope.row.value"
-                    :fetch-suggestions="funcSearch"
-                    :placeholder="valueText"
-                    value-key="name"
-                    highlight-first-item
-                    @select="change">
-                    <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(scope.row)"></i>
-                  </el-autocomplete>
+                    :fetch-suggestions="querySearch"
+                    @change="change"
+                    :placeholder="keyText"
+                    show-word-limit />
                 </div>
-                <div v-else-if="isActive && scope.row.type === 'file'">
-                  <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="isReadOnly" />
+                <div v-else-if="item.prop === 'required'">
+                  <el-select v-model="scope.row.required" size="small" style="width: 99%">
+                    <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
+                  </el-select>
                 </div>
-                <div v-else class="param-div-show">
-                  <span class="param-span">{{ item.value }}</span>
+                <div v-else-if="item.prop === 'value'">
+                  <div v-if="isActive && scope.row.type !== 'file'">
+                    <el-autocomplete
+                      :disabled="isReadOnly"
+                      size="small"
+                      class="input-with-autocomplete"
+                      v-model="scope.row.value"
+                      :fetch-suggestions="funcSearch"
+                      :placeholder="valueText"
+                      value-key="name"
+                      highlight-first-item
+                      @select="change">
+                      <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(scope.row)"></i>
+                    </el-autocomplete>
+                  </div>
+                  <div v-else-if="isActive && scope.row.type === 'file'">
+                    <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="isReadOnly" />
+                  </div>
+                  <div v-else class="param-div-show">
+                    <span class="param-span">{{ item.value }}</span>
+                  </div>
+                </div>
+                <div v-else-if="item.prop === 'contentType'">
+                  <el-input
+                    :disabled="isReadOnly"
+                    v-model="scope.row.contentType"
+                    size="small"
+                    @change="change"
+                    :placeholder="$t('api_test.request.content_type')"
+                    show-word-limit />
+                </div>
+                <div v-else-if="item.prop === 'min'">
+                  <el-input-number
+                    :min="0"
+                    v-model="scope.row.min"
+                    :controls="false"
+                    :placeholder="$t('schema.minLength')"
+                    size="small"
+                    style="width: 99%" />
+                </div>
+                <div v-else-if="item.prop === 'max'">
+                  <el-input-number
+                    :min="0"
+                    v-model="scope.row.max"
+                    :controls="false"
+                    :placeholder="$t('schema.maxLength')"
+                    size="small"
+                    style="width: 99%" />
+                </div>
+                <div v-else-if="item.prop === 'description'">
+                  <el-input
+                    v-model="scope.row.description"
+                    size="small"
+                    maxlength="200"
+                    :placeholder="$t('commons.description')"
+                    show-word-limit>
+                  </el-input>
+                </div>
+                <div v-else-if="item.prop === 'urlEncode'">
+                  <el-select v-model="scope.row.urlEncode" size="small" clearable style="width: 100px">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"></el-option>
+                  </el-select>
+                </div>
+                <div v-else>
+                  {{ item.prop }}
                 </div>
               </div>
-              <div v-else-if="item.prop === 'contentType'">
-                <el-input
-                  :disabled="isReadOnly"
-                  v-model="scope.row.contentType"
-                  size="small"
-                  @change="change"
-                  :placeholder="$t('api_test.request.content_type')"
-                  show-word-limit />
-              </div>
-              <div v-else-if="item.prop === 'min'">
-                <el-input-number
-                  :min="0"
-                  v-model="scope.row.min"
-                  :controls="false"
-                  :placeholder="$t('schema.minLength')"
-                  size="small"
-                  style="width: 99%" />
-              </div>
-              <div v-else-if="item.prop === 'max'">
-                <el-input-number
-                  :min="0"
-                  v-model="scope.row.max"
-                  :controls="false"
-                  :placeholder="$t('schema.maxLength')"
-                  size="small"
-                  style="width: 99%" />
-              </div>
-              <div v-else-if="item.prop === 'description'">
-                <el-input
-                  v-model="scope.row.description"
-                  size="small"
-                  maxlength="200"
-                  :placeholder="$t('commons.description')"
-                  show-word-limit>
-                </el-input>
-              </div>
-              <div v-else-if="item.prop === 'urlEncode'">
-                <el-select v-model="scope.row.urlEncode" size="small" clearable style="width: 100px">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"></el-option>
-                </el-select>
-              </div>
-              <div v-else>
-                {{ item.prop }}
-              </div>
-            </div>
-          </template>
-        </el-table-column>
-
-        <el-table-column prop="uuid" :label="$t('commons.operating')" width="140px" show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <el-switch
-              size="mini"
-              style="margin-right: 5px"
-              :disabled="!(isShowEnable && !isDisable(scope.$index)) || isReadOnly"
-              v-model="scope.row.enable" />
-            <el-button
-              size="mini"
-              class="el-icon-delete-solid"
-              style="margin-right: 5px"
-              circle
-              @click="remove(scope.$index)"
-              :disabled="isDisable(scope.$index) || isReadOnly" />
-            <i
-              class="el-icon-top"
-              v-show="!(isDisable(scope.$index) || isReadOnly)"
-              style="cursor: pointer"
-              @click="moveTop(scope.$index)" />
-            <i
-              class="el-icon-bottom"
-              v-show="!(isDisable(scope.$index) || isReadOnly)"
-              style="cursor: pointer"
-              @click="moveBottom(scope.$index)" />
-          </template>
-        </el-table-column>
-      </el-table>
+            </template>
+          </el-table-column>
+          <el-table-column prop="uuid" :label="$t('commons.operating')" width="140px" show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <el-switch
+                size="mini"
+                style="margin-right: 5px"
+                :disabled="!(isShowEnable && !isDisable(scope.$index)) || isReadOnly"
+                v-model="scope.row.enable" />
+              <el-button
+                size="mini"
+                class="el-icon-delete-solid"
+                style="margin-right: 5px"
+                circle
+                @click="remove(scope.$index)"
+                :disabled="isDisable(scope.$index) || isReadOnly" />
+              <i
+                class="el-icon-top"
+                v-show="!(isDisable(scope.$index) || isReadOnly)"
+                style="cursor: pointer"
+                @click="moveTop(scope.$index)" />
+              <i
+                class="el-icon-bottom"
+                v-show="!(isDisable(scope.$index) || isReadOnly)"
+                style="cursor: pointer"
+                @click="moveBottom(scope.$index)" />
+            </template>
+          </el-table-column>
+        </el-table>
+      </virtual-scroll>
     </div>
 
     <ms-api-variable-advance
@@ -195,6 +207,7 @@ import Vue from 'vue';
 import ApiVariableSetting from '@/business/definition/components/ApiVariableSetting';
 import { getShowFields } from 'metersphere-frontend/src/utils/custom_field';
 import OverflowTooltip from '@/business/definition/components/overflow-tooltip/index.vue';
+import VirtualScroll from 'el-table-virtual-scroll';
 
 export default {
   name: 'MsApiVariable',
@@ -204,6 +217,7 @@ export default {
     MsApiVariableAdvance,
     MsApiVariableJson,
     OverflowTooltip,
+    VirtualScroll,
   },
   props: {
     id: String,
@@ -272,6 +286,7 @@ export default {
           label: this.$t('commons.no'),
         },
       ],
+      virtualList: [],
     };
   },
   watch: {
@@ -557,7 +572,10 @@ export default {
       if (!this.parameters[this.parameters.length - 1].min) {
         this.$set(this.parameters[this.parameters.length - 1], 'min', 0);
       }
-      if (!this.parameters[this.parameters.length - 1].value && this.parameters[this.parameters.length - 1].type !== 'file') {
+      if (
+        !this.parameters[this.parameters.length - 1].value &&
+        this.parameters[this.parameters.length - 1].type !== 'file'
+      ) {
         this.$set(this.parameters[this.parameters.length - 1], 'value', null);
       }
       if (!this.parameters[this.parameters.length - 1].uuid) {
@@ -572,7 +590,8 @@ export default {
       this.paramColumns = savedApiParamsShowFields;
     }
     this.parameters.forEach((item) => {
-      this.$set(item, 'isEdit', false);
+      item.isEdit = false;
+      item.uuid = this.uuid();
     });
     this.initTableColumn();
   },
