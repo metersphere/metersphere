@@ -68,11 +68,11 @@ import TestPlanMinder from "@/business/common/minder/TestPlanMinder";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import TestPlanFunctionalRelevance from "@/business/plan/view/comonents/functional/TestPlanFunctionalRelevance";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
-import {clearOtherTagAfterBatchTag, openMinderConfirm, saveMinderConfirm} from "@/business/common/minder/minderUtils";
+import {openMinderConfirm, saveMinderConfirm} from "@/business/common/minder/minderUtils";
 import {getTestPlanCaseNodesByCaseFilter} from "@/api/testCase";
 import {useStore} from "@/store";
 import {testPlanTestCaseGet} from "@/api/remote/plan/test-plan-test-case";
-import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
+import {buildNodePath} from "metersphere-frontend/src/model/NodeTree";
 
 export default {
   name: "TestPlanFunctional",
@@ -173,6 +173,8 @@ export default {
             .then(response => {
               this.loading = false;
               this.treeNodes = response.data;
+              // 设置模块节点映射
+              this.setModuleOptions();
               this.setCurrentKey();
             });
         } else {
@@ -181,6 +183,8 @@ export default {
             .then((r) => {
               this.loading = false;
               this.treeNodes = r.data;
+              // 设置模块节点映射
+              this.setModuleOptions();
               this.setCurrentKey();
             });
         }
@@ -204,6 +208,13 @@ export default {
           }
         });
       }
+    },
+    setModuleOptions() {
+      let moduleOptions = [];
+      this.treeNodes.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      useStore().testCaseModuleOptions = moduleOptions;
     },
     setCondition(data) {
       this.condition = data;

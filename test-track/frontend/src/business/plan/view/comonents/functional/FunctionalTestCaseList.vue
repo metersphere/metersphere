@@ -130,7 +130,11 @@
             :field="item"
             :fields-width="fieldsWidth"
             :label="$t('test_track.case.module')"
-            min-width="120px"/>
+            min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ nodePathMap.get(scope.row.nodeId) }}</span>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
             prop="projectName"
@@ -356,6 +360,8 @@ import {
 } from "@/api/remote/plan/test-plan-test-case";
 import {getOriginIssuesByCaseId} from "@/api/issue";
 import ReviewStatus from "@/business/case/components/ReviewStatus.vue";
+import {mapState} from "pinia";
+import {useStore} from "@/store";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -469,6 +475,18 @@ export default {
     },
     systemFiledMap() {
       return SYSTEM_FIELD_NAME_MAP;
+    },
+    ...mapState(useStore, {
+      moduleOptions: "testCaseModuleOptions",
+    }),
+    nodePathMap() {
+      let map = new Map();
+      if (this.moduleOptions) {
+        this.moduleOptions.forEach((item) => {
+          map.set(item.id, item.path);
+        });
+      }
+      return map;
     },
     operators() {
       if (this.planStatus === 'Archived') {
