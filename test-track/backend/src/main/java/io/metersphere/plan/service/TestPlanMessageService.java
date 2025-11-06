@@ -95,6 +95,8 @@ public class TestPlanMessageService {
         String creator = testPlanReport.getCreator();
         UserDTO userDTO = baseUserService.getUserDTO(creator);
         HttpHeaderUtils.runAsUser(userDTO);
+        Translator.setLanguage(userDTO != null ? userDTO.getLanguage() : null);
+
         // 计算通过率
         TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
         testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
