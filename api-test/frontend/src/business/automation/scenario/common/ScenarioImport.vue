@@ -93,7 +93,7 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
             <div class="el-upload__tip" slot="tip">
-              {{ $t('api_test.api_import.file_size_limit') }}
+              {{ $t('api_test.api_import.file_size_limit', {size: this.uploadSize}) }}
             </div>
           </el-upload>
         </el-col>
@@ -129,7 +129,7 @@ import { importScenario } from '@/api/scenario';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
-import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
+import { listenGoBack, removeGoBackListener, getUploadSizeLimit } from 'metersphere-frontend/src/utils';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 
 export default {
@@ -240,6 +240,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    uploadSize() {
+      return getUploadSizeLimit();
+    }
   },
   methods: {
     scheduleEdit() {
