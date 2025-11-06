@@ -1531,7 +1531,7 @@ export default {
       this.showAll();
       this.buttonData = buttons(this);
       this.initPlugins();
-      if (e && e.target.className && e.target.className.split(' ')[1] === 'white--space') {
+      if (e && typeof e.target?.className === 'string' && e.target.className.split(' ')[1] === 'white--space') {
         this.selectedTreeNode = undefined;
         this.selectedNode = undefined;
       }
@@ -2700,6 +2700,7 @@ export default {
           //复制的case的断言的resourceId是一样的，所以要加上parentIndex做唯一标识
           if (item.resourceId === nodes[i].resourceId && item.parentIndex === nodes[i].parentIndex) {
             nodes.splice(i, 1);
+            this.$refs.stepTree.remove(item);
           } else {
             if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
               this.recursionDelete(item, nodes[i].hashTree);
