@@ -111,7 +111,7 @@
                 maxlength="200"
                 :placeholder="$t('api_test.variable_name')"
                 show-word-limit
-                @change="change(scope.row)"
+                @input="change(scope.row)"
             />
           </template>
         </ms-table-column>
@@ -404,9 +404,20 @@ export default {
         // 检查空行
         if (!item.name && !item.value) {
           removeIndex = index !== this.items.length - 1 ? index : removeIndex;
-          isNeedCreate = false;
         }
       });
+
+      // 需要创建新的空行
+      if (isNeedCreate) {
+        this.items.push(
+            new KeyValue({
+              enable: true,
+              id: getUUID(),
+              type: "CONSTANT",
+              scope: "api",
+            })
+        );
+      }
 
       // 处理重复的name
       if (repeatKey !== "") {
@@ -421,18 +432,6 @@ export default {
       // 移除多余的空行
       if (removeIndex !== -1) {
         this.items.splice(removeIndex, 1);
-      }
-
-      // 需要创建新的空行
-      if (isNeedCreate) {
-        this.items.push(
-            new KeyValue({
-              enable: true,
-              id: getUUID(),
-              type: "CONSTANT",
-              scope: "api",
-            })
-        );
       }
       this.filter(this.currentPage);
 
