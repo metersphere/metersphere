@@ -417,7 +417,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
         if (scenarioConfig != null) {
             // 设置是否使用全局cookie
-            enableConfig.setEnableGlobalCookie(scenarioConfig.getOtherConfig().getEnableCookieShare());
+            enableConfig.setEnableGlobalCookie(scenarioConfig.getOtherConfig().getEnableGlobalCookie());
 
             ScenarioVariable variable = scenarioConfig.getVariable();
             if (variable != null && variable.getCsvVariables() != null) {
