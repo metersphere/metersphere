@@ -30,6 +30,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
   const descTags = [stepTag, textDescTag];
   const caseChildTags = [prerequisiteTag, stepTag, textDescTag, remarkTag];
   const caseOffspringTags = [...caseChildTags, stepTag, stepExpectTag, textDescTag, remarkTag];
+  const caseWithDetailTags = [prerequisiteTag, textDescTag, remarkTag];
 
   /**
    * 是否可展示浮动菜单
@@ -774,6 +775,7 @@ export default function useMinderBaseApi({ hasEditPermission }: { hasEditPermiss
     descTags,
     caseChildTags,
     caseOffspringTags,
+    caseWithDetailTags,
     insertSiblingMenus,
     insertSonMenus,
     insertNode,
