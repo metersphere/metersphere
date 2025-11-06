@@ -7,15 +7,11 @@
     :placement="placement"
     :enterable="autoEnter === null ? enterable : autoEnter"
     :popper-class="popperClass"
-    :visible-arrow="false"
-  >
+    :visible-arrow="false">
     <div class="overflow-content-wrapper">
-      <span
-        ref="overflowTooltipContent"
-        class="overflow-content"
-        :class="className"
-        @mouseover="isOverflow"
-      >{{ content }}</span>
+      <span ref="overflowTooltipContent" class="overflow-content" :class="className" @mouseover="isOverflow">{{
+        content
+      }}</span>
     </div>
   </el-tooltip>
 </template>
@@ -26,33 +22,33 @@ export default {
   props: {
     className: {
       type: String,
-      default: ''
+      default: '',
     },
     content: {
       type: String,
-      default: ''
+      default: '',
     },
     enterable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     autoEnterable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     popperClass: {
       type: String,
-      default: ''
+      default: '',
     },
     placement: {
       type: String,
-      default: 'top'
-    }
+      default: 'top',
+    },
   },
   data() {
     return {
       disabled: true,
-      autoEnter: null
+      autoEnter: null,
     };
   },
   methods: {
@@ -64,14 +60,14 @@ export default {
       }
       if (this.autoEnterable) {
         setTimeout(() => {
-          const popper = this.$refs.tooltip.$refs.popper;
+          const popper = this.$refs.tooltip?.$refs.popper;
           if (popper) {
             this.autoEnter = popper.offsetHeight < popper.scrollHeight;
           }
         }, 100);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

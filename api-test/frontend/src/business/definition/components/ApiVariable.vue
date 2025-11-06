@@ -25,22 +25,7 @@
             :min-width="getTableMinWidth(item.prop)"
             :show-overflow-tooltip="item.prop !== 'value'">
             <template v-slot:default="scope">
-              <div v-show="!scope.row.isEdit">
-                <div v-if="item.prop === 'required' || item.prop === 'urlEncode'">
-                  <span class="param-span" v-if="scope.row[item.prop]">{{ $t('commons.yes') }}</span>
-                  <span class="param-span" v-else>{{ $t('commons.no') }}</span>
-                </div>
-                <div v-else-if="item.prop === 'value' && isActive && scope.row.type === 'file'">
-                  <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="true" :disabled="true" />
-                </div>
-                <div v-else-if="item.prop === 'value' && isActive && scope.row.type !== 'file'">
-                  <overflow-tooltip :content="scope.row.value" :autoEnterable="true" popperClass="ms-table-tooltip" />
-                </div>
-                <span v-else>
-                  {{ scope.row[item.prop] }}
-                </span>
-              </div>
-              <div v-show="scope.row.isEdit">
+              <div v-if="scope.row.uuid === activeEditRowUUID">
                 <div v-if="item.prop === 'type'">
                   <el-select
                     v-if="type === 'body'"
@@ -148,6 +133,21 @@
                 <div v-else>
                   {{ item.prop }}
                 </div>
+              </div>
+              <div v-else>
+                <div v-if="item.prop === 'required' || item.prop === 'urlEncode'">
+                  <span class="param-span" v-if="scope.row[item.prop]">{{ $t('commons.yes') }}</span>
+                  <span class="param-span" v-else>{{ $t('commons.no') }}</span>
+                </div>
+                <div v-else-if="item.prop === 'value' && isActive && scope.row.type === 'file'">
+                  <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="true" :disabled="true" />
+                </div>
+                <div v-else-if="item.prop === 'value' && isActive && scope.row.type !== 'file'">
+                  <overflow-tooltip :content="scope.row.value" :autoEnterable="true" popperClass="ms-table-tooltip" />
+                </div>
+                <span v-else>
+                  {{ scope.row[item.prop] }}
+                </span>
               </div>
             </template>
           </el-table-column>
@@ -287,6 +287,7 @@ export default {
         },
       ],
       virtualList: [],
+      activeEditRowUUID: '',
     };
   },
   watch: {
@@ -315,9 +316,7 @@ export default {
   },
   methods: {
     closeAllTableDataEdit() {
-      this.parameters.forEach((item) => {
-        item.isEdit = false;
-      });
+      this.activeEditRowUUID = '';
     },
     getTableMinWidth(col) {
       if (col === 'name') {
@@ -333,8 +332,11 @@ export default {
     clickRow(row, column, event) {
       this.closeAllTableDataEdit();
       if (!this.isReadOnly) {
-        this.$nextTick(() => {
-          this.$set(row, 'isEdit', true);
+        this.parameters.forEach((item) => {
+          if (item.uuid === row.uuid) {
+            item.isEdit = true;
+            this.activeEditRowUUID = row.uuid;
+          }
         });
       }
     },

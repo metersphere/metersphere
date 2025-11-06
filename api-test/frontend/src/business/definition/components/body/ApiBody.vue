@@ -367,6 +367,9 @@ export default {
         }
       }
     },
+    uuid: function () {
+      return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
+    },
     batchSave(data) {
       if (data) {
         let params = data.split(/[\r\n]+/);
@@ -388,6 +391,7 @@ export default {
                 enable: true,
                 isEdit: false,
                 contentType: 'text/plain',
+                uuid: this.uuid(),
               })
             );
           }
