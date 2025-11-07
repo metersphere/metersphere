@@ -213,6 +213,7 @@
     return {
       request: {
         ...detailForm.value,
+        caseEditType: 'TEXT',
         deleteFileMetaIds: deleteFileMetaIds.value,
         unLinkFilesIds: unLinkFilesIds.value,
         newAssociateFileListIds: newAssociateFileListIds.value,

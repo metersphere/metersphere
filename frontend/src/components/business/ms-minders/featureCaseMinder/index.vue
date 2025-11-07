@@ -333,10 +333,7 @@
   const activeExtraKey = ref<'baseInfo' | 'attachment' | 'comments' | 'bug'>('baseInfo');
   const activeNodeDetailResource = ref();
   function handleResourceContentChange() {
-    let { prerequisite } = activeCase.value;
-    let { textDescription } = activeCase.value;
-    let { expectedResult } = activeCase.value;
-    let { description } = activeCase.value;
+    let { prerequisite, textDescription, expectedResult, description } = activeCase.value;
 
     const caseNode = window.minder.getNodeById(activeCase.value.id);
     caseNode.children?.forEach((child: MinderJsonNode) => {
@@ -367,7 +364,8 @@
   function handleMinderNodeContentChange(node?: MinderJsonNode) {
     isContentChanging.value = true;
     if (extraVisible.value) {
-      const name = node?.data?.text || window.minder.getNodeById(activeCase.value.id)?.data?.text || '';
+      const nodeText = node?.data?.resource?.includes(caseTag) ? node?.data?.text : '';
+      const name = nodeText || window.minder.getNodeById(activeCase.value.id)?.data?.text || '';
       // 已打开详情更改前置、文本、备注节点内容更新抽屉详情 前置、文本描述、预期结果、备注内容
       if (Object.values(activeNodeDetailResource.value).some((e) => e === true)) {
         const { prerequisite, textDescription, expectedResult, description } = handleResourceContentChange();
@@ -464,11 +462,11 @@
   function handleBaseInfoSaved() {
     const node: MinderJsonNode = window.minder.getSelectedNode();
     let dataParams;
-    if (node.data?.resource?.some((e) => caseWithDetailTags.includes(e))) {
+    if (node?.data?.resource?.some((e) => caseWithDetailTags.includes(e))) {
       const { parent } = node;
       dataParams = parent?.data;
     } else {
-      dataParams = node.data;
+      dataParams = node?.data;
     }
     if (dataParams) {
       initCaseDetail(dataParams);
