@@ -432,6 +432,7 @@
         projectId: currentProjectId.value,
         condition: {
           keyword: keyword.value,
+          filter: propsRes.value.filter,
         },
       };
       await addPrepositionRelation(params);
