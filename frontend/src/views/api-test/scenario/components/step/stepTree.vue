@@ -805,6 +805,7 @@
     if (tempApiDetail.value) {
       const realStep = findNodeByKey<ScenarioStepItem>(steps.value, tempApiDetail.value.uniqueId, 'uniqueId');
       if (realStep) {
+        realStep.name = res.resourceName;
         realStep.resourceId = res.id;
         realStep.resourceNum = res.resourceNum;
         realStep.resourceName = res.resourceName;
