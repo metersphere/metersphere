@@ -9,9 +9,6 @@
   <a href="https://gitee.com/fit2cloud-feizhiyun/MeterSphere"><img src="https://gitee.com/fit2cloud-feizhiyun/MeterSphere/badge/star.svg?theme=gvp" alt="Gitee Stars"></a>
   <a href="https://gitcode.com/feizhiyun/MeterSphere"><img src="https://gitcode.com/feizhiyun/MeterSphere/star/badge.svg" alt="GitCode Stars"></a><br>
 </p>
-<p align="center">
-  <a href="https://trendshift.io/repositories/1557" target="_blank"><img src="https://trendshift.io/api/badge/repositories/1557" alt="metersphere%2Fmetersphere | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
 <hr />
 
 MeterSphere 是新一代的开源持续测试工具，让软件测试工作更简单、更高效，不再成为持续交付的瓶颈。
@@ -39,9 +36,8 @@ docker run -d -p 8081:8081 --name=metersphere -v ~/.metersphere/data:/opt/meters
 -   [案例研究](/use-cases.md)
 -   [论坛求助](https://bbs.fit2cloud.com/c/ms/8)
 -   技术交流群
-     
 
-![image](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-helper.png)
+<img width="180" height="180" alt="contact_ms_qr" src="https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-helper.png" />
 
 
 ## UI 展示
@@ -103,10 +99,12 @@ MeterSphere 产品版本分为社区版和企业版，详情请参见：[MeterSp
 
 ## 飞致云的其他明星项目
 
+- [DataEase](https://github.com/dataease/dataease/) - 人人可用的开源 BI 工具
+- [SQLBot](https://github.com/dataease/SQLBot) - 基于大模型和 RAG 的开源智能问数系统
 - [1Panel](https://github.com/1panel-dev/1panel/) - 现代化、开源的 Linux 服务器运维管理面板
-- [MaxKB](https://github.com/1panel-dev/maxkb) - 基于 LLM 大语言模型的知识库问答系统
+- [MaxKB](https://github.com/1panel-dev/MaxKB/) - 强大易用的企业级智能体平台
 - [JumpServer](https://github.com/jumpserver/jumpserver/) - 广受欢迎的开源堡垒机
-- [DataEase](https://github.com/dataease/dataease/) - 人人可用的开源数据可视化分析工具
+- [Cordys CRM](https://github.com/1Panel-dev/CordysCRM) - 新一代的开源 AI CRM 系统
 - [Halo](https://github.com/halo-dev/halo/) - 强大易用的开源建站工具
 
 ## License & Copyright
