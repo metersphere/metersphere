@@ -673,6 +673,7 @@ private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
             properties = refSchema.getProperties();
             // 记录引用的对象
             refModelSet.add(objectSchema.get$ref());
+            jsonSchemaItem.setRequired(refSchema.getRequired());
         }
         if (MapUtils.isNotEmpty(properties)) {
             properties.forEach((key, value) -> {
