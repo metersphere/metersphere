@@ -94,7 +94,12 @@
   import { ResponseAssertionType } from '@/enums/apiEnum';
   import { EnvTabTypeEnum } from '@/enums/envEnum';
 
-  import { defaultHeaderParamsItem, jsonPathDefaultParamItem } from '@/views/api-test/components/config';
+  import {
+    defaultHeaderParamsItem,
+    jsonPathDefaultParamItem,
+    regexDefaultParamItem,
+    xpathAssertParamsItem,
+  } from '@/views/api-test/components/config';
   import { filterKeyValParams } from '@/views/api-test/components/utils';
 
   const leaveTitle = 'common.tip';
@@ -218,6 +223,13 @@
             jsonPathAssertion: {
               assertions: filterKeyValParams(a.jsonPathAssertion.assertions, jsonPathDefaultParamItem, true)
                 .validParams,
+            },
+            xpathAssertion: {
+              ...a.xpathAssertion,
+              assertions: filterKeyValParams(a.xpathAssertion.assertions, xpathAssertParamsItem, true).validParams,
+            },
+            regexAssertion: {
+              assertions: filterKeyValParams(a.regexAssertion.assertions, regexDefaultParamItem, true).validParams,
             },
           };
         }
