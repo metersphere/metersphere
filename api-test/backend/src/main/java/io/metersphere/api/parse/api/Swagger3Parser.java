@@ -511,15 +511,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private String parseXmlBody(Schema schema, Object data) {
         if (data instanceof JSONObject) {
-            if (((JSONObject) data).keySet().size() > 1) {
-                JSONObject object = new JSONObject();
-                if (StringUtils.isNotBlank(schema.get$ref())) {
-                    String ref = schema.get$ref();
-                    if (ref.split("/").length > 3) {
-                        ref = ref.replace("#/components/schemas/", StringUtils.EMPTY);
-                        object.put(ref, data);
-                        return XMLUtil.jsonToPrettyXml(object);
-                    }
+            JSONObject object = new JSONObject();
+            if (StringUtils.isNotBlank(schema.get$ref())) {
+                String ref = schema.get$ref();
+                if (ref.split("/").length > 3) {
+                    ref = ref.replace("#/components/schemas/", StringUtils.EMPTY);
+                    object.put(ref, data);
+                    return XMLUtil.jsonToPrettyXml(object);
                 }
             }
             return XMLUtil.jsonToPrettyXml((JSONObject) data);
