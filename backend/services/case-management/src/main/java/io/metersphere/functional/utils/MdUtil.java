@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author song-cc-rock
@@ -116,6 +117,7 @@ public class MdUtil {
 							}
 							if (cells.size() >= 2) {
 								FunctionalCaseAIStep step = new FunctionalCaseAIStep();
+                                step.setId(UUID.randomUUID().toString());
 								step.setNum(index);
 								step.setDesc(cells.get(0));
 								step.setResult(cells.get(1));
