@@ -498,6 +498,16 @@
             });
           });
         },
+        handleDOMEvents: {
+          keydown(view, event) {
+            event.stopPropagation();
+            return false;
+          },
+          keyup: (view, event) => {
+            event.stopPropagation();
+            return false;
+          },
+        },
       },
     });
   });
