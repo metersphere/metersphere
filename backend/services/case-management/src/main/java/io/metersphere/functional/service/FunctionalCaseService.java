@@ -349,7 +349,20 @@ public class FunctionalCaseService {
         FunctionalCaseDetailDTO functionalCaseDetailDTO = new FunctionalCaseDetailDTO();
         BeanUtils.copyBean(functionalCaseDetailDTO, functionalCase);
         FunctionalCaseBlob caseBlob = functionalCaseBlobMapper.selectByPrimaryKey(functionalCaseId);
-        functionalCaseDetailDTO.setSteps(new String(caseBlob.getSteps() == null ? new byte[0] : caseBlob.getSteps(), StandardCharsets.UTF_8));
+        String caseDetailSteps = new String(caseBlob.getSteps() == null ? new byte[0] : caseBlob.getSteps(), StandardCharsets.UTF_8);
+        if (StringUtils.isNotBlank(caseDetailSteps)) {
+            List<FunctionalCaseStepDTO> newCaseSteps = JSON.parseArray(caseDetailSteps, FunctionalCaseStepDTO.class);
+            newCaseSteps.forEach(step -> {
+                if (StringUtils.isBlank(step.getId())) {
+                    step.setId(UUID.randomUUID().toString());
+                }
+            });
+            functionalCaseDetailDTO.setSteps(JSON.toJSONString(newCaseSteps));
+        } else {
+            functionalCaseDetailDTO.setSteps(JSON.toJSONString(Collections.emptyList()));
+        }
+
+
         functionalCaseDetailDTO.setTextDescription(new String(caseBlob.getTextDescription() == null ? new byte[0] : caseBlob.getTextDescription(), StandardCharsets.UTF_8));
         functionalCaseDetailDTO.setExpectedResult(new String(caseBlob.getExpectedResult() == null ? new byte[0] : caseBlob.getExpectedResult(), StandardCharsets.UTF_8));
         functionalCaseDetailDTO.setPrerequisite(new String(caseBlob.getPrerequisite() == null ? new byte[0] : caseBlob.getPrerequisite(), StandardCharsets.UTF_8));

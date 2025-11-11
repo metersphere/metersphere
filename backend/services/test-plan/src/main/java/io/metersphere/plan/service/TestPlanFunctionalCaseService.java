@@ -13,13 +13,11 @@ import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.functional.domain.FunctionalCaseModule;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.dto.*;
-import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
-import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
-import io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.FunctionalCaseModuleService;
 import io.metersphere.functional.service.FunctionalCaseService;
@@ -504,8 +502,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         functionalCase.setId(request.getId());
         testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
 
-        //更新用例表执行状态
-        updateFunctionalCaseStatus(Collections.singletonList(request.getCaseId()), request.getLastExecResult());
+        //更新用例表执行状态 以及补充用例步骤ID为null的步骤信息
+        updateFunctionalCaseStatus(Collections.singletonList(request.getCaseId()), request.getLastExecResult(),request.getStepsExecResult());
 
         //执行记录
         TestPlanCaseExecuteHistory executeHistory = buildHistory(request, logInsertModule.getOperator());
@@ -520,14 +518,36 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
      * @param ids
      * @param lastExecResult
      */
-    private void updateFunctionalCaseStatus(List<String> ids, String lastExecResult) {
+    private void updateFunctionalCaseStatus(List<String> ids, String lastExecResult,String stepsExecResult) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseMapper functionalCaseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        FunctionalCaseBlobMapper functionalCaseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
+
+        //补充用例步骤ID为null的步骤信息
+        String steps;
+        if (StringUtils.isNotBlank(stepsExecResult)) {
+            //stepsExecResult 转为 FunctionalCaseStepDTO
+            List<FunctionalCaseStepDTO> functionalCaseStepDTOs = JSON.parseArray(stepsExecResult, FunctionalCaseStepDTO.class);
+            functionalCaseStepDTOs.forEach(step -> {
+                if (StringUtils.isBlank(step.getId())) {
+                    step.setId(UUID.randomUUID().toString());
+                }
+            });
+            steps = JSON.toJSONString(functionalCaseStepDTOs);
+        } else {
+            steps = null;
+        }
         ids.forEach(id -> {
             FunctionalCase functionalCase = new FunctionalCase();
             functionalCase.setId(id);
             functionalCase.setLastExecuteResult(lastExecResult);
             functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+            if (StringUtils.isNotBlank(steps)) {
+                FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
+                functionalCaseBlob.setId(id);
+                functionalCaseBlob.setSteps(StringUtils.defaultIfEmpty(steps, StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
+                functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+            }
         });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -586,7 +606,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
         List<TestPlanCaseExecuteHistory> historyList = getExecHistory(ids, request, logInsertModule, idsMap, projectMap);
         testPlanCaseExecuteHistoryMapper.batchInsert(historyList);
 
-        updateFunctionalCaseStatus(caseIds, request.getLastExecResult());
+        //更新用例表执行状态 以及补充用例步骤ID为null的步骤信息
+        updateFunctionalCaseStatus(caseIds, request.getLastExecResult(),null);
 
     }
 
@@ -719,6 +740,11 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
             String historyStepStr = new String(testPlanCaseExecuteHistory.getSteps(), StandardCharsets.UTF_8);
             if (StringUtils.isNotBlank(historyStepStr)) {
                 List<FunctionalCaseStepDTO> historySteps = JSON.parseArray(historyStepStr, FunctionalCaseStepDTO.class);
+                for (FunctionalCaseStepDTO historyStep : historySteps) {
+                    if (StringUtils.isBlank(historyStep.getId())) {
+                        historyStep.setId(UUID.randomUUID().toString());
+                    }
+                }
                 Map<String, FunctionalCaseStepDTO> historyStepMap = historySteps.stream().collect(Collectors.toMap(FunctionalCaseStepDTO::getId, t -> t));
                 newCaseSteps.forEach(newCaseStep -> {
                     setHistoryInfo(newCaseStep, historyStepMap);
