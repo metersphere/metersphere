@@ -56,7 +56,7 @@
             <a-checkbox v-model:model-value="saveModalForm.saveApiAsCase"></a-checkbox>
             {{ t('apiScenario.syncSaveAsCase') }}
           </div>
-          <div v-if="saveModalForm.saveApiAsCase" class="flex items-center">
+          <div v-if="saveModalForm.saveApiAsCase && props.isScenario" class="flex items-center">
             <span class="text-[12px]">{{ t('apiScenario.changeStepTo') }}</span>
             <a-radio-group v-model:model-value="saveModalForm.changeStepTo" size="mini">
               <a-radio value="quote" class="!mr-0 text-[12px]">{{ `${t('common.quote')}${t('common.case')}` }}</a-radio>
@@ -95,6 +95,7 @@
 
   const props = defineProps<{
     detail: RequestParam | ApiDefinitionRequestParam;
+    isScenario?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'close'): void;

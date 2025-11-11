@@ -400,6 +400,7 @@
       v-if="tempApiDetail"
       v-model:visible="saveNewApiModalVisible"
       :detail="tempApiDetail"
+      is-scenario
       @save-case-success="handleSaveCaseSuccess"
       @close="() => (tempApiDetail = undefined)"
     ></saveAsApiModal>

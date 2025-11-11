@@ -517,6 +517,7 @@
 
   import {
     ExecuteApiRequestFullParams,
+    ExecutePluginRequestParams,
     ExecuteRequestParams,
     PluginConfig,
     RequestTaskResult,
@@ -1052,7 +1053,7 @@
       (e) => e.value === requestVModel.value.protocol
     )?.polymorphicName; // 协议多态名称
     let parseRequestBodyResult;
-    let requestParams;
+    let requestParams: ExecuteApiRequestFullParams | ExecutePluginRequestParams;
     if (isHttpProtocol.value) {
       const realFormDataBodyValues = filterKeyValParams(
         formDataBody.formValues,
@@ -1096,12 +1097,12 @@
         rest: filterKeyValParams(requestVModel.value.rest, defaultRequestParamsItem, isExecute).validParams,
         url: requestVModel.value.url,
         polymorphicName,
-      };
+      } as ExecuteApiRequestFullParams;
     } else {
       requestParams = {
         ...fApi.value?.formData(),
         polymorphicName,
-      };
+      } as ExecutePluginRequestParams;
     }
     reportId.value = getGenerateId();
     requestVModel.value.reportId = reportId.value; // 存储报告ID
@@ -1548,7 +1549,12 @@
             if (definitionParams?.protocol === 'HTTP') {
               // 调试创建用例需要复制文件
               let copyFilesMap: Record<string, any> = {};
-              const fileIds = parseRequestBodyFiles((definitionParams.request as any).body, [], [], []).uploadFileIds;
+              const fileIds = parseRequestBodyFiles(
+                (definitionParams.request as ExecuteApiRequestFullParams).body,
+                [],
+                [],
+                []
+              ).uploadFileIds;
               if (fileIds.length > 0) {
                 try {
                   copyFilesMap = await definitionFileCopy({
@@ -1560,7 +1566,13 @@
                   console.log(error);
                 }
               }
-              const copyFileIds = parseRequestBodyFiles((definitionParams.request as any).body, [], [], [], copyFilesMap).uploadFileIds; // 替换请求文件 id
+              const copyFileIds = parseRequestBodyFiles(
+                (definitionParams.request as ExecuteApiRequestFullParams).body,
+                [],
+                [],
+                [],
+                copyFilesMap
+              ).uploadFileIds; // 替换请求文件 id
               definitionParams.uploadFileIds = copyFileIds;
             }
             const params: AddApiCaseParams = {
