@@ -629,8 +629,7 @@ private JsonSchemaItem parseSchemaByType(Schema<?> schema, Set refModelSet) {
     }
 
     private JsonSchemaItem createDefaultJsonSchemaItem(Schema<?> schema) {
-        JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
-        jsonSchemaItem.setId(IDGenerator.nextStr());
+        JsonSchemaItem jsonSchemaItem = parseSchemaItem(schema);
         if (StringUtils.isNotBlank(schema.getType())) {
             jsonSchemaItem.setType(schema.getType());
         }
