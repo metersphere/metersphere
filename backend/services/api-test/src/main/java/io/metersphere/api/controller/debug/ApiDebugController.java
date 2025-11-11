@@ -7,6 +7,7 @@ import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ApiImportCurlRequest;
 import io.metersphere.api.dto.request.ApiTransferRequest;
+import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
@@ -142,6 +143,14 @@ public class ApiDebugController {
             }
         });
         return parse;
+    }
+
+    @PostMapping("/file/copy")
+    @Operation(summary = "接口测试-接口调试-另存时, 复制文件")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEBUG_UPDATE, PermissionConstants.PROJECT_API_DEBUG_ADD},
+            logical = Logical.OR)
+    public Map<String, String> copyFile(@Validated @RequestBody ApiFileCopyRequest request) {
+        return apiDebugService.copyFile(request);
     }
 
 }

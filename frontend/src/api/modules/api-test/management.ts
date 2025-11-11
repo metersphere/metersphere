@@ -35,7 +35,7 @@ import {
   ConvertJsonSchemaToJsonUrl,
   CopyMockUrl,
   DebugCaseUrl,
-  DebugDefinitionUrl,
+  DebugDefinitionUrl, DebugFileCopyUrl,
   DefinitionFileCopyUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
@@ -382,6 +382,11 @@ export function jsonSchemaAutoGenerate(data: JsonSchema) {
 // 接口定义-文件复制
 export function definitionFileCopy(data: DefinitionFileCopyParams) {
   return MSR.post({ url: DefinitionFileCopyUrl, data });
+}
+
+// 接口调试-文件复制
+export function debugFileCopy(data: DefinitionFileCopyParams) {
+  return MSR.post({ url: DebugFileCopyUrl, data });
 }
 
 /**

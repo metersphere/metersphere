@@ -41,6 +41,7 @@ export const DefinitionReferenceUrl = '/api/definition/get-reference'; // 获取
 export const ConvertJsonSchemaToJsonUrl = '/api/definition/json-schema/preview'; // 将json-schema转换为 json 数据
 export const JsonSchemaAutoGenerateUrl = '/api/definition/json-schema/auto-generate'; // 将json-schema转换为 json 数据
 export const DefinitionFileCopyUrl = '/api/definition/file/copy'; // 接口文件复制
+export const DebugFileCopyUrl = '/api/debug/file/copy'; // 接口调试文件复制
 
 /**
  * Mock

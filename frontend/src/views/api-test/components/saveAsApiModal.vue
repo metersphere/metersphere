@@ -80,7 +80,13 @@
 
   import { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
-  import { addCase, addDefinition, getModuleTreeOnlyModules } from '@/api/modules/api-test/management';
+  import {
+    addCase,
+    addDefinition,
+    debugFileCopy,
+    definitionFileCopy,
+    getModuleTreeOnlyModules,
+  } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { filterTreeNode } from '@/utils';
@@ -90,6 +96,7 @@
 
   import { defaultResponseItem } from '@/views/api-test/components/config';
   import type { RequestParam as ApiDefinitionRequestParam } from '@/views/api-test/components/requestComposition/index.vue';
+  import { parseRequestBodyFiles } from '@/views/api-test/components/utils';
   import type { RequestParam } from '@/views/api-test/scenario/components/common/customApiDrawer.vue';
   import type { FormInstance } from '@arco-design/web-vue';
 
@@ -153,6 +160,24 @@
       console.log(error);
       path = saveModalForm.value.path;
     }
+    let copyFileIds: any[] = [];
+    if (props.detail.protocol === 'HTTP') {
+      // 另存case需要复制定义的文件
+      let copyFilesMap: Record<string, any> = {};
+      const fileIds = parseRequestBodyFiles(props.detail.body, [], [], []).uploadFileIds;
+      if (fileIds.length > 0) {
+        try {
+          copyFilesMap = await definitionFileCopy({
+            resourceId: id,
+            fileIds,
+          });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      }
+      copyFileIds = parseRequestBodyFiles(props.detail.body, [], [], [], copyFilesMap).uploadFileIds;
+    }
     const params: AddApiCaseParams = {
       name: saveModalForm.value.name,
       projectId: appStore.currentProjectId,
@@ -165,7 +190,7 @@
       priority: 'P0',
       status: RequestCaseStatus.PROCESSING,
       tags: [],
-      uploadFileIds: props.detail.uploadFileIds || [],
+      uploadFileIds: copyFileIds,
       linkFileIds: props.detail.linkFileIds || [],
     };
     const res = await addCase(params);
@@ -193,6 +218,25 @@
         console.log(error);
         path = saveModalForm.value.path;
       }
+
+      let copyFileIds: any[] = [];
+      if (props.detail.protocol === 'HTTP') {
+        // 调试另存定义需要复制文件
+        let copyFilesMap: Record<string, any> = {};
+        const fileIds = parseRequestBodyFiles(props.detail.body, [], [], []).uploadFileIds;
+        if (fileIds.length > 0) {
+          try {
+            copyFilesMap = await debugFileCopy({
+              resourceId: (props.detail as any).id as string,
+              fileIds,
+            });
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
+        }
+        copyFileIds = parseRequestBodyFiles(props.detail.body, [], [], [], copyFilesMap).uploadFileIds;
+      }
       const res = await addDefinition({
         ...saveModalForm.value,
         path,
@@ -208,7 +252,7 @@
           url: path,
           path,
         },
-        uploadFileIds: props.detail.uploadFileIds || [],
+        uploadFileIds: copyFileIds,
         linkFileIds: props.detail.linkFileIds || [],
         response: [defaultResponseItem],
         method: props.detail.method,

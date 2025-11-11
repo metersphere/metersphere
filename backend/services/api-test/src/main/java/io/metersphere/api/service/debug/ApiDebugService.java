@@ -1,14 +1,12 @@
 package io.metersphere.api.service.debug;
 
 import io.metersphere.api.constants.ApiResourceType;
-import io.metersphere.api.domain.ApiDebug;
-import io.metersphere.api.domain.ApiDebugBlob;
-import io.metersphere.api.domain.ApiDebugExample;
-import io.metersphere.api.domain.ApiDebugModule;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
+import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
@@ -47,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEBUG_EXIST;
 
@@ -304,5 +303,12 @@ public class ApiDebugService extends MoveNodeService {
             apiDebugBlob.setResponse(null);
             apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
         }
+    }
+
+    public Map<String, String> copyFile(ApiFileCopyRequest request) {
+        // 从接口调试复制文件
+        ApiDebug apiDebug = checkResourceExist(request.getResourceId());
+        String sourceDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
+        return apiCommonService.copyFiles2TempDir(request.getFileIds(), sourceDir);
     }
 }
