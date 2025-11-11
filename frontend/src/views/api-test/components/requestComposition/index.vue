@@ -1548,7 +1548,7 @@
             if (definitionParams?.protocol === 'HTTP') {
               // 调试创建用例需要复制文件
               let copyFilesMap: Record<string, any> = {};
-              const fileIds = parseRequestBodyFiles(definitionParams.request.body, [], [], []).uploadFileIds;
+              const fileIds = parseRequestBodyFiles((definitionParams.request as any).body, [], [], []).uploadFileIds;
               if (fileIds.length > 0) {
                 try {
                   copyFilesMap = await definitionFileCopy({
@@ -1560,7 +1560,7 @@
                   console.log(error);
                 }
               }
-              const copyFileIds = parseRequestBodyFiles(definitionParams.request.body, [], [], [], copyFilesMap).uploadFileIds; // 替换请求文件 id
+              const copyFileIds = parseRequestBodyFiles((definitionParams.request as any).body, [], [], [], copyFilesMap).uploadFileIds; // 替换请求文件 id
               definitionParams.uploadFileIds = copyFileIds;
             }
             const params: AddApiCaseParams = {
