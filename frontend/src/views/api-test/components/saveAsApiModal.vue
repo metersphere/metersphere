@@ -242,8 +242,16 @@
     });
   }
 
+  watch(
+    () => visible.value,
+    (newVal) => {
+      if (newVal) {
+        saveModalForm.value.path = props.detail.url || props.detail.path;
+      }
+    }
+  );
+
   onBeforeMount(() => {
-    saveModalForm.value.path = props.detail.url || props.detail.path;
     initApiModuleTree(props.detail.protocol);
   });
 </script>
