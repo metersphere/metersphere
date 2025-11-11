@@ -15,6 +15,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -550,6 +551,7 @@ public class Swagger3ExportParser implements ExportParser<ApiDefinitionExportRes
     private JSONObject buildFormDataSchema(JSONObject kvs) {
         JSONObject schema = new JSONObject();
         JSONObject properties = new JSONObject();
+        List<String> requiredList = new ArrayList<>();
         for (String key : kvs.keySet()) {
             JSONObject property = new JSONObject();
             JSONObject obj = ((JSONObject) kvs.get(key));
@@ -591,8 +593,14 @@ public class Swagger3ExportParser implements ExportParser<ApiDefinitionExportRes
                 property.put("minLength", obj.optInt("minLength"));
             }
             properties.put(key, property);
+
+            if (BooleanUtils.isTrue(obj.optBoolean("required"))) {
+                requiredList.add(key);
+            }
+            obj.optBoolean("required");
         }
         schema.put(PropertyConstant.PROPERTIES, properties);
+        schema.put(PropertyConstant.REQUIRED, requiredList);
         return schema;
     }
 
