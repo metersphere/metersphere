@@ -8,6 +8,7 @@
     :mask-closable="false"
     :closable="false"
     no-content-padding
+    @close="handleDrawerClose"
   >
     <template #tbutton>
       <a-button type="text" class="arco-btn-text--secondary px-0" size="mini" @click="onBeforeClose">
@@ -48,6 +49,8 @@
 </template>
 
 <script setup lang="ts">
+  import { useRoute, useRouter } from 'vue-router';
+
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import conversation from './components/conversation.vue';
@@ -71,6 +74,8 @@
     (e: 'syncSuccess'): void;
   }>();
 
+  const route = useRoute();
+  const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -122,6 +127,14 @@
     }
     answering.value = false;
     visible.value = false;
+  }
+
+  function handleDrawerClose() {
+    const newQuery = { ...route.query };
+    delete newQuery.openAi;
+    router.replace({
+      query: newQuery,
+    });
   }
 
   watch(
