@@ -292,6 +292,9 @@
       if (newVal) {
         saveModalForm.value.path = props.detail.url || props.detail.path;
       }
+    },
+    {
+      immediate: true,
     }
   );
 
