@@ -9,6 +9,9 @@
   <a href="https://gitee.com/fit2cloud-feizhiyun/MeterSphere"><img src="https://gitee.com/fit2cloud-feizhiyun/MeterSphere/badge/star.svg?theme=gvp" alt="Gitee Stars"></a>
   <a href="https://gitcode.com/feizhiyun/MeterSphere"><img src="https://gitcode.com/feizhiyun/MeterSphere/star/badge.svg" alt="GitCode Stars"></a><br>
 </p>
+<p align="center">
+  <a href="https://trendshift.io/repositories/1557" target="_blank"><img src="https://trendshift.io/api/badge/repositories/1557" alt="metersphere%2Fmetersphere | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+</p>
 <hr />
 
 MeterSphere 是新一代的开源持续测试工具，让软件测试工作更简单、更高效，不再成为持续交付的瓶颈。
