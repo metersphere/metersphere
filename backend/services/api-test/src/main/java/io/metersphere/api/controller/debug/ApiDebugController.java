@@ -1,6 +1,7 @@
 package io.metersphere.api.controller.debug;
 
 import io.metersphere.api.curl.domain.CurlEntity;
+import io.metersphere.api.curl.handler.HttpBodyHandler;
 import io.metersphere.api.curl.util.CurlParserUtil;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.dto.debug.*;
@@ -11,6 +12,7 @@ import io.metersphere.api.dto.scenario.ApiFileCopyRequest;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
+import io.metersphere.api.utils.JSONUtil;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -138,8 +140,10 @@ public class ApiDebugController {
         CurlEntity parse = CurlParserUtil.parse(request.getCurl());
         Optional.ofNullable(parse.getBody()).ifPresent(body -> {
             if (parse.getMethod() == CurlEntity.Method.GET) {
-                Map map = JSON.parseMap(JSON.toFormatJSONString(body));
-                parse.getQueryParams().putAll(map);
+                if(HttpBodyHandler.isJSON(body.toString())) {
+                    Map map = JSON.parseMap(JSON.toFormatJSONString(body));
+                    parse.getQueryParams().putAll(map);
+                }
             }
         });
         return parse;

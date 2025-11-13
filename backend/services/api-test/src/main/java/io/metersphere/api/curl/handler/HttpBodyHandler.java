@@ -79,6 +79,12 @@ public class HttpBodyHandler extends CurlHandlerChain {
             //无引号数据
             bodyStr = defaultMatcher.group(3);
         }
+        //其他格式 a=b&c=d
+        entity.setBodyType(Body.BodyType.WWW_FORM.name());
+        Matcher kvMatcher = CurlPatternConstants.DEFAULT_HTTP_BODY_PATTERN_KV.matcher(bodyStr);
+        if (kvMatcher.matches()) {
+            return parseKVBody(bodyStr);
+        }
 
         if (isJSON(bodyStr)) {
             entity.setBodyType(Body.BodyType.JSON.name());
@@ -89,10 +95,9 @@ public class HttpBodyHandler extends CurlHandlerChain {
             return bodyStr;
         }
 
-        //其他格式 a=b&c=d
-        entity.setBodyType(Body.BodyType.WWW_FORM.name());
-        Matcher kvMatcher = CurlPatternConstants.DEFAULT_HTTP_BODY_PATTERN_KV.matcher(bodyStr);
-        return kvMatcher.matches() ? parseKVBody(bodyStr) : new HashMap<>();
+
+        entity.setBodyType(Body.BodyType.JSON.name());
+        return bodyStr;
     }
 
     private Map<String, Object> parseKVBody(String kvBodyStr) {
@@ -166,7 +171,7 @@ public class HttpBodyHandler extends CurlHandlerChain {
         }
     }
 
-    private boolean isJSON(String jsonStr) {
+    public static boolean isJSON(String jsonStr) {
         try {
             JSONUtil.parseObject(jsonStr);
             return true;
