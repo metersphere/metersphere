@@ -1851,7 +1851,8 @@ export default {
         hashTree.push(obj);
       }
       this.sort();
-      if (this.$refs.stepTree.append) {
+      if (this.$refs.stepTree.append && this.stepCount > 200) {
+        // 虚拟树组件追加节点，常规树组件不需要
         this.$refs.stepTree.append(obj, parent.data, index + 1);
       }
     },
