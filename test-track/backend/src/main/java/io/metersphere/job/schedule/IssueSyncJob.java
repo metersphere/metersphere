@@ -27,15 +27,19 @@ public class IssueSyncJob extends MsScheduleJob {
 
     @Override
     public void businessExecute(JobExecutionContext context) {
-        LicenseDTO licenseDTO = licenseService.validate();
-        if (licenseDTO != null && licenseDTO.getLicense() != null
-                && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
-            LogUtil.info("sync all issue start");
-            xpackIssueService.syncThirdPartyIssues();
-        } else {
-            LogUtil.info("sync issue start");
-            issuesService.syncThirdPartyIssues();
-        }
-        LogUtil.info("sync issue end");
+		if (licenseService == null || xpackIssueService == null) {
+			issuesService.syncThirdPartyIssues();
+		} else {
+			LicenseDTO licenseDTO = licenseService.validate();
+			if (licenseDTO != null && licenseDTO.getLicense() != null
+					&& StringUtils.equals(licenseDTO.getStatus(), "valid")) {
+				LogUtil.info("sync all issue start");
+				xpackIssueService.syncThirdPartyIssues();
+			} else {
+				LogUtil.info("sync issue start");
+				issuesService.syncThirdPartyIssues();
+			}
+		}
+		LogUtil.info("sync issue end");
     }
 }
