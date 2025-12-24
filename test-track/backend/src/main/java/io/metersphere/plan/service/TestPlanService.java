@@ -337,6 +337,12 @@ public class TestPlanService {
                 && res.getActualStartTime() == null) {
             testPlan.setActualStartTime(System.currentTimeMillis());
         }
+
+		// 当前计划状态, 未变化时, 不更新updateTime
+		if (StringUtils.equals(testPlan.getStatus(), res.getStatus()) || testPlan.getName() == null) {
+			return res;
+		}
+
         if (testPlan.getName() == null) {
             //  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
             testPlanMapper.updateByPrimaryKeySelective(testPlan);
