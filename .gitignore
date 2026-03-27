@@ -33,3 +33,6 @@ qywx.json
 ### flattened
 .flattened-pom.xml
 **/jmeter/lib/ext
+
+### claude
+.claude
