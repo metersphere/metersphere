@@ -84,20 +84,24 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         SwaggerParseResult result = null;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), auths, null);
-            if (result == null || result.getOpenAPI() == null || !result.getOpenAPI().getOpenapi().startsWith("3.0") || result.isOpenapi31()) {
+            if (result == null || result.getOpenAPI() == null || !isOpenAPI3x(result.getOpenAPI())) {
                 throw new MSException(Translator.get("swagger_parse_error_with_auth"));
             }
         } else {
             String apiTestStr = getApiTestStr(source);
             Map<String, Object> o = JSON.parseMap(apiTestStr);
-            // 判断属性 swagger的值是不是3.0开头
+            // 判断属性 openapi 或 swagger 的值是不是 3.x
             if (o instanceof Map map) {
-                if (map.containsKey("swagger") && !map.get("swagger").toString().startsWith("3.0")) {
+                if (map.containsKey("openapi")) {
+                    if (!map.get("openapi").toString().startsWith("3.")) {
+                        throw new MSException(Translator.get("swagger_version_error"));
+                    }
+                } else if (map.containsKey("swagger") && !map.get("swagger").toString().startsWith("3.0")) {
                     throw new MSException(Translator.get("swagger_version_error"));
                 }
             }
             result = new OpenAPIParser().readContents(apiTestStr, null, null);
-            if (result == null || result.getOpenAPI() == null || !result.getOpenAPI().getOpenapi().startsWith("3.0") || result.isOpenapi31()) {
+            if (result == null || result.getOpenAPI() == null || !isOpenAPI3x(result.getOpenAPI())) {
                 throw new MSException(Translator.get("swagger_parse_error"));
             }
         }
@@ -105,6 +109,16 @@ public class Swagger3ParserApiDefinition extends HttpApiDefinitionImportAbstract
         OpenAPI openAPI = result.getOpenAPI();
         apiDefinitionImportFileParseResult.setData(parseRequests(openAPI, request));
         return apiDefinitionImportFileParseResult;
+    }
+
+	/**
+	 * 是否 OpenAPI 3.x 版本
+	 * @param openAPI OpenAPI参数
+	 * @return true 如果是OpenAPI 3.x版本，否则返回false
+	 */
+    private boolean isOpenAPI3x(OpenAPI openAPI) {
+        String version = openAPI.getOpenapi();
+        return version != null && version.startsWith("3.");
     }
 
     private List<AuthorizationValue> setAuths(ImportRequest request) {
