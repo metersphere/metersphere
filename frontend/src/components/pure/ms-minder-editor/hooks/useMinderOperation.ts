@@ -39,6 +39,15 @@ export default function useMinderOperation(options: MinderOperationProps) {
   const minderStore = useMinderStore();
   const { t } = useI18n();
 
+  function isEditableTarget(target?: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+    const tagName = target.tagName.toLowerCase();
+    // 抽屉/弹层中的输入控件应保留浏览器原生复制粘贴行为
+    return tagName === 'input' || tagName === 'textarea' || target.isContentEditable;
+  }
+
   function encode(nodes: Array<MinderJsonNode>): string {
     const { editor } = window;
     const { minder, MimeType } = editor;
@@ -56,6 +65,10 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行复制
    */
   const minderCopy = async (e?: ClipboardEvent) => {
+    // 事件来自可编辑元素时直接放行，避免误拦截表单输入
+    if (isEditableTarget(e?.target)) {
+      return;
+    }
     if (!isCopyFinished) {
       return;
     }
@@ -102,6 +115,10 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行剪切
    */
   const minderCut = async (e?: ClipboardEvent) => {
+    // 事件来自可编辑元素时直接放行，避免误拦截表单输入
+    if (isEditableTarget(e?.target)) {
+      return;
+    }
     const { editor } = window;
     const { minder, fsm } = editor;
     const selectedNodes: MinderJsonNode[] = minder.getSelectedNodes();
@@ -151,6 +168,10 @@ export default function useMinderOperation(options: MinderOperationProps) {
    * 执行粘贴
    */
   const minderPaste = async (e?: ClipboardEvent) => {
+    // 事件来自可编辑元素时直接放行，避免误拦截表单输入
+    if (isEditableTarget(e?.target)) {
+      return;
+    }
     const { editor } = window;
     const { minder, fsm, MimeType } = editor;
     const Data: IData = window.kityminder.data;
