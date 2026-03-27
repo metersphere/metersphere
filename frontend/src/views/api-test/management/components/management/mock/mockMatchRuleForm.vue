@@ -58,7 +58,7 @@
                 </a-select>
               </a-form-item>
             </div>
-            <div class="flex-1">
+            <div class="value-item flex-1">
               <a-form-item :field="`matchRules[${idx}].value`" class="hidden-item" :disabled="props.disabled">
                 <MsAddAttachment
                   v-if="item.paramType === RequestParamsType.FILE"
@@ -72,14 +72,14 @@
                   :file-save-as-source-id="props.id"
                   :file-save-as-api="transferMockFile"
                   :file-module-options-api="getMockTransferOptions"
-                  :disabled="props.disabled"
+                  :disabled="isValueDisabled(item)"
                   @change="(files, file) => handleFileChange(files, item, idx, file)"
                 />
                 <MsParamsInput
                   v-else
                   v-model:value="item.value"
                   set-default-class
-                  :disabled="props.disabled"
+                  :disabled="isValueDisabled(item)"
                   @change="() => addMatchRule(idx)"
                   @set-params="quickInputParams(item)"
                   @apply="() => addMatchRule(idx)"
@@ -222,6 +222,10 @@
     }
   );
 
+  function isValueDisabled(item: MatchRuleItem) {
+    return props.disabled || ['IS_EMPTY', 'IS_NOT_EMPTY'].includes(item.condition as string);
+  }
+
   function handleDeleteItem(index: number) {
     matchRules.value.splice(index, 1);
   }
@@ -361,4 +365,14 @@
   // }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.value-item) {
+    .arco-input-tag-disabled,
+    .arco-select-view-disabled,
+    .arco-textarea-disabled,
+    .arco-input-disabled,
+    .arco-picker-disabled {
+      border-color: var(--color-text-n8) !important;
+    }
+  }
+</style>
