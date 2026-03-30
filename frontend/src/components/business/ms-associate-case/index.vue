@@ -118,9 +118,9 @@
         <div v-show="!isAdvancedSearchMode" class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
           <CaseTree
             ref="caseTreeRef"
-            v-model:checkedKeys="checkedKeys"
+            v-model:checked-keys="checkedKeys"
             v-model:selected-keys="selectedKeys"
-            v-model:halfCheckedKeys="halfCheckedKeys"
+            v-model:half-checked-keys="halfCheckedKeys"
             :modules-count="modulesCount"
             :get-modules-api-type="props.getModulesApiType"
             :current-project="innerProject"
@@ -152,7 +152,7 @@
             :filter-config-list="filterConfigList"
             :custom-fields-config-list="searchCustomFields"
             :search-placeholder="searchPlaceholder"
-            @keyword-search="loadCaseList()"
+            @keyword-search="loadCaseList"
             @adv-search="handleAdvSearch"
             @refresh="loadCaseList()"
           >
@@ -188,8 +188,8 @@
           <CaseTable
             v-if="associationType === CaseLinkEnum.FUNCTIONAL"
             ref="functionalTableRef"
-            v-model:selectedIds="selectedIds"
-            v-model:selectedModulesMaps="selectedModulesMaps"
+            v-model:selected-ids="selectedIds"
+            v-model:selected-modules-maps="selectedModulesMaps"
             :is-advanced-search-mode="isAdvancedSearchMode"
             :association-type="associateType"
             :get-page-api-type="getPageApiType"
@@ -212,8 +212,8 @@
           <ApiTable
             v-else-if="associationType === CaseLinkEnum.API && showType === 'API'"
             ref="apiTableRef"
-            v-model:selectedIds="selectedIds"
-            v-model:selectedModulesMaps="selectedModulesMaps"
+            v-model:selected-ids="selectedIds"
+            v-model:selected-modules-maps="selectedModulesMaps"
             :get-page-api-type="getPageApiType"
             :extra-table-params="props.extraTableParams"
             :association-type="associateType"
@@ -238,8 +238,8 @@
           <ApiCaseTable
             v-else-if="associationType === CaseLinkEnum.API && showType === 'CASE'"
             ref="caseTableRef"
-            v-model:selectedIds="selectedIds"
-            v-model:selectedModulesMaps="selectedModulesMaps"
+            v-model:selected-ids="selectedIds"
+            v-model:selected-modules-maps="selectedModulesMaps"
             :get-page-api-type="getPageApiType"
             :extra-table-params="props.extraTableParams"
             :association-type="associateType"
@@ -264,8 +264,8 @@
           <ScenarioCaseTable
             v-else-if="associationType === CaseLinkEnum.SCENARIO"
             ref="scenarioTableRef"
-            v-model:selectedModulesMaps="selectedModulesMaps"
-            v-model:selectedIds="selectedIds"
+            v-model:selected-modules-maps="selectedModulesMaps"
+            v-model:selected-ids="selectedIds"
             :association-type="associateType"
             :modules-count="modulesCount"
             :active-module="activeFolder"
@@ -640,7 +640,11 @@
   const selectVisible = ref<boolean>(false);
   const selectPopVisible = ref<boolean>(false);
 
-  function loadCaseList() {
+  async function loadCaseList(searchKeyword?: string) {
+    if (searchKeyword !== undefined) {
+      keyword.value = searchKeyword;
+      await nextTick();
+    }
     if (props.associatedIds && props.associatedIds.length > 0) {
       selectedIds.value = props.associatedIds;
     }
