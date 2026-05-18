@@ -29,6 +29,7 @@
         <pagehelper.version>6.1.0</pagehelper.version>
         <metersphere-jmeter-functions.version>3.0</metersphere-jmeter-functions.version>
         <metersphere-jmeter-assertions.version>3.2</metersphere-jmeter-assertions.version>
+        <org.json.version>20251224</org.json.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
         <redisson-starter.version>3.49.0</redisson-starter.version>
         <mybatis-starter.version>3.0.3</mybatis-starter.version>

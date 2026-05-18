@@ -77,6 +77,18 @@
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-jmeter-assertions</artifactId>
             <version>${metersphere-jmeter-assertions.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.version}</version>
         </dependency>
         <!-- swagger 解析 -->
         <dependency>
