@@ -74,7 +74,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/api/share/doc/view/**", "anon");
 
         filterChainDefinitionMap.put("/system/theme", "anon");
-        filterChainDefinitionMap.put("/system/parameter/save/base-url/**", "anon");
+       // filterChainDefinitionMap.put("/system/parameter/save/base-url/**", "anon");
         filterChainDefinitionMap.put("/system/timeout", "anon");
         filterChainDefinitionMap.put("/file/metadata/info/**", "anon");
         // consul
