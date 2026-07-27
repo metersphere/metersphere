@@ -5,9 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dom4j.*;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +33,7 @@ public class XMindLegacy {
         }
         // 去除title中svg:width属性
         xmlContent = xmlContent.replaceAll("<title svg:width=\"[0-9]*\">", "<title>");
-        Document document = DocumentHelper.parseText(xmlContent);// 读取XML文件,获得document对象
+        Document document = parseXml(xmlContent);// 读取XML文件,获得document对象
         Element root = document.getRootElement();
         List<Node> topics = root.selectNodes("//topic");
 
@@ -37,7 +42,7 @@ public class XMindLegacy {
             xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", StringUtils.EMPTY);
 
             // 添加评论到content中
-            Document commentDocument = DocumentHelper.parseText(xmlComments);
+            Document commentDocument = parseXml(xmlComments);
             List<Node> commentsList = commentDocument.selectNodes("//comment");
 
             for (Node topic : topics) {
@@ -81,13 +86,17 @@ public class XMindLegacy {
         return sheets;
     }
 
+    private static Document parseXml(String xml) throws DocumentException {
+        return XMLUtils.getDocument(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+    }
+
 
     /**
      * 删除topics节点
      *
      */
     private static String removeTopicsFromString(String xmlContent) throws Exception {
-        Document doc = DocumentHelper.parseText(xmlContent);
+        Document doc = XMLUtils.stringToDocument(xmlContent);
         if (doc != null) {
             Element root = doc.getRootElement();
             List<Element> childrenElement = root.elements();
