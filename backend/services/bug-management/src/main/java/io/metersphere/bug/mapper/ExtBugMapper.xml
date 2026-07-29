@@ -212,8 +212,8 @@
             <include refid="filter"/>
             <include refid="combine">
                 <property name="combineSearch" value="request.combineSearch"/>
-                <property name="projectId" value="request.projectId"/>
-                <property name="deleted" value="request.useTrash"/>
+                <property name="projectId" value="${request.projectId}"/>
+                <property name="deleted" value="${request.useTrash}"/>
             </include>
         </where>
     </sql>
@@ -338,13 +338,13 @@
                                 <when test="condition.operator == 'NOT_EMPTY'">
                                     b.id in (
                                         select distinct b.id from bug b join bug_relation_case brc on b.id = brc.bug_id
-                                        where deleted = #{${deleted}} and project_id = #{${projectId}}
+                                        where deleted = ${deleted} and project_id = '${projectId}'
                                     )
                                 </when>
                                 <when test="condition.operator == 'EMPTY'">
                                     b.id not in (
                                         select distinct b.id from bug b join bug_relation_case brc on b.id = brc.bug_id
-                                        where deleted = #{${deleted}} and project_id = #{${projectId}}
+                                        where deleted = ${deleted} and project_id = '${projectId}'
                                     )
                                 </when>
                                 <when test="(condition.operator == 'LT' and condition.value &lt; 1) or (condition.operator == 'EQUALS' and condition.value &lt; 0)">
@@ -354,7 +354,7 @@
                                     <if test="condition.operator == 'LT' or (condition.operator == 'EQUALS' and condition.value == 0)">
                                         b.id not in (
                                             select distinct b.id from bug b join bug_relation_case brc on b.id = brc.bug_id
-                                            where deleted = #{${deleted}} and project_id = #{${projectId}}
+                                            where deleted = ${deleted} and project_id = '${projectId}'
                                         )
                                         <if test="condition.value &gt; 1">
                                             OR
@@ -363,7 +363,7 @@
                                     <if test="(condition.operator == 'EQUALS' and condition.value &gt; 0) or (condition.operator == 'LT' and condition.value &gt; 1) or condition.operator == 'GT'">
                                         b.id in (
                                             select distinct b.id from bug b join bug_relation_case brc on b.id = brc.bug_id
-                                            where b.deleted = #{${deleted}} and b.project_id = #{${projectId}} group by b.id having
+                                            where b.deleted = ${deleted} and b.project_id = '${projectId}' group by b.id having
                                             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                                                 <property name="condition" value="condition"/>
                                                 <property name="column" value="count(b.id)"/>
@@ -401,8 +401,8 @@
         </if>
         <include refid="combine">
             <property name="combineSearch" value="request.combineSearch"/>
-            <property name="projectId" value="request.projectId"/>
-            <property name="deleted" value="request.useTrash"/>
+            <property name="projectId" value="${request.projectId}"/>
+            <property name="deleted" value="${request.useTrash}"/>
         </include>
     </sql>
 
@@ -527,3 +527,4 @@
     </select>
 
 </mapper>
+
