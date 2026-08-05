@@ -6,7 +6,6 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.service.PermissionCheckService;
-import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -31,7 +30,6 @@ public class FilePreviewController {
     @GetMapping(value = "/original/{userId}/{fileId}")
     @Operation(summary = "预览原图")
     public ResponseEntity<byte[]> originalImg(@PathVariable String userId, @PathVariable String fileId) throws Exception {
-        checkSessionUser(userId, SessionUtils.getUserId());
         FileInformationResponse fileInformationResponse = fileMetadataService.getFileInformation(fileId);
         if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
@@ -45,7 +43,6 @@ public class FilePreviewController {
     @GetMapping(value = "/compressed/{userId}/{fileId}")
     @Operation(summary = "预览缩略图")
     public ResponseEntity<byte[]> compressedImg(@PathVariable String userId, @PathVariable String fileId) throws Exception {
-        checkSessionUser(userId, SessionUtils.getUserId());
         FileInformationResponse fileInformationResponse = fileMetadataService.getFileInformation(fileId);
         if (StringUtils.isEmpty(fileInformationResponse.getId())) {
             throw new MSException("file.not.exist");
@@ -55,11 +52,5 @@ public class FilePreviewController {
             throw  new MSException("http_result_forbidden");
         }
         return fileMetadataService.downloadPreviewImgById(fileId);
-    }
-
-    private void checkSessionUser(String userId, String sessionUserId) {
-        if (!StringUtils.equals(userId, sessionUserId)) {
-            throw new MSException("file.not.exist");
-        }
     }
 }
