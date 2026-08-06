@@ -500,12 +500,10 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
      * @param errMsg
      */
     private void validateModule(FunctionalCaseExcelData data, StringBuilder errMsg) {
-        if (!StringUtils.startsWith(data.getModule(), "/")) {
-            data.setModule("/" + data.getModule());
-        }
+        data.setModule(normalizeModule(data.getModule()));
         String module = data.getModule();
         if (StringUtils.isNotEmpty(module)) {
-            String[] nodes = module.split("/");
+            String[] nodes = module.split("/", -1);
             //模块名不能为空
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {
@@ -528,6 +526,20 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
                 }
             }
         }
+    }
+
+    private String normalizeModule(String module) {
+        String normalizedModule = StringUtils.trimToEmpty(module);
+        if (StringUtils.isBlank(normalizedModule)) {
+            return normalizedModule;
+        }
+        if (!StringUtils.startsWith(normalizedModule, "/")) {
+            normalizedModule = "/" + normalizedModule;
+        }
+        while (normalizedModule.length() > 1 && StringUtils.endsWith(normalizedModule, "/")) {
+            normalizedModule = normalizedModule.substring(0, normalizedModule.length() - 1);
+        }
+        return normalizedModule;
     }
 
 
