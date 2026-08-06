@@ -62,6 +62,7 @@ public class XMindCaseParser {
     protected static final int TAGS_COUNT = 10;
     protected static final int TAG_LENGTH = 64;
     protected static final int STEP_LENGTH = 1000;
+    private static final Set<String> CASE_PRIORITIES = Set.of("P0", "P1", "P2", "P3");
     private AtomicLong lastPos;
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
     /**
@@ -126,16 +127,21 @@ public class XMindCaseParser {
      */
     private void recursion(Attached parent, int level, List<Attached> attachedList) {
         for (Attached item : attachedList) {
-            if (isAvailable(item.getTitle(), CASE)) {
+            String title = StringUtils.defaultString(item.getTitle());
+            if (StringUtils.isBlank(title)) {
+                process.add(Translator.get("module_not_null"), StringUtils.defaultString(parent.getPath()));
+                continue;
+            }
+            if (isAvailable(title, CASE)) {
                 item.setParent(parent);
                 // 格式化一个用例
-                this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
+                this.formatTestCase(title, parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
                 if (StringUtils.equalsIgnoreCase(parent.getPath().trim(), Translator.get("functional_case.module.default.name"))) {
                     process.add(Translator.get("incorrect_format"), Translator.get("functional_case.module.default.name.add_error"));
                     return;
                 }
-                String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
+                String nodePath = parent.getPath().trim() + "/" + title.trim();
                 item.setPath(nodePath);
                 item.setParent(parent);
                 if (item.getChildren() != null && CollectionUtils.isNotEmpty(item.getChildren().getAttached())) {
@@ -149,8 +155,13 @@ public class XMindCaseParser {
      * 验证用例的合规性
      */
     public boolean validate(FunctionalCaseExcelData data) {
-        //模块校验
+        //用例名称校验
         boolean validate;
+        validate = validateName(data);
+        if (!validate) {
+            return false;
+        }
+        //模块校验
         validate = validateModule(data);
         if (!validate) {
             return false;
@@ -168,6 +179,17 @@ public class XMindCaseParser {
         //标签长度校验
         validate = validateTags(data);
         return validate;
+    }
+
+    /**
+     * 校验用例名称
+     */
+    private boolean validateName(FunctionalCaseExcelData data) {
+        if (StringUtils.isBlank(data.getName())) {
+            process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), StringUtils.defaultString(data.getName()));
+            return false;
+        }
+        return true;
     }
 
 
@@ -313,6 +335,15 @@ public class XMindCaseParser {
             process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), title);
             return;
         }
+        String priority = parseCasePriority(tcArrs[0]);
+        if (StringUtils.isBlank(priority)) {
+            process.add(Translator.get("custom_field.functional_priority"), Translator.get("priority_is_null"));
+            return;
+        }
+        if (!CASE_PRIORITIES.contains(priority)) {
+            process.add(Translator.get("custom_field.functional_priority"), Translator.get("test_case_priority_validate"));
+            return;
+        }
         // 用例名称
         String name = title.replace(tcArrs[0] + "：", StringUtils.EMPTY).replace(tcArrs[0] + ":", StringUtils.EMPTY);
         if (name.length() >= 255) {
@@ -320,6 +351,7 @@ public class XMindCaseParser {
             return;
         }
         testCase.setName(name);
+        testCase.getCustomData().put(Translator.get("custom_field.functional_priority"), priority);
         nodePath = nodePath.trim();
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -387,6 +419,16 @@ public class XMindCaseParser {
         if (validate) {
             handleId(testCase);
         }
+    }
+
+    private String parseCasePriority(String casePrefix) {
+        String prefix = StringUtils.defaultString(casePrefix).trim();
+        if (!StringUtils.startsWithIgnoreCase(prefix, "case")) {
+            return StringUtils.EMPTY;
+        }
+        String priority = prefix.substring("case".length()).trim();
+        priority = StringUtils.removeStart(priority, "-").trim();
+        return priority.toUpperCase(Locale.ROOT);
     }
 
     /**
