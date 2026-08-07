@@ -612,6 +612,7 @@
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
         total: propsRes.value.msPagination?.total,
+        filter: propsRes.value.filter,
       };
     } else {
       params = { projectId: appStore.currentProjectId, pageSize: 10, current: 1 };
