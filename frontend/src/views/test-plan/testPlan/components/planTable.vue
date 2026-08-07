@@ -559,6 +559,7 @@
     {
       title: 'testPlan.testPlanIndex.planStartToEndTime',
       slotName: 'planStartToEndTime',
+      dataIndex: 'plannedStartTime',
       showInTable: false,
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -571,6 +572,7 @@
     {
       title: 'testPlan.testPlanIndex.actualStartToEndTime',
       slotName: 'actualStartToEndTime',
+      dataIndex: 'actualStartTime',
       showInTable: false,
       sortable: {
         sortDirections: ['ascend', 'descend'],
