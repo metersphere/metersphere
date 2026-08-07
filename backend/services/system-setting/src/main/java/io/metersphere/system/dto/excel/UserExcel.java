@@ -21,8 +21,7 @@ public class UserExcel {
     private String email;
 
     @ExcelProperty(index = 2)
-    @Size(min = 1, max = 11, message = "{user.phone.error}")
-    @Pattern(regexp = "^[0-9]*[1-9][0-9]*$", message = "{user.phone.error}")
+    @Pattern(regexp = "^\\d{11}$", message = "{user.phone.error}")
     private String phone;
 
     @ExcelProperty("workspace")
