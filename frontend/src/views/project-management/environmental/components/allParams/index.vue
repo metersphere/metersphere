@@ -147,11 +147,26 @@
    * 批量参数代码转换为参数表格数据
    */
   function handleBatchParamApply(resultArr: any[]) {
+    const currentParamMap = new Map(innerParams.value.filter(Boolean).map((item) => [item.key, item]));
+    const mergedResult = resultArr.filter(Boolean).map((item) => {
+      const currentItem = currentParamMap.get(item.key);
+      if (!currentItem) {
+        return item;
+      }
+      return {
+        ...item,
+        id: currentItem.id ?? item.id,
+        paramType: currentItem.paramType ?? item.paramType,
+        enable: currentItem.enable ?? item.enable,
+        description: item.description || currentItem.description || '',
+        tags: item.tags?.length ? item.tags : currentItem.tags || [],
+      };
+    });
     const filterResult = filterKeyValParams(innerParams.value, defaultParamItem);
     if (filterResult.lastDataIsDefault) {
-      innerParams.value = [...resultArr, innerParams.value[innerParams.value.length - 1]].filter(Boolean);
+      innerParams.value = [...mergedResult, innerParams.value[innerParams.value.length - 1]].filter(Boolean);
     } else {
-      innerParams.value = resultArr.filter(Boolean);
+      innerParams.value = mergedResult;
     }
     emit('change');
   }
