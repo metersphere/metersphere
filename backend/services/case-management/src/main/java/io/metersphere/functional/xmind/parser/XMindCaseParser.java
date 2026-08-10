@@ -63,6 +63,7 @@ public class XMindCaseParser {
     protected static final int TAG_LENGTH = 64;
     protected static final int STEP_LENGTH = 1000;
     private static final Set<String> CASE_PRIORITIES = Set.of("P0", "P1", "P2", "P3");
+    private static final String FUNCTIONAL_PRIORITY_KEY = "functional_priority";
     private AtomicLong lastPos;
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
     /**
@@ -278,7 +279,26 @@ public class XMindCaseParser {
     private boolean validateCustomField(FunctionalCaseExcelData data) {
         boolean validate = true;
         Map<String, Object> customData = data.getCustomData();
+        TemplateCustomFieldDTO priorityField = getFunctionalPriorityField();
+        Set<String> skipFields = new HashSet<>();
+        if (priorityField != null) {
+            String priorityFieldName = priorityField.getFieldName();
+            String translatedPriorityFieldName = Translator.get("custom_field.functional_priority");
+            Object priorityValue = customData.get(priorityFieldName);
+            if (priorityValue == null && !StringUtils.equals(priorityFieldName, translatedPriorityFieldName)) {
+                priorityValue = customData.get(translatedPriorityFieldName);
+            }
+            if (StringUtils.isBlank(Objects.toString(priorityValue, StringUtils.EMPTY))) {
+                validate = false;
+                skipFields.add(priorityFieldName);
+                skipFields.add(translatedPriorityFieldName);
+                process.add(data.getName(), Translator.get("priority_is_null"));
+            }
+        }
         for (String fieldName : customData.keySet()) {
+            if (skipFields.contains(fieldName)) {
+                continue;
+            }
             Object value = customData.get(fieldName);
             TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(fieldName);
             if (templateCustomFieldDTO == null) {
@@ -297,6 +317,14 @@ public class XMindCaseParser {
             }
         }
         return validate;
+    }
+
+    private TemplateCustomFieldDTO getFunctionalPriorityField() {
+        return customFieldsMap.values().stream()
+                .filter(field -> StringUtils.equalsIgnoreCase(field.getInternalFieldKey(), FUNCTIONAL_PRIORITY_KEY)
+                        || StringUtils.equalsIgnoreCase(field.getFieldName(), Translator.get("custom_field.functional_priority")))
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -335,23 +363,25 @@ public class XMindCaseParser {
             process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), title);
             return;
         }
-        String priority = parseCasePriority(tcArrs[0]);
-        if (StringUtils.isBlank(priority)) {
-            process.add(Translator.get("custom_field.functional_priority"), Translator.get("priority_is_null"));
-            return;
-        }
-        if (!CASE_PRIORITIES.contains(priority)) {
-            process.add(Translator.get("custom_field.functional_priority"), Translator.get("test_case_priority_validate"));
-            return;
-        }
         // 用例名称
-        String name = title.replace(tcArrs[0] + "：", StringUtils.EMPTY).replace(tcArrs[0] + ":", StringUtils.EMPTY);
+        String name = StringUtils.defaultString(tcArrs[1]).trim();
+        if (StringUtils.isBlank(name)) {
+            process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), title);
+            return;
+        }
         if (name.length() >= 255) {
             process.add(Translator.get("test_case_name") + Translator.get("length.too.large"), title);
             return;
         }
         testCase.setName(name);
-        testCase.getCustomData().put(Translator.get("custom_field.functional_priority"), priority);
+        String priority = parseCasePriority(tcArrs[0]);
+        if (StringUtils.isNotBlank(priority)) {
+            if (!CASE_PRIORITIES.contains(priority)) {
+                process.add(Translator.get("custom_field.functional_priority"), Translator.get("test_case_priority_validate"));
+                return;
+            }
+            testCase.getCustomData().put(Translator.get("custom_field.functional_priority"), priority);
+        }
         nodePath = nodePath.trim();
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
