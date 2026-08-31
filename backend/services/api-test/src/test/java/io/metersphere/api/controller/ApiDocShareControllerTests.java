@@ -40,7 +40,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String MODULE_COUNT = BASE_PATH + "module/count";
 	private final static String EXPORT = BASE_PATH + "export/Swagger";
 	private final static String DOWNLOAD = BASE_PATH + "download/file/";
-	private final static String GET_DETAIL = BASE_PATH + "get-detail/";
+	private final static String GET_DETAIL = BASE_PATH + "get-detail";
 	private final static String GET_PLUGIN_SCRIPT = BASE_PATH + "plugin/script/";
 
 	@Order(1)
@@ -69,12 +69,13 @@ public class ApiDocShareControllerTests extends BaseTest {
 		moduleRequest.setShareId(docShare.getId());
 		moduleRequest.setProjectId(DEFAULT_PROJECT_ID);
 		moduleRequest.setOrgId(DEFAULT_ORGANIZATION_ID);
+		moduleRequest.setPassword("123456");
 		this.requestPostWithOk(MODULE_TREE, moduleRequest);
 		request.setId(docShare.getId());
 		request.setName("share-2");
 		request.setPassword(StringUtils.EMPTY);
 		request.setApiRange("MODULE");
-		request.setRangeMatchVal("module-1");
+		request.setRangeMatchVal("root");
 		request.setInvalidTime(System.currentTimeMillis());
 		request.setInvalidUnit("HOUR");
 		this.requestPostWithOk(UPDATE, request);
@@ -89,10 +90,16 @@ public class ApiDocShareControllerTests extends BaseTest {
 		exportRequest.setSelectIds(List.of("export-id"));
 		this.requestPost(EXPORT, exportRequest);
 		this.download(DEFAULT_PROJECT_ID, "export-id");
+		ApiDocShareDetailRequest detailRequest = new ApiDocShareDetailRequest();
+		detailRequest.setId("nonexistent-api-id");
+		detailRequest.setShareId(docShare.getId());
+		detailRequest.setPassword("123456");
+		this.requestPost(GET_DETAIL, detailRequest).andExpect(status().is5xxServerError());
+		detailRequest.setId("doc-share-id");
+		this.requestPostWithOk(GET_DETAIL, detailRequest);
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
-		this.requestGetWithOk(GET_DETAIL + "doc-share-id");
 		getPluginScript("doc-share-id", DEFAULT_ORGANIZATION_ID);
 	}
 

@@ -9,7 +9,6 @@ import io.metersphere.api.dto.definition.ApiDocShareDetail;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.service.ApiTestService;
 import io.metersphere.api.service.definition.ApiDefinitionExportService;
-import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiDocShareLogService;
 import io.metersphere.api.service.definition.ApiDocShareService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -52,8 +51,6 @@ public class ApiDocShareController {
 	private ApiDefinitionExportService apiDefinitionExportService;
 	@Resource
 	private ApiTestService apiTestService;
-	@Resource
-	private ApiDefinitionService apiDefinitionService;
 
 	@PostMapping(value = "/page")
 	@Operation(summary = "接口测试-定义-分页获取分享列表")
@@ -151,11 +148,10 @@ public class ApiDocShareController {
 		apiDefinitionExportService.downloadFile(projectId, fileId, SessionUtils.getUserId(), httpServletResponse);
 	}
 
-	@GetMapping(value = "/get-detail/{id}")
+	@PostMapping(value = "/get-detail")
 	@Operation(summary = "接口测试-接口管理-获取接口详情")
-	@Parameter(name = "id", description = "接口定义ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-	public ApiDefinitionDTO get(@PathVariable String id) {
-		return apiDefinitionService.get(id, "admin");
+	public ApiDefinitionDTO get(@Validated @RequestBody ApiDocShareDetailRequest request) {
+		return apiDocShareService.getShareApiDefinition(request.getId(), request.getShareId(), request.getPassword());
 	}
 
 	@GetMapping("/plugin/script/{id}/{orgId}")

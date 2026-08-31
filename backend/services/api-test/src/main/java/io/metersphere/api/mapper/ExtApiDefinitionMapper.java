@@ -2,6 +2,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
+import io.metersphere.api.domain.ApiDocShare;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.ApiDefinitionExecuteInfo;
 import io.metersphere.api.dto.ReferenceDTO;
@@ -105,7 +106,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinition> getListBySelectIds(@Param("projectId") String projectId, @Param("ids") List<String> ids, @Param("protocols") List<String> protocols);
 
-    List<String> getIdsByShareParam(@Param("projectId") String projectId, @Param("condition") String condition);
+    List<String> getIdsByShareParam(@Param("docShare") ApiDocShare docShare, @Param("moduleIds") List<String> moduleIds, @Param("tags") List<String> tags);
 
     long countByProjectAndId(@Param("projectId") String projectId, @Param("id") String id);
 

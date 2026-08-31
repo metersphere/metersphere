@@ -35,7 +35,8 @@ import {
   ConvertJsonSchemaToJsonUrl,
   CopyMockUrl,
   DebugCaseUrl,
-  DebugDefinitionUrl, DebugFileCopyUrl,
+  DebugDefinitionUrl,
+  DebugFileCopyUrl,
   DefinitionFileCopyUrl,
   DefinitionMockPageUrl,
   DefinitionPageUrl,
@@ -758,8 +759,8 @@ export function getDocSharePluginScript(id: string | number, orgId: string) {
 }
 
 // 获取接口定义分享详情
-export function getShareDefinitionDetail(id: string | number) {
-  return MSR.get<ApiDefinitionDetail>({ url: GetShareDefinitionDetailUrl, params: id });
+export function getShareDefinitionDetail(id: string | number, shareId: string, password?: string) {
+  return MSR.post<ApiDefinitionDetail>({ url: GetShareDefinitionDetailUrl, data: { id, shareId, password } });
 }
 
 // 用例执行率统计

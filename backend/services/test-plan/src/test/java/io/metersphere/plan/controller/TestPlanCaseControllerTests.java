@@ -234,7 +234,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
         request.setTestPlanId("plan_2");
         request.setCaseId("fc_1");
         request.setLastExecResult("SUCCESS");
-        request.setStepsExecResult("123");
+        request.setStepsExecResult("[]");
         request.setContent("12334");
         request.setNotifier("123");
         this.requestPostWithOk(FUNCTIONAL_CASE_RUN_URL, request);
@@ -304,7 +304,7 @@ public class TestPlanCaseControllerTests extends BaseTest {
     @Test
     @Order(16)
     public void testGetDetail() throws Exception {
-        this.requestGet(FUNCTIONAL_CASE_DETAIL + "relate_case_1").andExpect(status().is5xxServerError());
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL + "relate_case_1");
         MvcResult mvcResult = this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL + "gyq_disassociate_case_4");
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
