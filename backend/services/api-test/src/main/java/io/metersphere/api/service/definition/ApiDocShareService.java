@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -160,7 +161,8 @@ public class ApiDocShareService {
 	 * @return 模块树节点数量
 	 */
 	public List<BaseTreeNode> getShareTree(ApiDocShareModuleRequest request) {
-		ApiDocShare docShare = checkExit(request.getShareId());
+		ApiDocShare docShare = checkSharePermission(request.getShareId(), request.getPassword());
+		request.setProjectId(docShare.getProjectId());
 		return apiDefinitionModuleService.getTree(buildModuleParam(request, docShare), false, true);
 	}
 
@@ -170,7 +172,8 @@ public class ApiDocShareService {
 	 * @return 模块树节点数量
 	 */
 	public Map<String, Long> getShareTreeCount(ApiDocShareModuleRequest request) {
-		ApiDocShare docShare = checkExit(request.getShareId());
+		ApiDocShare docShare = checkSharePermission(request.getShareId(), request.getPassword());
+		request.setProjectId(docShare.getProjectId());
 		return apiDefinitionModuleService.moduleCount(buildModuleParam(request, docShare), false);
 	}
 
@@ -182,13 +185,22 @@ public class ApiDocShareService {
 	 * @return 接口定义导出返回
 	 */
 	public String export(ApiDocShareExportRequest request, String type, String currentUser) {
+		ApiDocShare docShare = checkSharePermission(request.getShareId(), request.getPassword());
+		request.setProjectId(docShare.getProjectId());
 		if (request.isSelectAll()) {
-			ApiDocShare docShare = checkExit(request.getShareId());
 			List<String> shareIds = getShareIdsByParam(docShare);
 			request.setSelectAll(false);
 			request.setSelectIds(shareIds);
 		}
 		return apiDefinitionExportService.exportApiDefinition(request, type, currentUser);
+	}
+
+	public ApiDefinitionDTO getShareApiDefinition(String id, String shareId, String password) {
+		ApiDocShare docShare = checkSharePermission(shareId, password);
+		if (!getShareIdsByParam(docShare).contains(id)) {
+			throw new MSException(Translator.get("api_definition_not_exist"));
+		}
+		return apiDefinitionService.get(id, docShare.getCreateUser());
 	}
 
 	/**
@@ -246,37 +258,15 @@ public class ApiDocShareService {
 	 * @return 分享的定义ID集合
 	 */
 	public List<String> getShareIdsByParam(ApiDocShare docShare) {
-		StringBuilder condition = new StringBuilder();
-		if (!StringUtils.equals(docShare.getApiRange(), RANGE_ALL) && !StringUtils.isBlank(docShare.getRangeMatchVal())) {
-			switch (docShare.getApiRange()) {
-				case "MODULE" -> {
-					String[] moduleIds = StringUtils.split(docShare.getRangeMatchVal(), ",");
-					condition.append("module_id in (");
-					for (String moduleId : moduleIds) {
-						condition.append("\"").append(moduleId).append("\", ");
-					}
-					condition.replace(condition.lastIndexOf(","), condition.length() - 1, ")");
-				}
-				case "PATH" -> {
-					if (StringUtils.equals(docShare.getRangeMatchSymbol(), MsAssertionCondition.EQUALS.name())) {
-						condition.append("path = '").append(docShare.getRangeMatchVal()).append("'");
-					} else {
-						condition.append("path like \"%").append(docShare.getRangeMatchVal()).append("%\"");
-					}
-				}
-				case "TAG" -> {
-					condition.append("(1=2 ");
-					String[] tags = StringUtils.split(docShare.getRangeMatchVal(), ",");
-					for (String tag : tags) {
-						condition.append("OR JSON_CONTAINS(tags, JSON_ARRAY(\"").append(tag).append("\"))");
-					}
-					condition.append(")");
-				}
-				default -> {
-				}
-			}
-		}
-		return extApiDefinitionMapper.getIdsByShareParam(docShare.getProjectId(), condition.toString());
+		List<String> rangeValues = StringUtils.isBlank(docShare.getRangeMatchVal())
+				? Collections.emptyList()
+				: Arrays.stream(StringUtils.split(docShare.getRangeMatchVal(), ","))
+				.map(StringUtils::trim)
+				.filter(StringUtils::isNotBlank)
+				.toList();
+		List<String> moduleIds = StringUtils.equals(docShare.getApiRange(), "MODULE") ? rangeValues : Collections.emptyList();
+		List<String> tags = StringUtils.equals(docShare.getApiRange(), "TAG") ? rangeValues : Collections.emptyList();
+		return extApiDefinitionMapper.getIdsByShareParam(docShare, moduleIds, tags);
 	}
 
 	/**
@@ -326,6 +316,14 @@ public class ApiDocShareService {
 		ApiDocShare docShare = apiDocShareMapper.selectByPrimaryKey(id);
 		if (docShare == null) {
 			throw new MSException(Translator.get("api_doc_share.not_exist"));
+		}
+		return docShare;
+	}
+
+	private ApiDocShare checkSharePermission(String id, String password) {
+		ApiDocShare docShare = checkExit(id);
+		if (StringUtils.isNotBlank(docShare.getPassword()) && !StringUtils.equals(docShare.getPassword(), password)) {
+			throw new MSException(Translator.get("user.password.error"));
 		}
 		return docShare;
 	}
