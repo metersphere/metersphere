@@ -87,6 +87,8 @@
     previousNode?: ModuleTreeNode | null;
     nextNode?: ModuleTreeNode | null;
     selectedProtocols: ProtocolItem[];
+    docShareId: string;
+    docSharePassword?: string;
   }>();
 
   const emit = defineEmits<{
@@ -176,7 +178,7 @@
       try {
         appStore.showLoading();
         loading.value = true;
-        const res = await getShareDefinitionDetail(props.apiInfo.id);
+        const res = await getShareDefinitionDetail(props.apiInfo.id, props.docShareId, props.docSharePassword);
         appStore.hideLoading();
         let parseRequestBodyResult;
         if (res.protocol === 'HTTP') {

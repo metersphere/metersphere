@@ -106,6 +106,7 @@ export interface ApiDefinitionGetModuleParams {
   versionId?: string;
   refId?: string;
   shareId?: string;
+  password?: string;
   orgId?: string; // 组织id
 }
 
@@ -191,6 +192,7 @@ export interface ApiDefinitionBatchExportParams extends ApiDefinitionBatchParams
   exportApiMock: boolean;
   fileId: string;
   sort: Record<string, any>;
+  password?: string;
 }
 // 批量更新定义参数
 export interface ApiDefinitionBatchUpdateParams extends ApiDefinitionBatchParams {

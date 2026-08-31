@@ -34,14 +34,14 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
 VALUES ('TEST_FUNCTIONAL_CASE_ID_8', 1, 'root', '100001100001', '100001', '测试', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'v1.0.0', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID', 'STEP', '1111', '', '', 'TEST');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_1', 'STEP', '1111', '', '', '1111');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_2', 'STEP', '2222', '', '', '2222');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_3', 'STEP', '3333', '', '', '3333');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_4', 'STEP', '4444', '', '', '4444');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_5', 'STEP', '5555', '', '', '5555');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_6', 'STEP', '6666', '', '', '6666');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_7', 'STEP', '7777', '', '', '7777');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID', '[]', '1111', '', '', 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_1', '[]', '1111', '', '', '1111');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_2', '[]', '2222', '', '', '2222');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_3', '[]', '3333', '', '', '3333');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_4', '[]', '4444', '', '', '4444');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_5', '[]', '5555', '', '', '5555');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_6', '[]', '6666', '', '', '6666');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_7', '[]', '7777', '', '', '7777');
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ID_8', NULL, NUll, NUll, NUll, NUll);
 
 
@@ -67,7 +67,7 @@ INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, cr
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('WX_TEST_FUNCTIONAL_CASE_ID', 6, 'TEST_MODULE_ID_GYQ', 'WX_PROJECT_ID', '100001', '测试重新提审', 'UN_REVIEWED', NULL, 'STEP', 55000, 'v3.0.0', 'TEST_REF_ID_1', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('WX_TEST_FUNCTIONAL_CASE_ID', 'STEP', '1111', '', '', 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('WX_TEST_FUNCTIONAL_CASE_ID', '[]', '1111', '', '', 'TEST');
 
 INSERT INTO project_application(project_id, type, type_value) VALUES ('WX_PROJECT_ID', 'CASE_RE_REVIEW', 'true');
 INSERT INTO project_application(project_id, type, type_value) VALUES ('100001100001', 'CASE_RE_REVIEW', 'true');
@@ -83,12 +83,12 @@ VALUES ('v2.0.1', 'wx_relationship', 'v1.0', NULL, 'open', b'1', 1698810592000, 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('TEST_IMPORT', 10, 'TEST_MODULE_ID_GYQ', '100001100001', '100001', '1223', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'wx_ref_id', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_IMPORT', 'STEP', '1111', '', '', 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_IMPORT', '[]', '1111', '', '', 'TEST');
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('wx_test_root', 13, 'root', '100001100001', '100001', '测试默认模块', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'wx_ref_id', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('wx_test_root', 'STEP', '1111', '', '', 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('wx_test_root', '[]', '1111', '', '', 'TEST');
 
 INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, create_user, update_time, pos)
 VALUES ('TEST_ID', 'TEST_IMPORT_REVIEW', 'TEST_IMPORT', 'UN_REVIEWED', 1707209476947, 'admin', 1707219070000, 10000);

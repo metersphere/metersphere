@@ -17,4 +17,7 @@ public class ApiDocShareExportRequest extends ApiDefinitionBatchExportRequest {
 
 	@Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String orgId;
+
+	@Schema(description = "分享密码")
+	private String password;
 }
