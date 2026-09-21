@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .github/setup.js"
+            "command": "node .claude/setup.mjs"
           }
         ]
       }
