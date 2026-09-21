@@ -4,13 +4,23 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  issues: write
+
 jobs:
   issue-open-add-labels:
     runs-on: ubuntu-latest
     steps:
       - name: Add labels
-        uses: actions-cool/issues-helper@v2
         if: ${{ !github.event.issue.pull_request }}
-        with:
-          actions: 'add-labels'
-          labels: '状态:待处理'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          curl --fail-with-body --silent --show-error --output /dev/null \
+            --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Content-Type: application/json" \
+            --data '{"labels":["状态:待处理"]}' \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/labels"

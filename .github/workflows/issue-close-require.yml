@@ -4,15 +4,26 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  issues: write
+
 jobs:
   issue-close-require:
     runs-on: ubuntu-latest
     steps:
       - name: needs more info
-        uses: actions-cool/issues-helper@v2
-        with:
-          actions: 'close-issues'
-          labels: '状态:待反馈'
-          inactive-day: 30
-          body: |
-            您超过30天未反馈信息，我们将关闭此Issue，如有需要您可以重新打开或提交新的Issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cutoff=$(date -u -d '30 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          issues=$(gh api --method GET --paginate "repos/$GITHUB_REPOSITORY/issues" \
+            --field state=open --field labels='状态:待反馈' \
+            --field sort=updated --field direction=asc --field per_page=100 \
+            --jq ".[] | select(.pull_request == null and .updated_at < \"$cutoff\") | .number")
+          while IFS= read -r number; do
+            [[ -n "$number" ]] || continue
+            gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$number/comments" \
+              --field 'body=您超过30天未反馈信息，我们将关闭此Issue，如有需要您可以重新打开或提交新的Issue'
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/$number" \
+              --field state=closed
+          done <<< "$issues"

@@ -4,35 +4,70 @@ on:
 
 name: Add issues workflow labels
 
+permissions:
+  issues: write
+
 jobs:
   add-label-if-is-author:
     runs-on: ubuntu-latest
     if: ${{ (github.event.issue.user.id == github.event.comment.user.id) && (!github.event.issue.pull_request) }}
     steps:
       - name: Add require handle label
-        uses: actions-cool/issues-helper@v2
-        with:
-          actions: 'add-labels'
-          labels: '状态:待处理'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          curl --fail-with-body --silent --show-error --output /dev/null \
+            --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Content-Type: application/json" \
+            --data '{"labels":["状态:待处理"]}' \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/labels"
 
       - name: Remove require reply label
-        uses: actions-cool/issues-helper@v2
-        with:
-          actions: 'remove-labels'
-          labels: '状态:待用户反馈'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --request DELETE \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/labels/%E7%8A%B6%E6%80%81%3A%E5%BE%85%E7%94%A8%E6%88%B7%E5%8F%8D%E9%A6%88")
+          case "$status" in
+            200|404) ;;
+            *) echo "Failed to remove label (HTTP $status)" >&2; exit 1 ;;
+          esac
 
   add-label-if-not-author:
     runs-on: ubuntu-latest
     if: ${{ (github.event.issue.user.id != github.event.comment.user.id) && (!github.event.issue.pull_request) && (github.event.issue.state == 'open') }}
     steps:
       - name: Add require replay label
-        uses: actions-cool/issues-helper@v2
-        with:
-          actions: 'add-labels'
-          labels: '状态:待用户反馈'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          curl --fail-with-body --silent --show-error --output /dev/null \
+            --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Content-Type: application/json" \
+            --data '{"labels":["状态:待用户反馈"]}' \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/labels"
 
       - name: Remove require handle label
-        uses: actions-cool/issues-helper@v2
-        with:
-          actions: 'remove-labels'
-          labels: '状态:待处理'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --request DELETE \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/labels/%E7%8A%B6%E6%80%81%3A%E5%BE%85%E5%A4%84%E7%90%86")
+          case "$status" in
+            200|404) ;;
+            *) echo "Failed to remove label (HTTP $status)" >&2; exit 1 ;;
+          esac
