@@ -7,9 +7,11 @@
           <div class="flex flex-col">
             <div class="p-[16px]">
               <moduleTree
+                v-if="canLoadShareContent"
                 ref="moduleTreeRef"
                 :active-node-id="activeNodeId"
                 :doc-share-id="docShareId"
+                :doc-share-password="sharePassword"
                 @init="handleModuleInit"
                 @folder-node-select="handleNodeSelect"
                 @change-protocol="handleProtocolChange"
@@ -21,8 +23,11 @@
         </template>
         <template #second>
           <ApiSharePreview
+            v-if="canLoadShareContent"
             :selected-protocols="protocols"
             :api-info="currentNode"
+            :doc-share-id="docShareId"
+            :doc-share-password="sharePassword"
             :previous-node="previousNode"
             :next-node="nextNode"
             @toggle-detail="toggleDetail"
@@ -80,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
 
@@ -94,8 +99,6 @@
   import { checkSharePsd, shareDetail } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import { NOT_FOUND_RESOURCE } from '@/router/constants';
-  import { useUserStore } from '@/store';
-  import useDocShareCheckStore from '@/store/modules/api/docShareCheck';
   import useAppStore from '@/store/modules/app';
 
   import { ShareDetailType } from '@/models/apiTest/management';
@@ -105,8 +108,6 @@
   const route = useRoute();
   const { t } = useI18n();
   const router = useRouter();
-  const docCheckStore = useDocShareCheckStore();
-  const userStore = useUserStore();
 
   const activeNodeId = ref<string | number>('all');
   const activeModule = ref<string>('all');
@@ -139,6 +140,8 @@
     docShareId: route.query.docShareId as string,
     password: '',
   });
+  const sharePassword = ref('');
+  const shareDetailLoaded = ref(false);
 
   const validatePassword = (value: string | undefined, callback: (error?: string) => void) => {
     const sixDigitRegex = /^\d{6}$/;
@@ -211,6 +214,7 @@
       moduleIds: [],
       orgId: appStore.currentOrgId,
       shareId: docShareId.value,
+      password: sharePassword.value,
     };
   }
 
@@ -220,11 +224,15 @@
     isPrivate: false,
     projectName: '',
   });
+  const canLoadShareContent = computed(
+    () => shareDetailLoaded.value && (!shareDetailInfo.value.isPrivate || !!sharePassword.value)
+  );
 
   // 获取分享详情
   async function getShareDetail() {
     try {
       shareDetailInfo.value = await shareDetail(docShareId.value);
+      shareDetailLoaded.value = true;
       // 资源无效
       if (shareDetailInfo.value.invalid) {
         router.push({
@@ -235,7 +243,7 @@
         });
       }
       // 限制访问校验
-      if (shareDetailInfo.value.isPrivate && !docCheckStore.isDocVerified(docShareId.value, userStore.id || '')) {
+      if (shareDetailInfo.value.isPrivate && !sharePassword.value) {
         checkPsdModal.value = true;
       }
     } catch (error) {
@@ -263,9 +271,8 @@
           checkLoading.value = true;
           const res = await checkSharePsd(checkForm.value);
           if (res) {
+            sharePassword.value = checkForm.value.password;
             closeShareHandler();
-            // 标记为已验证
-            docCheckStore.markDocAsVerified(docShareId.value, userStore.id || '');
             checkPsdModal.value = false;
           } else {
             Message.error(t('apiTestManagement.apiSharePsdError'));

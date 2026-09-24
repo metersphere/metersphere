@@ -40,7 +40,7 @@ public class ApiDocShareControllerTests extends BaseTest {
 	private final static String MODULE_COUNT = BASE_PATH + "module/count";
 	private final static String EXPORT = BASE_PATH + "export/Swagger";
 	private final static String DOWNLOAD = BASE_PATH + "download/file/";
-	private final static String GET_DETAIL = BASE_PATH + "get-detail/";
+	private final static String GET_DETAIL = BASE_PATH + "get-detail";
 	private final static String GET_PLUGIN_SCRIPT = BASE_PATH + "plugin/script/";
 
 	@Order(1)
@@ -89,10 +89,14 @@ public class ApiDocShareControllerTests extends BaseTest {
 		exportRequest.setSelectIds(List.of("export-id"));
 		this.requestPost(EXPORT, exportRequest);
 		this.download(DEFAULT_PROJECT_ID, "export-id");
+		ApiDocShareDetailRequest detailRequest = new ApiDocShareDetailRequest();
+		detailRequest.setId("doc-share-id");
+		this.requestPost(GET_DETAIL, detailRequest).andExpect(status().is5xxServerError());
+		detailRequest.setShareId(docShare.getId());
+		this.requestPostWithOk(GET_DETAIL, detailRequest);
 		this.requestGetWithOk(DELETE + docShare.getId());
 		// 不存在的ID
 		this.requestGet(DELETE + "not-exist-id").andExpect(status().is5xxServerError());
-		this.requestGetWithOk(GET_DETAIL + "doc-share-id");
 		getPluginScript("doc-share-id", DEFAULT_ORGANIZATION_ID);
 	}
 

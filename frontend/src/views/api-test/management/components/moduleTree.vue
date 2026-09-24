@@ -203,6 +203,7 @@
       isModal?: boolean; // 是否弹窗模式，只读且只可见模块树
       trash?: boolean; // 是否是回收站
       docShareId?: string; // 是否分享文档
+      docSharePassword?: string; // 分享文档密码
     }>(),
     {
       activeModule: 'all',
@@ -435,6 +436,7 @@
       modulesCount.value = await getShareModuleCount({
         ...params,
         shareId: props.docShareId,
+        password: props.docSharePassword,
       });
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -452,6 +454,7 @@
       moduleIds: [],
       orgId: appStore.currentOrgId,
       shareId: props.docShareId,
+      password: props.docSharePassword,
     });
     res = mapTree<ModuleTreeNode>(res, (node) => {
       const mappedNode = {

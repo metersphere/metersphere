@@ -787,10 +787,32 @@
     </select>
 
     <select id="getIdsByShareParam" resultType="java.lang.String">
-        select id from api_definition where project_id = #{projectId} and deleted = 0
-        <if test="condition != null and condition != ''">
-            and ${condition}
-        </if>
+        select id from api_definition where project_id = #{docShare.projectId} and deleted = 0
+        <choose>
+            <when test="docShare.apiRange == 'MODULE' and moduleIds != null and moduleIds.size() > 0">
+                and module_id in
+                <foreach collection="moduleIds" item="moduleId" separator="," open="(" close=")">
+                    #{moduleId}
+                </foreach>
+            </when>
+            <when test="docShare.apiRange == 'PATH' and docShare.rangeMatchVal != null and docShare.rangeMatchVal != ''">
+                <choose>
+                    <when test="docShare.rangeMatchSymbol == 'EQUALS'">
+                        and path = #{docShare.rangeMatchVal}
+                    </when>
+                    <otherwise>
+                        and path like concat('%', #{docShare.rangeMatchVal}, '%')
+                    </otherwise>
+                </choose>
+            </when>
+            <when test="docShare.apiRange == 'TAG' and tags != null and tags.size() > 0">
+                and (1 = 2
+                <foreach collection="tags" item="tag">
+                    or JSON_CONTAINS(tags, JSON_ARRAY(#{tag}))
+                </foreach>
+                )
+            </when>
+        </choose>
     </select>
     <select id="countByProjectAndId" resultType="java.lang.Long">
         SELECT count(id)
