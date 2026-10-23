@@ -10,9 +10,8 @@ import java.util.HashMap;
  */
 public class CustomFieldValidatorFactory {
 
-    private static final HashMap<String, AbstractCustomFieldValidator> validatorMap = new HashMap<>();
-
     public static HashMap<String, AbstractCustomFieldValidator> getValidatorMap(String projectId) {
+        HashMap<String, AbstractCustomFieldValidator> validatorMap = new HashMap<>();
         validatorMap.put(CustomFieldType.SELECT.name(), new CustomFieldSelectValidator());
         validatorMap.put(CustomFieldType.SELECT.name(), new CustomFieldSelectValidator());
         validatorMap.put(CustomFieldType.RADIO.name(), new CustomFieldSelectValidator());
