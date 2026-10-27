@@ -111,32 +111,38 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                 .collect(Collectors.toMap(CustomField::getId, Function.identity()));
 
         // 忽略默认值校验，可能有多选框的选项被删除，造成不合法数据
+        Boolean previousValidationState = BaseTemplateCustomFieldService.validateDefaultValue.get();
         BaseTemplateCustomFieldService.validateDefaultValue.set(false);
-
-        orgTemplates.forEach((template) -> {
-            List<TemplateCustomField> templateCustomFields = templateCustomFieldMap.get(template.getId());
-            templateCustomFields = templateCustomFields == null ? List.of() : templateCustomFields;
-            List<TemplateCustomFieldRequest> templateCustomFieldRequests = templateCustomFields.stream()
-                    .map(templateCustomField -> {
-                        TemplateCustomFieldRequest templateCustomFieldRequest = BeanUtils.copyBean(new TemplateCustomFieldRequest(), templateCustomField);
-                        CustomField customField = customFieldMap.get(templateCustomField.getFieldId());
-                        try {
-                            if (StringUtils.isNotBlank(templateCustomField.getDefaultValue())) {
-                                // 将字符串转成对应的对象，方便调用统一的创建方法
-                                AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
-                                templateCustomFieldRequest.setDefaultValue(customFieldResolver.parse2Value(templateCustomField.getDefaultValue()));
+        try {
+            orgTemplates.forEach((template) -> {
+                List<TemplateCustomField> templateCustomFields = templateCustomFieldMap.get(template.getId());
+                templateCustomFields = templateCustomFields == null ? List.of() : templateCustomFields;
+                List<TemplateCustomFieldRequest> templateCustomFieldRequests = templateCustomFields.stream()
+                        .map(templateCustomField -> {
+                            TemplateCustomFieldRequest templateCustomFieldRequest = BeanUtils.copyBean(new TemplateCustomFieldRequest(), templateCustomField);
+                            CustomField customField = customFieldMap.get(templateCustomField.getFieldId());
+                            try {
+                                if (StringUtils.isNotBlank(templateCustomField.getDefaultValue())) {
+                                    // 将字符串转成对应的对象，方便调用统一的创建方法
+                                    AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
+                                    templateCustomFieldRequest.setDefaultValue(customFieldResolver.parse2Value(templateCustomField.getDefaultValue()));
+                                }
+                            } catch (Exception e) {
+                                LogUtils.error(e);
+                                templateCustomFieldRequest.setDefaultValue(null);
                             }
-                        } catch (Exception e) {
-                            BaseTemplateCustomFieldService.validateDefaultValue.remove();
-                            LogUtils.error(e);
-                            templateCustomFieldRequest.setDefaultValue(null);
-                        }
-                        return templateCustomFieldRequest;
-                    })
-                    .toList();
-            addRefProjectTemplate(projectId, template, templateCustomFieldRequests, null);
-        });
-        BaseTemplateCustomFieldService.validateDefaultValue.remove();
+                            return templateCustomFieldRequest;
+                        })
+                        .toList();
+                addRefProjectTemplate(projectId, template, templateCustomFieldRequests, null);
+            });
+        } finally {
+            if (previousValidationState == null) {
+                BaseTemplateCustomFieldService.validateDefaultValue.remove();
+            } else {
+                BaseTemplateCustomFieldService.validateDefaultValue.set(previousValidationState);
+            }
+        }
     }
 
     /**
