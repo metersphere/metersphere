@@ -1,7 +1,6 @@
 export const updateEnvUrl = '/project/environment/update';
 export const listEnvUrl = '/project/environment/list';
 export const importEnvUrl = '/project/environment/import';
-export const getEntryEnvUrl = '/project/environment/get/entry';
 export const exportEnvUrl = '/project/environment/export';
 export const editPosEnvUrl = '/project/environment/edit/pos';
 export const validateDatabaseEnvUrl = '/project/environment/database/validate';

@@ -28,9 +28,7 @@ export function listEnv(data: { projectId: string; keyword: string }) {
 export function importEnv(data: { request: any; fileList: File[] }) {
   return MSR.uploadFile({ url: envURL.importEnvUrl }, data, '', false);
 }
-export function getEntryEnv(data: EnvListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.getEntryEnvUrl, data });
-}
+
 export function exportEnv(selectIds: string[]) {
   return MSR.post<Blob>(
     { url: envURL.exportEnvUrl, data: { selectIds }, responseType: 'blob' },
