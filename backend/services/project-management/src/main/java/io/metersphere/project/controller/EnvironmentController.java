@@ -2,8 +2,6 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
-import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
-import io.metersphere.project.service.CommandService;
 import io.metersphere.project.service.EnvironmentLogService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -36,8 +34,6 @@ public class EnvironmentController {
 
     @Resource
     private EnvironmentService environmentService;
-    @Resource
-    private CommandService commandService;
 
     @PostMapping("/list")
     @Operation(summary = "项目管理-环境-环境目录-列表")
@@ -118,12 +114,6 @@ public class EnvironmentController {
     @Operation(summary = "项目管理-环境-环境目录-导出")
     public ResponseEntity<byte[]> export(@Validated @RequestBody TableBatchProcessDTO request) {
         return environmentService.exportJson(request, SessionUtils.getCurrentProjectId());
-    }
-
-    @PostMapping(value = "/get/entry")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE}, logical = Logical.OR)
-    public List<KeyStoreEntry> getEntry(@RequestPart("request") String password, @RequestPart(value = "file") MultipartFile sslFiles) {
-        return commandService.getEntry(password, sslFiles);
     }
 
     @PostMapping("/edit/pos")
