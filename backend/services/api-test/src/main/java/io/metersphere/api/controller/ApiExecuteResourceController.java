@@ -1,10 +1,10 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiExecuteResourceService;
+import io.metersphere.api.service.ApiExecuteTaskTokenService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
-import io.metersphere.sdk.file.FileRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -37,15 +37,19 @@ public class ApiExecuteResourceController {
 
     /**
      * 下载执行所需的文件
+     * 文件的存储位置由服务端资源清单确定，只能下载清单中的文件
      *
+     * @param taskToken 任务访问令牌，由服务端在执行时生成
+     * @param fileId    文件ID
      * @return
      */
-    @PostMapping("/file")
+    @GetMapping("/file/{fileId}")
     @Operation(summary = "下载执行所需的文件")
-    public void downloadFile(@RequestParam("taskItemId") String taskItemId,
-                             @RequestBody FileRequest fileRequest,
-                             HttpServletResponse response) throws Exception {
-        apiExecuteService.downloadFile(taskItemId, fileRequest, response);
+    public void downloadFile(
+            @RequestHeader(value = ApiExecuteTaskTokenService.TASK_TOKEN_HEADER, required = false) String taskToken,
+            @PathVariable(value = "fileId") String fileId,
+            HttpServletResponse response) throws Exception {
+        apiExecuteService.downloadFile(taskToken, fileId, response);
     }
 
 }

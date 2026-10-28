@@ -54,7 +54,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -124,6 +123,8 @@ public class ApiExecuteService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
+    @Resource
+    private ApiExecuteTaskTokenService apiExecuteTaskTokenService;
 
     @PostConstruct
     private void init() {
@@ -156,14 +157,18 @@ public class ApiExecuteService {
         // 脚本已经解析，不需要再解析
         taskInfo.setNeedParseScript(false);
 
+        // 生成任务访问令牌，脚本和文件都通过令牌访问
+        String taskToken = apiExecuteTaskTokenService.initTaskToken(taskItem);
+        String scriptRedisKey = apiExecuteTaskTokenService.getScriptKey(taskToken);
         // 将测试脚本缓存到 redis
-        String scriptRedisKey = taskItem.getId();
         stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript, 1, TimeUnit.DAYS);
 
         setTaskItemFileParam(runRequest, taskItem);
 
         if (ApiExecuteRunMode.isFrontendDebug(taskInfo.getRunMode())) {
             taskInfo = setTaskRequestParams(taskInfo);
+            // 前端调试由前端调用本地资源池执行，这里生成文件清单
+            apiExecuteTaskTokenService.initFileManifest(taskInfo, taskItem);
             // 清空mino和kafka配置信息，避免前端获取
             taskInfo.setMinioConfig(null);
             taskInfo.setKafkaConfig(null);
@@ -262,6 +267,9 @@ public class ApiExecuteService {
                 // 预先生成报告ID，避免资源池获取执行脚本时，超时重试，导致数据重复创建
                 taskItem.setReportId(IDGenerator.nextStr());
             }
+
+            // 生成任务访问令牌，匿名接口通过令牌校验任务项
+            apiExecuteTaskTokenService.initTaskToken(taskItem);
 
             // 判断是否为 K8S 资源池
             boolean isK8SResourcePool = StringUtils.equals(testResourcePoolDTO.getType(), ResourcePoolTypeEnum.K8S.getName());
@@ -412,6 +420,8 @@ public class ApiExecuteService {
                     // 预先生成报告ID，避免资源池获取执行脚本时，超时重试，导致数据重复创建
                     taskItem.setReportId(IDGenerator.nextStr());
                 }
+                // 生成任务访问令牌，匿名接口通过令牌校验任务项
+                apiExecuteTaskTokenService.initTaskToken(taskItem);
             });
 
             // 判断是否为 K8S 资源池
@@ -847,12 +857,23 @@ public class ApiExecuteService {
         return (String) configMap.get(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
     }
 
-    public void downloadFile(String taskItemId, FileRequest fileRequest, HttpServletResponse response) throws Exception {
-        if (BooleanUtils.isTrue(stringRedisTemplate.hasKey(taskItemId))) {
-            FileRepository repository = StringUtils.isBlank(fileRequest.getStorage()) ? FileCenter.getDefaultRepository()
-                    : FileCenter.getRepository(fileRequest.getStorage());
-            write2Response(repository.getFileAsStream(fileRequest), response);
+    /**
+     * 下载执行所需的文件
+     * 只能下载服务端资源清单中的文件，文件的存储位置由服务端确定
+     */
+    public void downloadFile(String taskToken, String fileId, HttpServletResponse response) throws Exception {
+        ApiExecuteFileResource fileResource = apiExecuteTaskTokenService.getFileResource(taskToken, fileId);
+        if (fileResource == null || !isAllowedStorage(fileResource.getStorage())) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
+        FileRepository repository = FileCenter.getRepository(fileResource.getStorage());
+        FileRequest fileRequest = new FileRequest(fileResource.getFolder(), fileResource.getStorage(), fileResource.getFileName());
+        write2Response(repository.getFileAsStream(fileRequest), response);
+    }
+
+    private boolean isAllowedStorage(String storage) {
+        return StringUtils.equalsAny(storage, StorageType.MINIO.name(), StorageType.LOCAL.name());
     }
 
     public void write2Response(InputStream in, HttpServletResponse response) {

@@ -52,6 +52,13 @@ public class LocalRepositoryDir {
         return SYSTEM_PLUGIN_DIR;
     }
 
+    /**
+     * 本地存储的根目录
+     */
+    public static String getRootDir() {
+        return ROOT_DIR;
+    }
+
     public static String getSystemTempDir() {
         return SYSTEM_TEMP_DIR;
     }
