@@ -22,6 +22,11 @@ public class TaskItem implements Serializable {
 
     private String reportId;
     /**
+     * 任务访问令牌
+     * 执行节点下载文件、获取脚本等匿名接口调用时使用，由服务端生成
+     */
+    private String taskToken;
+    /**
      * 执行的资源ID
      */
     @NotBlank

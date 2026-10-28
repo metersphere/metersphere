@@ -3,10 +3,13 @@ package io.metersphere.api.service;
 import io.metersphere.api.invoker.ApiExecuteCallbackServiceInvoker;
 import io.metersphere.api.utils.TaskRunningCache;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
+import io.metersphere.sdk.dto.api.task.ApiExecuteTaskResource;
 import io.metersphere.sdk.dto.api.task.GetRunScriptRequest;
 import io.metersphere.sdk.dto.api.task.GetRunScriptResult;
 import io.metersphere.sdk.dto.api.task.TaskItem;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,11 +28,13 @@ public class ApiExecuteResourceService {
     private TaskRunningCache taskRunningCache;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private ApiExecuteTaskTokenService apiExecuteTaskTokenService;
 
 
     public GetRunScriptResult getRunScript(GetRunScriptRequest request) {
         TaskItem taskItem = request.getTaskItem();
-        String taskItemId = taskItem.getId();
+        validateTaskItem(taskItem);
         LogUtils.info("生成并获取执行脚本: {}", taskItem.getId());
 
         if (!ApiExecuteRunMode.isDebug(request.getRunMode())) {
@@ -38,8 +43,9 @@ public class ApiExecuteResourceService {
 
         if (BooleanUtils.isFalse(request.getNeedParseScript())) {
             // 已经生成过脚本，直接获取
-            String script = stringRedisTemplate.opsForValue().get(taskItemId);
-            stringRedisTemplate.delete(taskItemId);
+            String scriptKey = apiExecuteTaskTokenService.getScriptKey(taskItem.getTaskToken());
+            String script = stringRedisTemplate.opsForValue().get(scriptKey);
+            stringRedisTemplate.delete(scriptKey);
             GetRunScriptResult result = new GetRunScriptResult();
             result.setScript(Optional.ofNullable(script).orElse(StringUtils.EMPTY));
             if (!ApiExecuteRunMode.isDebug(request.getRunMode())) {
@@ -51,6 +57,23 @@ public class ApiExecuteResourceService {
         }
 
         return ApiExecuteCallbackServiceInvoker.getRunScript(request.getResourceType(), request);
+    }
+
+    /**
+     * 校验任务访问令牌
+     * 接口为匿名访问，通过令牌校验任务项是否为服务端下发的任务
+     */
+    private void validateTaskItem(TaskItem taskItem) {
+        if (taskItem == null) {
+            throw new MSException(Translator.get("invalid_parameter"));
+        }
+        ApiExecuteTaskResource taskResource = apiExecuteTaskTokenService.getTaskResource(taskItem.getTaskToken());
+        if (taskResource == null
+                || !StringUtils.equals(taskResource.getTaskItemId(), taskItem.getId())
+                || (StringUtils.isNotBlank(taskResource.getResourceId())
+                && !StringUtils.equals(taskResource.getResourceId(), taskItem.getResourceId()))) {
+            throw new MSException(Translator.get("invalid_parameter"));
+        }
     }
 
     private void updateRunningReportStatus(GetRunScriptRequest request) {
