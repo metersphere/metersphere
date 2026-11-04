@@ -24,6 +24,10 @@ What you need:
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
 ```
 
+## One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/MeterSphere/)
+
 ## Technical advantages
 
 -   Full Life Cycle: Full coverage over all STLC phases. Starting from the Test Plan to the Report Creation phase.
