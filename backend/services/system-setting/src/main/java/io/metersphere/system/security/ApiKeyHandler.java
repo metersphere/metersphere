@@ -8,6 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
 public class ApiKeyHandler {
 
     public static final String API_ACCESS_KEY = "accessKey";
@@ -51,10 +54,10 @@ public class ApiKeyHandler {
             throw new RuntimeException("invalid signature");
         }
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(signatureDecrypt), "|");
-        if (signatureArray.length < 2) {
-           return userKey.getCreateUser(); // TODO 兼容直接输入 AK/SK 并未拼接情况
+        if (signatureArray == null || signatureArray.length < 2) {
+            throw new RuntimeException("invalid signature");
         }
-        if (!StringUtils.equals(accessKey, signatureArray[0])) {
+        if (!MessageDigest.isEqual(accessKey.getBytes(StandardCharsets.UTF_8), signatureArray[0].getBytes(StandardCharsets.UTF_8))) {
             throw new RuntimeException("invalid signature");
         }
         long signatureTime;
